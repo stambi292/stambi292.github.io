@@ -1,5 +1,7 @@
 # Mercedes-Benz: The Profit Squeeze
 
+By **Stephen TamBi** · [Website](https://stambi292.github.io) · [LinkedIn](https://www.linkedin.com/in/stephen-tambi-1b4326317/)
+
 An interactive analysis of Mercedes-Benz Group's results from 2021 to 2025: why profit per car fell by two thirds while prices held up, and what it would take to bring margins back.
 
 **[Open the interactive page](https://stambi292.github.io/mercedes-benz-analysis/)**

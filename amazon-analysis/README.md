@@ -1,5 +1,7 @@
 # Where Amazon Makes Its Money
 
+By **Stephen TamBi** · [Website](https://stambi292.github.io) · [LinkedIn](https://www.linkedin.com/in/stephen-tambi-1b4326317/)
+
 An interactive analysis of Amazon's reported results from 2018 to 2025: which parts of the business bring in the sales, which bring in the profit, and what happens to profit when margins change.
 
 **[Open the interactive page](https://stambi292.github.io/amazon-analysis/)**
