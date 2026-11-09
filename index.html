@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stephen TamBi · Data Analyst</title>
+<meta name="description" content="Data analytics portfolio of Stephen TamBi: interactive business analyses built with SQL, dbt and Python.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@600;700;800&family=Source+Sans+3:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a short intro, then a two-column grid of project cards that each lead with the finding, then skills. */
+:root {
+  --bg: #f6f7f8;
+  --panel: #ffffff;
+  --ink: #101418;
+  --ink-2: #4a535c;
+  --muted: #7d868f;
+  --line: #e1e5e9;
+  --accent: #0f766e;
+  --accent-soft: #e0f2ef;
+  --on-accent: #ffffff;
+  --font-display: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0d1013; --panel: #151a1f; --ink: #edf1f4; --ink-2: #b4bdc6; --muted: #808a94; --line: #262d34;
+          --accent: #2dd4bf; --accent-soft: #10302c; --on-accent: #0d1013; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 var(--font-body); }
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+header { padding-block: 64px 36px; display: grid; gap: 16px; }
+.role { font: 500 13px var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+h1 { font: 800 clamp(40px, 7vw, 64px)/1 var(--font-display); margin: 0; letter-spacing: -.02em; }
+.intro { margin: 0; max-width: 64ch; color: var(--ink-2); font-size: 19px; }
+.links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.links a { font: 600 15px var(--font-body); color: var(--ink); text-decoration: none; border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 8px 14px; }
+.links a.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.links a:hover { border-color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+h2 { font: 700 15px var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 16px; }
+section { padding-block: 24px; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: grid; grid-template-rows: auto 1fr; }
+.card img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; border-bottom: 1px solid var(--line); background: var(--bg); }
+.body { padding: 18px 20px 20px; display: grid; gap: 10px; align-content: start; }
+.card h3 { font: 700 22px/1.2 var(--font-display); margin: 0; }
+.finding { margin: 0; color: var(--ink-2); }
+.finding b { color: var(--ink); font-weight: 600; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tags span { font: 500 12px var(--font-mono); color: var(--accent); background: var(--accent-soft); border-radius: 5px; padding: 3px 8px; }
+.actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 4px; }
+.actions a { font-weight: 600; color: var(--accent); text-decoration: none; }
+.actions a:hover { text-decoration: underline; }
+.skills { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.skill { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+.skill h3 { font: 700 17px var(--font-display); margin: 0 0 6px; }
+.skill p { margin: 0; color: var(--ink-2); font-size: 15.5px; }
+footer { padding-block: 32px 56px; color: var(--muted); font-size: 15px; display: grid; gap: 6px; border-top: 1px solid var(--line); margin-top: 24px; }
+footer a { color: var(--ink-2); }
+@media (max-width: 760px) { .grid, .skills { grid-template-columns: minmax(0, 1fr); } header { padding-block: 40px 24px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="role">Data Analyst · Data Science Student · Germany</div>
+    <h1>Stephen TamBi</h1>
+    <p class="intro">I turn messy data into answers businesses can act on. Each project below starts with a real business question, uses real data, and ends with what the answer is worth in money. All of them are interactive: open one and explore.</p>
+    <div class="links">
+      <a class="primary" href="#projects">See projects</a>
+      <a href="https://www.linkedin.com/in/stephen-tambi-1b4326317/">LinkedIn</a>
+      <a href="https://github.com/stambi292">GitHub</a>
+    </div>
+  </header>
+
+  <section id="projects" aria-labelledby="h-projects">
+    <h2 id="h-projects">Projects</h2>
+    <div class="grid">
+      <article class="card">
+        <img src="olist-analytics/images/preview.png" alt="Olist e-commerce dashboard with filters, KPIs and charts" loading="lazy">
+        <div class="body">
+          <h3>E-commerce analytics pipeline</h3>
+          <p class="finding">100,000 marketplace orders modeled into a tested star schema. <b>Late deliveries cause 32% of all bad reviews, and only 3% of customers buy twice.</b></p>
+          <div class="tags"><span>SQL</span><span>dbt</span><span>DuckDB</span><span>Python</span><span>Power BI</span></div>
+          <div class="actions"><a href="olist-analytics/dashboard/">Open dashboard →</a><a href="https://github.com/stambi292/stambi292.github.io/tree/main/olist-analytics">Code &amp; README</a></div>
+        </div>
+      </article>
+      <article class="card">
+        <img src="amazon-analysis/images/preview.png" alt="Amazon analysis page in navy and orange" loading="lazy">
+        <div class="body">
+          <h3>Where Amazon makes its money</h3>
+          <p class="finding">Eight years of reported results. <b>AWS made 18% of 2025 sales but 57% of operating profit</b>; advertising grew 3.5× since 2020.</p>
+          <div class="tags"><span>Financial analysis</span><span>SEC filings</span><span>JavaScript</span></div>
+          <div class="actions"><a href="amazon-analysis/">Open analysis →</a><a href="https://github.com/stambi292/stambi292.github.io/tree/main/amazon-analysis">Code &amp; README</a></div>
+        </div>
+      </article>
+      <article class="card">
+        <img src="mercedes-benz-analysis/images/preview.png" alt="Mercedes-Benz analysis page in black" loading="lazy">
+        <div class="body">
+          <h3>Mercedes-Benz: the profit squeeze</h3>
+          <p class="finding">Why profit per car fell by two thirds while prices held. <b>€7,960 per car in 2022, €2,650 in 2025</b>, with a calculator for what would restore the margin.</p>
+          <div class="tags"><span>Unit economics</span><span>Scenario modeling</span><span>JavaScript</span></div>
+          <div class="actions"><a href="mercedes-benz-analysis/">Open analysis →</a><a href="https://github.com/stambi292/stambi292.github.io/tree/main/mercedes-benz-analysis">Code &amp; README</a></div>
+        </div>
+      </article>
+      <article class="card">
+        <img src="hellofresh-analysis/images/preview.png" alt="HelloFresh analysis page in green" loading="lazy">
+        <div class="body">
+          <h3>HelloFresh: after the boom</h3>
+          <p class="finding">Orders down 20% since 2022, revenue per order up 32%. <b>One point of margin is worth as much as 16% more orders.</b></p>
+          <div class="tags"><span>KPI analysis</span><span>Segment analysis</span><span>JavaScript</span></div>
+          <div class="actions"><a href="hellofresh-analysis/">Open analysis →</a><a href="https://github.com/stambi292/stambi292.github.io/tree/main/hellofresh-analysis">Code &amp; README</a></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-skills">
+    <h2 id="h-skills">What I work with</h2>
+    <div class="skills">
+      <div class="skill"><h3>Data modeling &amp; SQL</h3><p>Star schemas, CTEs, window functions, dbt models with automated data tests, DuckDB.</p></div>
+      <div class="skill"><h3>Analysis in Python</h3><p>pandas for cleaning and analysis, matplotlib and interactive web charts, scripted pipelines.</p></div>
+      <div class="skill"><h3>Business insight</h3><p>KPIs, cohort retention, unit economics and what-if scenarios that put a value on each recommendation.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Independent analyses based on public data and company filings. Not affiliated with the companies analysed.</span>
+    <span>Side project: <a href="football-analytics/leverkusen/">football analytics</a></span>
+  </footer>
+</div>
+</body>
+</html>

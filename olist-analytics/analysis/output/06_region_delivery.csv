@@ -1,0 +1,7 @@
+region,orders,revenue_brl,avg_delivery_days,late_pct,freight_share_pct,avg_review_score
+São Paulo,41127,5880143.0,8.7,4.5,12.2,4.21
+Southeast (ex-SP),26212,4282567.0,13.8,8.7,14.6,4.03
+South,14000,2279923.0,14.0,5.9,15.0,4.16
+Northeast,9305,1873343.0,19.9,12.7,17.9,3.92
+Center-West,5729,1014516.0,15.0,6.5,15.1,4.09
+North,1834,409725.0,22.5,8.6,18.5,3.98

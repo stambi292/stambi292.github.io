@@ -1,0 +1,14 @@
+{
+ "unit": "EUR millions unless noted",
+ "years": [2021, 2022, 2023, 2024, 2025],
+ "group": {"revenue":[133893,150017,153218,145594,132214], "ebit":[16028,20458,19660,13599,5820],
+           "net_profit":[11050,14809,14531,10409,5331], "fcf_industrial":[7880,8128,11316,9152,5414]},
+ "cars": {"units":[1943930,2040719,2044051,1983403,1801291], "revenue":[96712,111601,112756,107761,96407],
+          "adj_ebit":[12689,16245,14252,8677,4773], "adj_ros":[13.1,14.6,12.6,8.1,5.0],
+          "xev_units":[271847,333490,401943,null,null], "xev_share_reported":[null,null,null,18.5,20.5],
+          "bev_units":[null,null,null,185059,168823]},
+ "vans": {"units":[386239,415344,447790,405610,359136], "revenue":[14735,17217,20288,19320,17148], "adj_ros":[8.3,11.2,15.1,14.6,10.2]},
+ "financial_services": {"new_business":[63631,58031,62014,59486,55917], "contract_volume":[133687,132379,135027,138095,128751], "adj_roe":[22.0,16.8,12.3,8.7,9.7]},
+ "regions_2025": {"note":"Mercedes-Benz Cars unit sales, rounded, preliminary; change vs 2024 as reported",
+   "rows":[["Asia",747000,-16],["of which China",551900,-19],["Europe",634600,-1],["of which Germany",213200,0],["North America",320600,-12],["of which U.S.",284600,-12],["Rest of world",98700,17]]}
+}

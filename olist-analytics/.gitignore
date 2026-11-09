@@ -1,0 +1,14 @@
+target/
+dbt_packages/
+logs/
+olist.duckdb
+olist.duckdb.wal
+__pycache__/
+.venv/
+.user.yml
+
+# raw data is downloaded by scripts/download_data.sh
+data/raw/*.csv
+
+# Power BI CSVs are exported from olist.duckdb (see powerbi/GUIDE.md)
+powerbi/data/*.csv

@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: olist
+    description: Raw Olist Brazilian e-commerce CSVs (2016-2018), read directly from data/raw.
+    meta:
+      external_location: "data/raw/{name}.csv"
+    tables:
+      - name: olist_orders_dataset
+      - name: olist_order_items_dataset
+      - name: olist_order_payments_dataset
+      - name: olist_order_reviews_dataset
+      - name: olist_customers_dataset
+      - name: olist_products_dataset
+      - name: olist_sellers_dataset
+      - name: product_category_name_translation

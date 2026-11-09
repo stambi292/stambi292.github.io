@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Olist Marketplace Analytics</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column of report panels on a quiet ground; KPI strip first, then the four questions, then findings. */
+:root {
+  --bg: #f3f6ff;
+  --panel: #ffffff;
+  --ink: #001647;
+  --ink-2: #4d5c7e;
+  --muted: #8590a8;
+  --line: #dfe5f3;
+  --axis: #c2cbe0;
+  --series: #0a4ee4;
+  --series-soft: #dbe6fd;
+  --late: #d97a00;
+  --good: #0a7f3f;
+  --hero: #0a1f9c;
+  --on-hero: #ffffff;
+  --on-hero-2: #c9d4ff;
+  --amber: #ffaa00;
+  --t4: #ffffff; --t5: #ffffff; --t6: #ffffff;
+  --ramp-0: #eef2fc; --ramp-1: #cfdcfb; --ramp-2: #9fb9f6; --ramp-3: #6b93ef; --ramp-4: #3a6fe9; --ramp-5: #0a4ee4; --ramp-6: #0a1f9c;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #010a21; --panel: #0b1633; --ink: #f3f6ff; --ink-2: #b8c2dc; --muted: #7f8aa8;
+    --line: #1c2a4d; --axis: #2c3c66; --series: #4d82ff; --series-soft: #13285e; --late: #ffaa00; --good: #3ccf7a;
+    --hero: #0a1f9c; --on-hero: #ffffff; --on-hero-2: #c9d4ff; --amber: #ffaa00; --t4: #ffffff; --t5: #001647; --t6: #001647;
+    --ramp-0: #121e3d; --ramp-1: #13285e; --ramp-2: #173a8c; --ramp-3: #1f50bf; --ramp-4: #3a6fe9; --ramp-5: #6b93ef; --ramp-6: #b8cdfa;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #010a21; --panel: #0b1633; --ink: #f3f6ff; --ink-2: #b8c2dc; --muted: #7f8aa8;
+    --line: #1c2a4d; --axis: #2c3c66; --series: #4d82ff; --series-soft: #13285e; --late: #ffaa00; --good: #3ccf7a;
+    --hero: #0a1f9c; --on-hero: #ffffff; --on-hero-2: #c9d4ff; --amber: #ffaa00; --t4: #ffffff; --t5: #001647; --t6: #001647;
+    --ramp-0: #121e3d; --ramp-1: #13285e; --ramp-2: #173a8c; --ramp-3: #1f50bf; --ramp-4: #3a6fe9; --ramp-5: #6b93ef; --ramp-6: #b8cdfa;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.55 var(--font-body);
+}
+.wrap {
+  max-width: 1120px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 56px;
+  display: grid; gap: 20px;
+}
+header { display: grid; gap: 8px; background: var(--hero); color: var(--on-hero); border-radius: var(--r); padding: 26px 24px; }
+header .eyebrow { color: var(--on-hero-2); }
+header .lede { color: var(--on-hero-2); }
+header h1 span { color: var(--amber); }
+.byline { font-size: 12.5px; color: var(--on-hero-2); margin: 4px 0 0; }
+.eyebrow { font: 500 12px/1 var(--font-data); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font: 700 clamp(28px, 4.4vw, 42px)/1.05 var(--font-display); margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+.lede { margin: 0; color: var(--ink-2); max-width: 68ch; }
+h2 { font: 600 19px/1.25 var(--font-display); margin: 0; text-wrap: balance; }
+.sub { margin: 2px 0 0; color: var(--ink-2); font-size: 13.5px; max-width: 70ch; }
+
+.kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.kpi { background: var(--panel); padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+.kpi .label { font-size: 12.5px; color: var(--ink-2); }
+.kpi .value { font: 600 26px/1.1 var(--font-display); }
+.kpi .note { font-size: 12px; color: var(--muted); }
+.kpi .flag { color: var(--late); font-weight: 600; }
+
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 18px 14px; display: grid; gap: 12px; min-width: 0; align-content: start; }
+.panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.panel-head > div { min-width: 0; }
+.chart { position: relative; width: 100%; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font-family: var(--font-body); }
+.tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.vlabel { fill: var(--ink); font-size: 11.5px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.gridline { stroke: var(--line); stroke-width: 1; }
+.baseline { stroke: var(--axis); stroke-width: 1; }
+
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; padding: 2px; background: var(--bg); }
+.seg button { font: 500 12.5px var(--font-body); color: var(--ink-2); background: transparent; border: 0; border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--panel); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+.seg button:focus-visible, button:focus-visible { outline: 2px solid var(--series); outline-offset: 2px; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--panel); font-size: 12.5px; line-height: 1.4; padding: 7px 9px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, calc(-100% - 10px)); z-index: 5; font-variant-numeric: tabular-nums; }
+.tip b { font-weight: 600; }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+th { text-align: left; font: 500 11.5px var(--font-data); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td.num, th.num { text-align: right; }
+tr:last-child td { border-bottom: 0; }
+.bar-cell { display: flex; align-items: center; gap: 8px; min-width: 150px; }
+.bar-track { flex: 1; height: 8px; background: var(--ramp-0); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; background: var(--series); }
+.bar-fill.hot { background: var(--late); }
+
+.heat { display: grid; gap: 2px; font-size: 11px; font-variant-numeric: tabular-nums; min-width: 560px; }
+.heat .h { color: var(--muted); text-align: center; font-family: var(--font-data); font-size: 10.5px; }
+.heat .rl { color: var(--ink-2); padding-right: 6px; white-space: nowrap; font-size: 11.5px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.heat .rl small { color: var(--muted); font-size: 10.5px; }
+.heat .c { height: 24px; border-radius: 3px; display: grid; place-items: center; color: var(--ink-2); cursor: default; }
+.heat .c.s4 { color: var(--t4); } .heat .c.s5 { color: var(--t5); } .heat .c.s6 { color: var(--t6); }
+.heat .c.na { background: transparent; }
+.scale { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted); }
+.scale i { width: 18px; height: 10px; border-radius: 2px; display: inline-block; }
+
+.findings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.finding { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 6px; align-content: start; }
+.finding .big { font: 700 30px/1 var(--font-display); }
+.finding .big.hot { color: var(--late); }
+.finding p { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+.finding h3 { margin: 0; font: 600 15px/1.3 var(--font-body); }
+
+footer { color: var(--muted); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 6px 18px; padding-top: 6px; }
+footer code { font-family: var(--font-data); font-size: 12px; color: var(--ink-2); }
+
+@media (max-width: 900px) {
+  .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid2, .findings { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpi .value { font-size: 22px; }
+}
+.filters { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6; background: var(--bg); padding-block: 10px; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 14px; border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.field { display: grid; gap: 4px; min-width: 0; }
+.field label { font: 500 11px var(--font-data); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.field select { font: 500 14px var(--font-body); color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 7px 30px 7px 10px; max-width: 100%; appearance: none; -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 15px) 52%, calc(100% - 10px) 52%; background-size: 5px 5px; background-repeat: no-repeat; cursor: pointer; }
+.field select:focus-visible { outline: 2px solid var(--series); outline-offset: 1px; }
+.field select.active { border-color: var(--series); box-shadow: 0 0 0 1px var(--series); }
+.reset { font: 500 13px var(--font-body); color: var(--series); background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 7px 10px; cursor: pointer; }
+.reset:disabled { color: var(--muted); cursor: default; }
+.showing { margin-left: auto; font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; align-self: center; }
+.showing b { color: var(--ink); font-weight: 600; }
+.hint { font-size: 12px; color: var(--muted); }
+tr.pick { cursor: pointer; }
+tr.pick:hover td { background: var(--bg); }
+tr.sel td { background: var(--series-soft); }
+tr.dim td { opacity: .45; }
+.empty { padding: 30px 0; text-align: center; color: var(--muted); font-size: 14px; }
+.static-note { font-size: 12px; color: var(--muted); }
+@media (max-width: 640px) { .showing { margin-left: 0; width: 100%; } .field { flex: 1 1 40%; } .field select { width: 100%; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Olist · Brazilian e-commerce · Jan 2017 – Aug 2018</div>
+    <h1>Olist Marketplace <span>Analytics</span></h1>
+    <p class="lede">Sales, delivery and review performance across 97,910 marketplace orders. Use the filters to look at one region, one product category or a shorter period; every number and chart below updates. Revenue is item price plus freight, in Brazilian reais (R$).</p>
+    <p class="byline">Independent analysis by Stephen TamBi of Olist's public dataset. Not affiliated with or endorsed by Olist.</p>
+  </header>
+
+  <div class="filters" role="group" aria-label="Filters">
+    <div class="field"><label for="f-region">Customer region</label><select id="f-region"></select></div>
+    <div class="field"><label for="f-cat">Product category</label><select id="f-cat"></select></div>
+    <div class="field"><label for="f-from">From</label><select id="f-from"></select></div>
+    <div class="field"><label for="f-to">To</label><select id="f-to"></select></div>
+    <button type="button" class="reset" id="f-reset">Reset filters</button>
+    <div class="showing" id="showing" aria-live="polite"></div>
+  </div>
+
+  <section class="kpis" id="kpis" aria-label="Headline numbers"></section>
+
+  <section class="panel" aria-labelledby="t-trend">
+    <div class="panel-head">
+      <div>
+        <h2 id="t-trend">Monthly trend</h2>
+        <p class="sub" id="trend-sub"></p>
+      </div>
+      <div class="seg" role="group" aria-label="Metric">
+        <button type="button" id="m-rev" aria-pressed="true" data-m="revenue">Revenue</button>
+        <button type="button" id="m-ord" aria-pressed="false" data-m="orders">Orders</button>
+        <button type="button" id="m-late" aria-pressed="false" data-m="late">Late %</button>
+        <button type="button" id="m-rev2" aria-pressed="false" data-m="review">Review</button>
+      </div>
+    </div>
+    <div class="chart" id="trend"></div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel" aria-labelledby="t-del">
+      <div>
+        <h2 id="t-del">Late deliveries turn into bad reviews</h2>
+        <p class="sub">Share of 1–2 star reviews by when the order arrived compared with the promised date.</p>
+      </div>
+      <div class="legend"><span><i class="sw" style="background:var(--series)"></i>On time or early</span><span><i class="sw" style="background:var(--late)"></i>Late</span></div>
+      <div class="chart" id="delivery"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="t-cat">
+      <div>
+        <h2 id="t-cat">Top categories by revenue</h2>
+        <p class="sub">Click a bar to filter the whole dashboard to that category.</p>
+      </div>
+      <div class="chart" id="cats"></div>
+    </section>
+  </div>
+
+  <section class="panel" aria-labelledby="t-reg">
+    <div>
+      <h2 id="t-reg">Delivery by customer region</h2>
+      <p class="sub">Most sellers are in São Paulo state, so distant regions wait longer and pay more for shipping. Click a row to filter to that region.</p>
+    </div>
+    <div class="table-wrap"><table id="regions"></table></div>
+  </section>
+
+  <section class="panel" aria-labelledby="t-coh">
+    <div class="panel-head">
+      <div>
+        <h2 id="t-coh">Almost nobody comes back</h2>
+        <p class="sub">Share of each month's new customers who ordered again N months later. Even the best cells stay under 1%.</p>
+        <p class="static-note">All customers. This chart doesn't change with the filters.</p>
+      </div>
+      <div class="scale" aria-hidden="true">0%<i style="background:var(--ramp-0)"></i><i style="background:var(--ramp-1)"></i><i style="background:var(--ramp-2)"></i><i style="background:var(--ramp-3)"></i><i style="background:var(--ramp-4)"></i><i style="background:var(--ramp-5)"></i><i style="background:var(--ramp-6)"></i>0.6%+</div>
+    </div>
+    <div class="table-wrap"><div class="heat" id="cohorts"></div></div>
+  </section>
+
+  <section class="findings" aria-label="Other findings">
+    <div class="finding">
+      <div class="big" id="f-repeat"></div>
+      <h3>of customers ever placed a second order</h3>
+      <p id="f-repeat-note"></p>
+    </div>
+    <div class="finding">
+      <div class="big hot" id="f-late"></div>
+      <h3>lower repeat rate after a late first delivery</h3>
+      <p id="f-late-note"></p>
+    </div>
+    <div class="finding">
+      <div class="big hot" id="f-multi"></div>
+      <h3>bad reviews on orders split across sellers</h3>
+      <p id="f-multi-note"></p>
+    </div>
+  </section>
+
+  <footer>
+    <span>Data: Olist public e-commerce dataset (99,441 orders, 2016–2018)</span>
+    <span>Pipeline: <code>DuckDB</code> + <code>dbt</code> star schema, 49 passing tests</span>
+    <span>Excludes canceled orders and partial months (2016, Sep–Oct 2018)</span>
+  </footer>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+/* ---------- helpers ---------- */
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmtInt = n => Math.round(n).toLocaleString("en-US");
+const fmtBRL = n => n >= 1e6 ? "R$" + (n / 1e6).toFixed(n >= 1e7 ? 1 : 2) + "M" : n >= 1e3 ? "R$" + Math.round(n / 1e3) + "k" : "R$" + Math.round(n);
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const monthLabel = s => { const [y, m] = s.split("-"); return MONTHS[+m - 1] + " " + y; };
+const catLabel = c => c === "all" ? "All categories" : c === "other" ? "Other categories" : c.replace(/_/g, " ").replace(/^./, s => s.toUpperCase());
+const svgNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) { const e = document.createElementNS(svgNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function niceMax(v) { if (v <= 0) return 1; const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * p >= v) return m * p; return 10 * p; }
+function tooltip(container) {
+  const t = document.createElement("div"); t.className = "tip"; t.hidden = true; container.appendChild(t);
+  return { show(html, x, y) { t.innerHTML = html; t.hidden = false; t.style.left = x + "px"; t.style.top = y + "px"; }, hide() { t.hidden = true; } };
+}
+
+/* ---------- data cube ---------- */
+const C = DATA.cube;               // columnar: {columns: [...], rows: [[...]]}
+const col = Object.fromEntries(C.columns.map((c, i) => [c, i]));
+const ROWS = C.rows;
+const ALL_MONTHS = [...new Set(ROWS.map(r => r[col.month]))].sort();
+const REGIONS = ["São Paulo", "Southeast (ex-SP)", "South", "Northeast", "Center-West", "North"];
+const CATS = (() => {
+  const rev = {};
+  ROWS.forEach(r => { const c = r[col.category]; if (c !== "other") rev[c] = (rev[c] || 0) + r[col.revenue]; });
+  return Object.keys(rev).sort((a, b) => rev[b] - rev[a]);
+})();
+
+const state = { region: "all", category: "all", from: ALL_MONTHS[0], to: ALL_MONTHS[ALL_MONTHS.length - 1], metric: "revenue" };
+
+function rowsFor({ region = state.region, category = state.category, from = state.from, to = state.to } = {}) {
+  return ROWS.filter(r =>
+    (region === "all" || r[col.region] === region) &&
+    (category === "all" || r[col.category] === category) &&
+    r[col.month] >= from && r[col.month] <= to);
+}
+function sum(rows) {
+  const s = { orders: 0, revenue: 0, freight: 0, reviews: 0, review_sum: 0, bad_reviews: 0, delivered: 0, delivery_days_sum: 0, late: 0 };
+  rows.forEach(r => { for (const k in s) s[k] += r[col[k]]; });
+  s.aov = s.orders ? s.revenue / s.orders : 0;
+  s.review = s.reviews ? s.review_sum / s.reviews : null;
+  s.latePct = s.delivered ? s.late / s.delivered * 100 : null;
+  s.days = s.delivered ? s.delivery_days_sum / s.delivered : null;
+  s.freightPct = s.revenue ? s.freight / s.revenue * 100 : null;
+  s.badPct = s.reviews ? s.bad_reviews / s.reviews * 100 : null;
+  return s;
+}
+function groupBy(rows, key) {
+  const g = {};
+  rows.forEach(r => { (g[r[col[key]]] ??= []).push(r); });
+  return g;
+}
+
+/* ---------- filters ---------- */
+const fRegion = document.getElementById("f-region"), fCat = document.getElementById("f-cat");
+const fFrom = document.getElementById("f-from"), fTo = document.getElementById("f-to");
+fRegion.innerHTML = `<option value="all">All regions</option>` + REGIONS.map(r => `<option value="${r}">${r}</option>`).join("");
+fCat.innerHTML = `<option value="all">All categories</option>` + CATS.map(c => `<option value="${c}">${catLabel(c)}</option>`).join("") + `<option value="other">Other categories</option>`;
+fFrom.innerHTML = fTo.innerHTML = ALL_MONTHS.map(m => `<option value="${m}">${monthLabel(m)}</option>`).join("");
+
+function syncFilters() {
+  fRegion.value = state.region; fCat.value = state.category; fFrom.value = state.from; fTo.value = state.to;
+  fRegion.classList.toggle("active", state.region !== "all");
+  fCat.classList.toggle("active", state.category !== "all");
+  const fullRange = state.from === ALL_MONTHS[0] && state.to === ALL_MONTHS[ALL_MONTHS.length - 1];
+  fFrom.classList.toggle("active", !fullRange); fTo.classList.toggle("active", !fullRange);
+  document.getElementById("f-reset").disabled = state.region === "all" && state.category === "all" && fullRange;
+}
+function setFilter(patch) {
+  Object.assign(state, patch);
+  if (state.from > state.to) { if ("from" in patch) state.to = state.from; else state.from = state.to; }
+  render();
+}
+fRegion.addEventListener("change", () => setFilter({ region: fRegion.value }));
+fCat.addEventListener("change", () => setFilter({ category: fCat.value }));
+fFrom.addEventListener("change", () => setFilter({ from: fFrom.value }));
+fTo.addEventListener("change", () => setFilter({ to: fTo.value }));
+document.getElementById("f-reset").addEventListener("click", () => setFilter({ region: "all", category: "all", from: ALL_MONTHS[0], to: ALL_MONTHS[ALL_MONTHS.length - 1] }));
+document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".seg button").forEach(o => o.setAttribute("aria-pressed", o === b));
+  state.metric = b.dataset.m; drawTrend(rowsFor());
+}));
+
+/* ---------- KPIs ---------- */
+function drawKpis(s, base) {
+  const delta = (v, b, fmt, invert) => {
+    if (base === null || v === null || b === null) return "";
+    const d = v - b; if (Math.abs(d) < 1e-9) return "same as all orders";
+    const worse = invert ? d > 0 : d < 0;
+    return `<span style="color:var(${worse ? "--late" : "--good"})">${d > 0 ? "+" : "−"}${fmt(Math.abs(d))}</span> vs all orders`;
+  };
+  const items = [
+    ["Revenue", fmtBRL(s.revenue), base ? `${(s.revenue / base.revenue * 100).toFixed(1)}% of total` : "items + freight"],
+    ["Orders", fmtInt(s.orders), base ? `${(s.orders / base.orders * 100).toFixed(1)}% of total` : "valid orders"],
+    ["Avg order value", "R$" + s.aov.toFixed(0), delta(s.aov, base && base.aov, v => "R$" + v.toFixed(0))],
+    ["Avg review", s.review === null ? "–" : s.review.toFixed(2) + " ★", delta(s.review, base && base.review, v => v.toFixed(2))],
+    ["Late deliveries", s.latePct === null ? "–" : s.latePct.toFixed(1) + "%", delta(s.latePct, base && base.latePct, v => v.toFixed(1) + " pts", true)],
+    ["Avg delivery", s.days === null ? "–" : s.days.toFixed(1) + " days", delta(s.days, base && base.days, v => v.toFixed(1) + " days", true)]
+  ];
+  document.getElementById("kpis").innerHTML = items.map(([l, v, n]) =>
+    `<div class="kpi"><div class="label">${l}</div><div class="value">${v}</div><div class="note">${n || "&nbsp;"}</div></div>`).join("");
+}
+
+/* ---------- monthly trend ---------- */
+function drawTrend(rows) {
+  const box = document.getElementById("trend"); box.innerHTML = "";
+  const byM = groupBy(rows, "month");
+  const months = ALL_MONTHS.filter(m => m >= state.from && m <= state.to);
+  const pts = months.map(m => { const s = sum(byM[m] || []); return { m, s, v: { revenue: s.revenue, orders: s.orders, late: s.latePct, review: s.review }[state.metric] }; });
+  const label = { revenue: "Revenue", orders: "Orders", late: "Late deliveries", review: "Average review score" }[state.metric];
+  document.getElementById("trend-sub").textContent = `${label} per month, ${monthLabel(state.from)} – ${monthLabel(state.to)}.`;
+  if (months.length < 2) { box.innerHTML = `<div class="empty">Pick at least two months to see a trend.</div>`; return; }
+  const W = 1080, H = 290, m = { t: 16, r: 16, b: 30, l: 62 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": label + " by month" }, box);
+  const vals = pts.map(p => p.v).filter(v => v !== null);
+  let ymin = 0, ymax = niceMax(Math.max(...vals, 0) * 1.08);
+  if (state.metric === "review") { ymin = 1; ymax = 5; }
+  const ticks = state.metric === "review" ? [1, 2, 3, 4, 5] : [0, .25, .5, .75, 1].map(f => ymax * f);
+  const fmt = { revenue: fmtBRL, orders: v => fmtInt(v), late: v => v.toFixed(0) + "%", review: v => v.toFixed(0) + " ★" }[state.metric];
+  const x = i => m.l + i * (W - m.l - m.r) / (pts.length - 1);
+  const y = v => H - m.b - (v - ymin) / (ymax - ymin) * (H - m.t - m.b);
+  ticks.forEach((v, i) => {
+    el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: i ? "gridline" : "baseline" }, svg);
+    el("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end", class: "tick" }, svg).textContent = fmt(v);
+  });
+  const step = Math.ceil(pts.length / 7);
+  pts.forEach((p, i) => { if (i % step === 0) el("text", { x: x(i), y: H - 8, "text-anchor": "middle", class: "tick" }, svg).textContent = monthLabel(p.m); });
+  const color = state.metric === "late" ? css("--late") : css("--series");
+  const line = pts.map((p, i) => p.v === null ? null : [x(i), y(p.v)]).filter(Boolean);
+  if (state.metric !== "review") el("path", { d: "M" + line.map(p => p.join(",")).join("L") + `L${line[line.length - 1][0]},${y(ymin)}L${line[0][0]},${y(ymin)}Z`, fill: color, "fill-opacity": .08 }, svg);
+  el("path", { d: "M" + line.map(p => p.join(",")).join("L"), fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round" }, svg);
+  const last = line[line.length - 1];
+  el("circle", { cx: last[0], cy: last[1], r: 4.5, fill: color, stroke: css("--panel"), "stroke-width": 2 }, svg);
+  const cross = el("line", { y1: m.t, y2: H - m.b, stroke: css("--axis"), "stroke-width": 1, visibility: "hidden" }, svg);
+  const dot = el("circle", { r: 5, fill: color, stroke: css("--panel"), "stroke-width": 2, visibility: "hidden" }, svg);
+  const tip = tooltip(box);
+  const hit = el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent" }, svg);
+  function move(ev) {
+    const r = svg.getBoundingClientRect();
+    const sx = (ev.clientX - r.left) * W / r.width;
+    const i = Math.max(0, Math.min(pts.length - 1, Math.round((sx - m.l) / ((W - m.l - m.r) / (pts.length - 1)))));
+    const p = pts[i]; if (p.v === null) return;
+    cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible");
+    dot.setAttribute("cx", x(i)); dot.setAttribute("cy", y(p.v)); dot.setAttribute("visibility", "visible");
+    tip.show(`<b>${monthLabel(p.m)}</b><br>${fmtBRL(p.s.revenue)} · ${fmtInt(p.s.orders)} orders<br>${p.s.latePct === null ? "–" : p.s.latePct.toFixed(1) + "% late"} · ${p.s.review === null ? "–" : p.s.review.toFixed(2) + " ★"}`,
+      Math.min(Math.max(x(i) * r.width / W, 110), r.width - 110), y(p.v) * r.height / H);
+  }
+  hit.addEventListener("pointermove", move); hit.addEventListener("pointerdown", move);
+  hit.addEventListener("pointerleave", () => { tip.hide(); cross.setAttribute("visibility", "hidden"); dot.setAttribute("visibility", "hidden"); });
+}
+
+/* ---------- delivery timing vs reviews ---------- */
+function drawDelivery(rows) {
+  const box = document.getElementById("delivery"); box.innerHTML = "";
+  const labels = ["10+ days early", "1-9 days early", "On the day", "1-3 days late", "4-7 days late", "8+ days late"];
+  const byB = groupBy(rows.filter(r => r[col.delivery_bucket] !== null), "delivery_bucket");
+  const W = 520, H = 280, m = { t: 22, r: 8, b: 44, l: 36 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Bad review share by delivery timing" }, box);
+  const bw = (W - m.l - m.r) / 6, y = v => H - m.b - v / 100 * (H - m.t - m.b);
+  [0, 25, 50, 75, 100].forEach(v => {
+    el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: v ? "gridline" : "baseline" }, svg);
+    el("text", { x: m.l - 6, y: y(v) + 4, "text-anchor": "end", class: "tick" }, svg).textContent = v + "%";
+  });
+  const tip = tooltip(box);
+  labels.forEach((label, i) => {
+    const s = sum(byB[i + 1] || []);
+    const cx = m.l + i * bw + bw / 2, w = Math.min(46, bw * .62);
+    const [a, b] = label === "On the day" ? ["On the", "day"] : [label.split(" ")[0] + " days", label.split(" ")[2]];
+    el("text", { x: cx, y: H - 26, "text-anchor": "middle", class: "tick" }, svg).textContent = a;
+    el("text", { x: cx, y: H - 12, "text-anchor": "middle", class: "tick" }, svg).textContent = b;
+    if (s.reviews < 20) {
+      el("text", { x: cx, y: y(0) - 8, "text-anchor": "middle", class: "tick" }, svg).textContent = s.reviews ? "too few" : "none";
+      return;
+    }
+    const top = y(s.badPct);
+    el("path", { d: `M${cx - w / 2},${y(0)}V${top + 4}Q${cx - w / 2},${top} ${cx - w / 2 + 4},${top}H${cx + w / 2 - 4}Q${cx + w / 2},${top} ${cx + w / 2},${top + 4}V${y(0)}Z`, fill: css(i >= 3 ? "--late" : "--series") }, svg);
+    el("text", { x: cx, y: top - 6, "text-anchor": "middle", class: "vlabel" }, svg).textContent = Math.round(s.badPct) + "%";
+    const hit = el("rect", { x: m.l + i * bw, y: m.t, width: bw, height: H - m.t - m.b, fill: "transparent" }, svg);
+    hit.addEventListener("pointerenter", () => { const r = svg.getBoundingClientRect(); tip.show(`<b>${label}</b><br>${s.badPct.toFixed(1)}% 1–2 star · avg ${s.review.toFixed(2)} ★<br>${fmtInt(s.reviews)} reviewed orders`, cx * r.width / W, top * r.height / H); });
+    hit.addEventListener("pointerleave", tip.hide);
+  });
+}
+
+/* ---------- categories ---------- */
+function drawCats() {
+  const box = document.getElementById("cats"); box.innerHTML = "";
+  const rows = rowsFor({ category: "all" });
+  const byC = groupBy(rows, "category");
+  const list = CATS.map(c => ({ c, s: sum(byC[c] || []) })).filter(d => d.s.orders > 0).sort((a, b) => b.s.revenue - a.s.revenue).slice(0, 10);
+  if (!list.length) { box.innerHTML = `<div class="empty">No orders for these filters.</div>`; return; }
+  const W = 520, rowH = 25, m = { t: 4, r: 64, b: 4, l: 160 }, H = m.t + m.b + list.length * rowH;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Top categories by revenue" }, box);
+  const xmax = list[0].s.revenue, x = v => m.l + v / xmax * (W - m.l - m.r);
+  const tip = tooltip(box);
+  list.forEach(({ c, s }, i) => {
+    const yy = m.t + i * rowH, bh = 14, by = yy + (rowH - bh) / 2, xe = Math.max(x(s.revenue), m.l + 5);
+    const on = state.category === "all" || state.category === c;
+    el("text", { x: m.l - 10, y: by + 11, "text-anchor": "end", class: "tick", style: `fill:var(${state.category === c ? "--ink" : "--ink-2"});font-size:12px;font-weight:${state.category === c ? 600 : 400}` }, svg).textContent = catLabel(c);
+    el("path", { d: `M${m.l},${by}H${xe - 4}Q${xe},${by} ${xe},${by + 4}V${by + bh - 4}Q${xe},${by + bh} ${xe - 4},${by + bh}H${m.l}Z`, fill: css("--series"), "fill-opacity": on ? 1 : .3 }, svg);
+    el("text", { x: xe + 6, y: by + 11, class: "vlabel" }, svg).textContent = fmtBRL(s.revenue);
+    const hit = el("rect", { x: 0, y: yy, width: W, height: rowH, fill: "transparent", style: "cursor:pointer", tabindex: 0, role: "button", "aria-label": `Filter to ${catLabel(c)}` }, svg);
+    const pick = () => setFilter({ category: state.category === c ? "all" : c });
+    hit.addEventListener("click", pick);
+    hit.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+    hit.addEventListener("pointerenter", () => { const r = svg.getBoundingClientRect(); tip.show(`<b>${catLabel(c)}</b><br>${fmtBRL(s.revenue)} · ${fmtInt(s.orders)} orders<br>Avg order R$${s.aov.toFixed(0)} · ${s.review === null ? "–" : s.review.toFixed(2) + " ★"}<br><span style="opacity:.7">Click to ${state.category === c ? "clear" : "filter"}</span>`, Math.min(xe * r.width / W, r.width - 110), by * r.height / H); });
+    hit.addEventListener("pointerleave", tip.hide);
+  });
+}
+
+/* ---------- regions ---------- */
+function drawRegions() {
+  const byR = groupBy(rowsFor({ region: "all" }), "region");
+  const data = REGIONS.map(r => ({ r, s: sum(byR[r] || []) })).filter(d => d.s.orders > 0);
+  const maxLate = Math.max(...data.map(d => d.s.latePct || 0), 1);
+  const body = data.map(({ r, s }) => {
+    const cls = state.region === r ? "pick sel" : state.region === "all" ? "pick" : "pick dim";
+    return `<tr class="${cls}" data-region="${r}" tabindex="0">
+      <td>${r}</td><td class="num">${fmtInt(s.orders)}</td><td class="num">${fmtBRL(s.revenue)}</td>
+      <td class="num">${s.days === null ? "–" : s.days.toFixed(1) + " days"}</td>
+      <td><div class="bar-cell"><div class="bar-track"><div class="bar-fill${(s.latePct || 0) > 10 ? " hot" : ""}" style="width:${(s.latePct || 0) / maxLate * 100}%"></div></div><span>${s.latePct === null ? "–" : s.latePct.toFixed(1) + "%"}</span></div></td>
+      <td class="num">${s.freightPct === null ? "–" : s.freightPct.toFixed(1) + "%"}</td>
+      <td class="num">${s.review === null ? "–" : s.review.toFixed(2) + " ★"}</td></tr>`;
+  }).join("");
+  const t = document.getElementById("regions");
+  t.innerHTML = `<thead><tr><th>Customer region</th><th class="num">Orders</th><th class="num">Revenue</th><th class="num">Avg delivery</th><th>Late orders</th><th class="num">Freight share</th><th class="num">Review</th></tr></thead><tbody>${body || `<tr><td colspan="7" class="empty">No orders for these filters.</td></tr>`}</tbody>`;
+  t.querySelectorAll("tr[data-region]").forEach(tr => {
+    const pick = () => setFilter({ region: state.region === tr.dataset.region ? "all" : tr.dataset.region });
+    tr.addEventListener("click", pick);
+    tr.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+  });
+}
+
+/* ---------- static: cohorts + findings ---------- */
+(function cohorts() {
+  const rows = DATA["03_cohort_retention"], byCohort = {};
+  rows.forEach(r => { (byCohort[r.cohort_month] ??= { n: r.cohort_customers, v: {} }).v[r.months_since_first] = r.retention_pct; });
+  const cohorts = Object.keys(byCohort).sort(), last = new Date(2018, 7, 1);
+  const ramp = ["--ramp-0", "--ramp-1", "--ramp-2", "--ramp-3", "--ramp-4", "--ramp-5", "--ramp-6"];
+  const box = document.getElementById("cohorts");
+  box.style.gridTemplateColumns = "minmax(120px, auto) repeat(12, minmax(30px, 1fr))";
+  let html = `<div class="h" style="text-align:left">Cohort · new customers</div>` + Array.from({ length: 12 }, (_, i) => `<div class="h">M${i + 1}</div>`).join("");
+  cohorts.forEach(c => {
+    const [yy, mm] = c.split("-").map(Number);
+    html += `<div class="rl">${monthLabel(c)}<small>${fmtInt(byCohort[c].n)}</small></div>`;
+    for (let k = 1; k <= 12; k++) {
+      if (new Date(yy, mm - 1 + k, 1) > last) { html += `<div class="c na"></div>`; continue; }
+      const v = byCohort[c].v[k] ?? 0, step = Math.min(6, Math.ceil(v / 0.1));
+      html += `<div class="c s${step}" style="background:var(${ramp[step]})" title="${monthLabel(c)} cohort, month ${k}: ${v.toFixed(2)}% ordered again">${v ? v.toFixed(1) : "0"}</div>`;
+    }
+  });
+  box.innerHTML = html;
+})();
+(function findings() {
+  const r = DATA["04_repeat_purchase"][0];
+  document.getElementById("f-repeat").textContent = r.repeat_rate_pct.toFixed(1) + "%";
+  document.getElementById("f-repeat-note").textContent = `${fmtInt(r.repeat_customers)} of ${fmtInt(r.customers)} customers. ${r.same_day_second_order_pct}% of those second orders were placed the same day as the first, so true return visits are even rarer. Repeat buyers bring in ${r.repeat_revenue_share_pct}% of revenue.`;
+  const f = DATA["08_first_order_experience"];
+  const ok = f.find(x => x.first_order.startsWith("On-time")), late = f.find(x => x.first_order.startsWith("Late"));
+  document.getElementById("f-late").textContent = "−" + Math.round((1 - late.repeat_rate_pct / ok.repeat_rate_pct) * 100) + "%";
+  document.getElementById("f-late-note").textContent = `Customers whose first order arrived late came back ${late.repeat_rate_pct}% of the time, against ${ok.repeat_rate_pct}% when it arrived on time (first orders before Mar 2018).`;
+  const ms = DATA["09_multi_seller_orders"];
+  const multi = ms.find(x => x.order_type.startsWith("Multiple")), single = ms.find(x => x.order_type.startsWith("Single"));
+  document.getElementById("f-multi").textContent = Math.round(multi.pct_bad_reviews) + "%";
+  document.getElementById("f-multi-note").textContent = `Orders from more than one seller get 1–2 stars ${multi.pct_bad_reviews}% of the time, against ${single.pct_bad_reviews}% for single-seller orders. They are only ${fmtInt(multi.orders)} orders, but the gap is large.`;
+})();
+
+/* ---------- render ---------- */
+const BASE = sum(ROWS);
+function render() {
+  syncFilters();
+  const rows = rowsFor();
+  const s = sum(rows);
+  const filtered = !(state.region === "all" && state.category === "all" && state.from === ALL_MONTHS[0] && state.to === ALL_MONTHS[ALL_MONTHS.length - 1]);
+  document.getElementById("showing").innerHTML = filtered ? `Showing <b>${fmtInt(s.orders)}</b> of ${fmtInt(BASE.orders)} orders` : `Showing all <b>${fmtInt(BASE.orders)}</b> orders`;
+  drawKpis(s, filtered ? BASE : null);
+  drawTrend(rows);
+  drawDelivery(rows);
+  drawCats();
+  drawRegions();
+}
+render();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>
+</body>
+</html>

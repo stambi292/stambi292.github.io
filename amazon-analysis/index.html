@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Where Amazon Makes Its Money</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: navy masthead band with the headline number, then four question panels in one column on a light ground. */
+:root {
+  --navy: #232f3e;
+  --navy-2: #37475a;
+  --orange: #ff9900;
+  --orange-ink: #c45500;
+  --bg: #f3f4f5;
+  --panel: #ffffff;
+  --ink: #0f1111;
+  --ink-2: #4a5462;
+  --muted: #7c8794;
+  --line: #e2e5e9;
+  --context: #c3cad3;
+  --teal: #146eb4;
+  --red: #cc3333;
+  --on-navy: #ffffff;
+  --on-navy-2: #c7d0da;
+  --font: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --navy: #161e28; --navy-2: #2a3747; --bg: #0e1318; --panel: #18202a; --ink: #eef1f4; --ink-2: #b7c1cc;
+    --muted: #84909c; --line: #2a3441; --context: #3d4a59; --teal: #4a9be0; --red: #ef6b6b; --orange-ink: #ffad33;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --navy: #161e28; --navy-2: #2a3747; --bg: #0e1318; --panel: #18202a; --ink: #eef1f4; --ink-2: #b7c1cc;
+  --muted: #84909c; --line: #2a3441; --context: #3d4a59; --teal: #4a9be0; --red: #ef6b6b; --orange-ink: #ffad33;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--font); }
+.band { background: var(--navy); color: var(--on-navy); }
+.inner { max-width: 960px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.band .inner { padding-block: 34px 30px; display: grid; gap: 20px; }
+.eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--on-navy-2); }
+h1 { margin: 6px 0 0; font-size: clamp(34px, 6vw, 54px); line-height: 1.02; font-weight: 800; letter-spacing: -.01em; text-wrap: balance; }
+h1 span { color: var(--orange); }
+.lede { margin: 12px 0 0; color: var(--on-navy-2); max-width: 62ch; }
+.hero { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--navy-2); border-radius: 10px; overflow: hidden; }
+.hero div { background: var(--navy); padding: 14px 16px; display: grid; gap: 2px; }
+.hero b { font-size: 34px; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.hero b.o { color: var(--orange); }
+.hero span { font-size: 13.5px; color: var(--on-navy-2); }
+.byline { font-size: 13px; color: var(--on-navy-2); }
+main.inner { padding-block: 24px 48px; display: grid; gap: 20px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 14px; min-width: 0; }
+h2 { margin: 0; font-size: 22px; font-weight: 800; line-height: 1.2; text-wrap: balance; }
+.sub { margin: 4px 0 0; color: var(--ink-2); font-size: 15px; max-width: 66ch; }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.seg { display: inline-flex; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 3px; flex-wrap: wrap; }
+.seg button { font: 600 14px var(--font); color: var(--ink-2); background: transparent; border: 0; border-radius: 6px; padding: 7px 12px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--navy); color: var(--on-navy); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+.chart { position: relative; min-width: 0; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font-family: var(--font); }
+.tk { fill: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.gl { stroke: var(--line); stroke-width: 1; }
+.zero { stroke: var(--muted); stroke-width: 1; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13.5px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.callout { margin: 0; font-size: 15px; color: var(--ink-2); max-width: 70ch; }
+.callout strong { color: var(--orange-ink); }
+.tip { position: absolute; pointer-events: none; background: var(--navy); color: var(--on-navy); font-size: 13px; line-height: 1.45; padding: 8px 10px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, calc(-100% - 12px)); z-index: 3; font-variant-numeric: tabular-nums; }
+.calc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.sliders { display: grid; gap: 14px; }
+.sl { display: grid; gap: 4px; }
+.sl label { display: flex; justify-content: space-between; font-size: 14px; color: var(--ink-2); gap: 10px; }
+.sl label b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.sl input { width: 100%; accent-color: var(--orange); }
+.sl small { font-size: 12.5px; color: var(--muted); }
+.result { background: var(--bg); border-radius: 10px; padding: 16px; display: grid; gap: 8px; }
+.result .big { font-size: 38px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.result .delta { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.result .delta.up { color: var(--teal); } .result .delta.down { color: var(--red); }
+.result p { margin: 0; font-size: 14px; color: var(--ink-2); }
+.result table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.result td { padding: 4px 0; border-top: 1px solid var(--line); }
+.result td:last-child { text-align: right; font-weight: 600; }
+.reset { font: 600 13px var(--font); color: var(--teal); background: none; border: 0; padding: 0; cursor: pointer; justify-self: start; }
+footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; max-width: 76ch; }
+footer p { margin: 0; }
+footer a { color: var(--teal); }
+@media (max-width: 720px) { .hero { grid-template-columns: minmax(0, 1fr); } .calc { grid-template-columns: minmax(0, 1fr); } }
+</style>
+
+</head>
+<body>
+<header class="band">
+  <div class="inner">
+    <div>
+      <div class="eyebrow">Amazon.com, Inc. · Annual results 2018–2025</div>
+      <h1>Where Amazon <span>makes its money</span></h1>
+      <p class="lede">Most people think of Amazon as an online shop. The shop brings in most of the sales, but the cloud business brings in most of the profit. Explore eight years of Amazon's reported results.</p>
+    </div>
+    <div class="hero" id="hero"></div>
+    <div class="byline">Independent analysis by Stephen TamBi, based on Amazon's public SEC filings. Not affiliated with or endorsed by Amazon.</div>
+  </div>
+</header>
+
+<main class="inner">
+  <section class="panel" aria-labelledby="t-split">
+    <div>
+      <h2 id="t-split">Share of sales vs share of profit</h2>
+      <p class="sub">Each bar adds up to 100%. Pick a year to see how much of Amazon's sales and operating profit came from each segment.</p>
+    </div>
+    <div class="controls"><div class="seg" role="group" aria-label="Year" id="years"></div></div>
+    <div class="legend" id="seg-legend"></div>
+    <div class="chart" id="split"></div>
+    <p class="callout" id="split-note"></p>
+  </section>
+
+  <section class="panel" aria-labelledby="t-margin">
+    <div>
+      <h2 id="t-margin">Profit per $100 of sales</h2>
+      <p class="sub">Operating margin by segment: how many dollars of operating profit each segment keeps from every $100 it sells. Hover a year for details.</p>
+    </div>
+    <div class="legend" id="margin-legend"></div>
+    <div class="chart" id="margin"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="t-streams">
+    <div>
+      <h2 id="t-streams">The fastest-growing revenue streams</h2>
+      <p class="sub">Net sales by type of business, 2020–2025. Switch between dollar amounts and growth since 2020.</p>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Measure">
+        <button type="button" id="s-abs" aria-pressed="true" data-m="abs">Sales ($bn)</button>
+        <button type="button" id="s-growth" aria-pressed="false" data-m="growth">Growth since 2020</button>
+      </div>
+    </div>
+    <div class="chart" id="streams"></div>
+    <p class="callout" id="streams-note"></p>
+  </section>
+
+  <section class="panel" aria-labelledby="t-eu">
+    <div>
+      <h2 id="t-eu">Amazon in Europe</h2>
+      <p class="sub">Net sales in Amazon's largest markets outside the US. Germany is Amazon's second-biggest country by sales.</p>
+    </div>
+    <div class="legend" id="eu-legend"></div>
+    <div class="chart" id="eu"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="t-calc">
+    <div>
+      <h2 id="t-calc">What if margins change?</h2>
+      <p class="sub">Start from Amazon's 2025 sales and move each segment's operating margin. See how much operating profit changes, and which lever matters most.</p>
+    </div>
+    <div class="calc">
+      <div class="sliders" id="sliders"></div>
+      <div class="result" id="result" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Source: Amazon.com, Inc. Form 10-K annual reports and fourth-quarter results releases (fiscal years 2018–2025), via <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&amp;CIK=0001018724&amp;type=10-K">SEC EDGAR</a>. All figures in US dollars as reported. Revenue streams start in 2020, the first year advertising was reported separately.</p>
+    <p>Operating profit is operating income as reported by segment. The margin calculator keeps 2025 sales fixed; it is a sensitivity estimate, not a forecast.</p>
+  </footer>
+</main>
+
+<script>
+const D = {"unit":"USD millions","segments":{"years":[2018,2019,2020,2021,2022,2023,2024,2025],"sales":{"North America":[141366,170773,236282,279833,315880,352828,387497,426305],"International":[65866,74723,104412,127787,118007,131200,142906,161894],"AWS":[25655,35026,45370,62202,80096,90757,107556,128725]},"opinc":{"North America":[7267,7033,8651,7271,-2847,14877,24967,29619],"International":[-2142,-1693,717,-924,-7746,-2656,3792,4750],"AWS":[7296,9201,13531,18532,22841,24631,39834,45606]}},"streams":{"years":[2020,2021,2022,2023,2024,2025],"Online stores":[197346,222075,220004,231872,247029,269287],"Third-party seller services":[80461,103366,117716,140053,156146,172162],"AWS":[45370,62202,80096,90757,107556,128725],"Advertising":[19773,31160,37739,46906,56214,68635],"Subscriptions":[25207,31768,35218,40209,44374,49619],"Physical stores":[16227,17075,18963,20030,21215,22561],"Other":[1680,2176,4247,4958,5425,5935]},"countries":{"years":[2020,2021,2022,2023,2024,2025],"United States":[263520,314006,356113,395637,438015,489657],"Germany":[29565,37326,33598,37588,40856,45900],"United Kingdom":[26483,31914,30074,33591,37855,43212],"Japan":[20461,23071,24396,26002,27401,30688],"Rest of world":[46035,63505,69802,81967,93832,107467]}};
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const svgNS = "http://www.w3.org/2000/svg";
+function el(t, a, p) { const e = document.createElementNS(svgNS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; }
+function tip(box) { const t = document.createElement("div"); t.className = "tip"; t.hidden = true; box.appendChild(t);
+  return { show(h, x, y) { t.innerHTML = h; t.hidden = false; t.style.left = x + "px"; t.style.top = y + "px"; }, hide() { t.hidden = true; } }; }
+const bn = v => "$" + (Math.abs(v) >= 1e5 ? Math.round(v / 1000) : (v / 1000).toFixed(1)) + "bn";
+const sbn = v => (v < 0 ? "−" : "") + bn(Math.abs(v));
+const pct = (v, d = 0) => v.toFixed(d) + "%";
+const SEGS = ["North America", "International", "AWS"];
+const SEGC = { "North America": "--navy-2", "International": "--teal", "AWS": "--orange" };
+const segColor = s => css(SEGC[s]);
+const S = D.segments, Y = S.years, last = Y.length - 1;
+const tot = (k, i) => SEGS.reduce((a, s) => a + S[k][s][i], 0);
+
+/* hero */
+(function hero() {
+  const i = last, sales = tot("sales", i), op = tot("opinc", i);
+  const awsS = S.sales.AWS[i] / sales * 100, awsP = S.opinc.AWS[i] / op * 100;
+  document.getElementById("hero").innerHTML =
+    `<div><b>${bn(sales)}</b><span>Net sales in ${Y[i]}</span></div>` +
+    `<div><b class="o">${pct(awsS)}</b><span>of sales came from AWS (cloud)</span></div>` +
+    `<div><b class="o">${pct(awsP)}</b><span>of operating profit came from AWS</span></div>`;
+})();
+
+function legend(id, items) { document.getElementById(id).innerHTML = items.map(([n, c]) => `<span><i class="sw" style="background:var(${c})"></i>${n}</span>`).join(""); }
+legend("seg-legend", SEGS.map(s => [s, SEGC[s]]));
+legend("margin-legend", SEGS.map(s => [s, SEGC[s]]));
+
+/* 1. share of sales vs profit */
+let year = last;
+const yb = document.getElementById("years");
+yb.innerHTML = Y.map((y, i) => `<button type="button" id="y${y}" aria-pressed="${i === year}" data-i="${i}">${y}</button>`).join("");
+yb.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { year = +b.dataset.i; yb.querySelectorAll("button").forEach(o => o.setAttribute("aria-pressed", o === b)); drawSplit(); }));
+function drawSplit() {
+  const box = document.getElementById("split"); box.innerHTML = "";
+  const W = 880, H = 170, m = { l: 120, r: 10, t: 6 }, bh = 54;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Share of sales and profit by segment" }, box);
+  const tp = tip(box);
+  const rows = [["Sales", "sales"], ["Operating profit", "opinc"]];
+  rows.forEach(([label, k], r) => {
+    const y0 = m.t + r * (bh + 26);
+    el("text", { x: m.l - 12, y: y0 + bh / 2 + 5, "text-anchor": "end", fill: css("--ink"), "font-size": 14, "font-weight": 700 }, svg).textContent = label;
+    const vals = SEGS.map(s => Math.max(S[k][s][year], 0));
+    const total = vals.reduce((a, b) => a + b, 0);
+    let x = m.l;
+    SEGS.forEach((s, j) => {
+      const w = vals[j] / total * (W - m.l - m.r);
+      if (w <= 0) return;
+      el("rect", { x: x + 1, y: y0, width: Math.max(w - 2, 0), height: bh, rx: 4, fill: segColor(s) }, svg);
+      const share = vals[j] / total * 100;
+      if (w > 60) { const t = el("text", { x: x + w / 2, y: y0 + bh / 2 + 5, "text-anchor": "middle", fill: s === "AWS" ? "#0f1111" : "#ffffff", "font-size": 15, "font-weight": 700 }, svg); t.textContent = pct(share); }
+      const hit = el("rect", { x, y: y0, width: w, height: bh, fill: "transparent" }, svg);
+      const raw = S[k][s][year];
+      hit.addEventListener("pointerenter", () => { const rc = svg.getBoundingClientRect(); tp.show(`<b>${s} · ${Y[year]}</b><br>${label}: ${sbn(raw)} (${pct(share, 1)})`, (x + w / 2) * rc.width / W, y0 * rc.height / H); });
+      hit.addEventListener("pointerleave", tp.hide);
+      x += w;
+    });
+  });
+  const neg = SEGS.filter(s => S.opinc[s][year] < 0);
+  const sales = tot("sales", year), op = tot("opinc", year);
+  const aS = S.sales.AWS[year] / sales * 100, aP = S.opinc.AWS[year] / Math.max(SEGS.reduce((a, s) => a + Math.max(S.opinc[s][year], 0), 0), 1) * 100;
+  document.getElementById("split-note").innerHTML = `In ${Y[year]}, AWS brought in <strong>${pct(aS)} of sales but ${pct(aP)} of the profit</strong> from profitable segments.` +
+    (neg.length ? ` ${neg.join(" and ")} lost money that year (${neg.map(s => sbn(S.opinc[s][year])).join(", ")}), so ${neg.length > 1 ? "they are" : "it is"} left out of the profit bar.` : "");
+}
+
+/* 2. operating margin lines */
+function drawMargin() {
+  const box = document.getElementById("margin"); box.innerHTML = "";
+  const W = 880, H = 300, m = { t: 14, r: 120, b: 30, l: 44 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Operating margin by segment" }, box);
+  const x = i => m.l + i * (W - m.l - m.r) / (Y.length - 1), y = v => H - m.b - (v + 10) / 50 * (H - m.t - m.b);
+  [-10, 0, 10, 20, 30, 40].forEach(v => { el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: v === 0 ? "zero" : "gl" }, svg); el("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end", class: "tk" }, svg).textContent = v + "%"; });
+  Y.forEach((yy, i) => el("text", { x: x(i), y: H - 8, "text-anchor": "middle", class: "tk" }, svg).textContent = yy);
+  const mg = s => S.opinc[s].map((v, i) => v / S.sales[s][i] * 100);
+  const lab = [];
+  SEGS.forEach(s => {
+    const v = mg(s);
+    el("path", { d: "M" + v.map((m_, i) => `${x(i)},${y(m_)}`).join("L"), fill: "none", stroke: segColor(s), "stroke-width": s === "AWS" ? 3 : 2.2, "stroke-linejoin": "round" }, svg);
+    el("circle", { cx: x(last), cy: y(v[last]), r: 4.5, fill: segColor(s), stroke: css("--panel"), "stroke-width": 2 }, svg);
+    lab.push([s, v[last]]);
+  });
+  lab.sort((a, b) => b[1] - a[1]); let prev = -1e9;
+  lab.forEach(([s, v]) => { let yy = y(v); if (yy - prev < 36) yy = prev + 36; prev = yy;
+    el("text", { x: x(last) + 10, y: yy - 2, fill: segColor(s), "font-size": 13, "font-weight": 700 }, svg).textContent = s;
+    el("text", { x: x(last) + 10, y: yy + 14, fill: css("--ink-2"), "font-size": 13 }, svg).textContent = `$${v.toFixed(1)} per $100`; });
+  const cross = el("line", { y1: m.t, y2: H - m.b, stroke: css("--context"), visibility: "hidden" }, svg);
+  const tp = tip(box);
+  const hit = el("rect", { x: m.l - 20, y: m.t, width: W - m.l - m.r + 40, height: H - m.t - m.b, fill: "transparent" }, svg);
+  const move = ev => { const r = svg.getBoundingClientRect(), sx = (ev.clientX - r.left) * W / r.width;
+    const i = Math.max(0, Math.min(last, Math.round((sx - m.l) / (W - m.l - m.r) * (Y.length - 1))));
+    cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible");
+    tp.show(`<b>${Y[i]}</b><br>` + SEGS.map(s => `${s}: ${pct(mg(s)[i], 1)} (${sbn(S.opinc[s][i])})`).join("<br>"), Math.min(Math.max(x(i) * r.width / W, 120), r.width - 120), y(mg("AWS")[i]) * r.height / H); };
+  hit.addEventListener("pointermove", move); hit.addEventListener("pointerdown", move);
+  hit.addEventListener("pointerleave", () => { tp.hide(); cross.setAttribute("visibility", "hidden"); });
+}
+
+/* 3. revenue streams */
+let mode = "abs";
+document.querySelectorAll("#s-abs, #s-growth").forEach(b => b.addEventListener("click", () => { mode = b.dataset.m; document.querySelectorAll("#s-abs, #s-growth").forEach(o => o.setAttribute("aria-pressed", o === b)); drawStreams(); }));
+function drawStreams() {
+  const box = document.getElementById("streams"); box.innerHTML = "";
+  const R = D.streams, yrs = R.years, L = yrs.length - 1;
+  const names = Object.keys(R).filter(k => k !== "years" && k !== "Other");
+  const rows = names.map(n => ({ n, v: R[n][L], g: (R[n][L] / R[n][0] - 1) * 100, first: R[n][0] }))
+    .sort((a, b) => mode === "abs" ? b.v - a.v : b.g - a.g);
+  const W = 880, rowH = 40, m = { t: 4, r: 110, b: 4, l: 210 }, H = m.t + m.b + rows.length * rowH;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Revenue streams" }, box);
+  const max = Math.max(...rows.map(r => mode === "abs" ? r.v : r.g));
+  const x = v => m.l + v / max * (W - m.l - m.r);
+  const tp = tip(box);
+  const fastest = [...rows].sort((a, b) => b.g - a.g)[0].n;
+  rows.forEach((r, i) => {
+    const yy = m.t + i * rowH, bh = 22, by = yy + (rowH - bh) / 2;
+    const hot = r.n === "Advertising" || r.n === "AWS";
+    el("text", { x: m.l - 12, y: by + 16, "text-anchor": "end", fill: css(hot ? "--ink" : "--ink-2"), "font-size": 14, "font-weight": hot ? 700 : 500 }, svg).textContent = r.n;
+    const val = mode === "abs" ? r.v : r.g, xe = Math.max(x(val), m.l + 6);
+    el("path", { d: `M${m.l},${by}H${xe - 4}Q${xe},${by} ${xe},${by + 4}V${by + bh - 4}Q${xe},${by + bh} ${xe - 4},${by + bh}H${m.l}Z`, fill: hot ? css("--orange") : css("--context") }, svg);
+    el("text", { x: xe + 8, y: by + 16, fill: css("--ink"), "font-size": 14, "font-weight": 600 }, svg).textContent = mode === "abs" ? bn(r.v) : "+" + pct(r.g);
+    const hit = el("rect", { x: 0, y: yy, width: W, height: rowH, fill: "transparent" }, svg);
+    hit.addEventListener("pointerenter", () => { const rc = svg.getBoundingClientRect(); tp.show(`<b>${r.n}</b><br>${yrs[0]}: ${bn(r.first)} → ${yrs[L]}: ${bn(r.v)}<br>Growth: +${pct(r.g)} (×${(r.v / r.first).toFixed(1)})`, Math.min(Math.max(xe * rc.width / W, 120), rc.width - 120), by * rc.height / H); });
+    hit.addEventListener("pointerleave", tp.hide);
+  });
+  const ad = D.streams.Advertising;
+  document.getElementById("streams-note").innerHTML = `<strong>Advertising grew ${(ad[L] / ad[0]).toFixed(1)}× since 2020</strong>, from ${bn(ad[0])} to ${bn(ad[L])}, the fastest of any revenue stream. Like AWS, ads are a high-margin business built on top of the shop: sellers pay to appear in Amazon's search results.`;
+}
+
+/* 4. Europe */
+function drawEU() {
+  const C = D.countries, yrs = C.years, L = yrs.length - 1;
+  const names = ["Germany", "United Kingdom", "Japan"];
+  const cols = { "Germany": "--orange", "United Kingdom": "--teal", "Japan": "--context" };
+  legend("eu-legend", names.map(n => [n, cols[n]]));
+  const box = document.getElementById("eu"); box.innerHTML = "";
+  const W = 880, H = 280, m = { t: 14, r: 20, b: 30, l: 50 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Net sales by country" }, box);
+  const max = 50000, gw = (W - m.l - m.r) / yrs.length, bw = gw * .24;
+  const y = v => H - m.b - v / max * (H - m.t - m.b);
+  [0, 10000, 20000, 30000, 40000, 50000].forEach(v => { el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: v ? "gl" : "zero" }, svg); el("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end", class: "tk" }, svg).textContent = "$" + v / 1000 + "bn"; });
+  const tp = tip(box);
+  yrs.forEach((yy, i) => {
+    const gx = m.l + gw * i + gw / 2;
+    el("text", { x: gx, y: H - 8, "text-anchor": "middle", class: "tk" }, svg).textContent = yy;
+    names.forEach((n, j) => {
+      const v = C[n][i], bx = gx + (j - 1) * (bw + 3) - bw / 2, t = y(v);
+      el("path", { d: `M${bx},${y(0)}V${t + 3}Q${bx},${t} ${bx + 3},${t}H${bx + bw - 3}Q${bx + bw},${t} ${bx + bw},${t + 3}V${y(0)}Z`, fill: css(cols[n]) }, svg);
+    });
+    const hit = el("rect", { x: m.l + gw * i, y: m.t, width: gw, height: H - m.t - m.b, fill: "transparent" }, svg);
+    hit.addEventListener("pointerenter", () => { const rc = svg.getBoundingClientRect(); tp.show(`<b>${yy}</b><br>` + names.map(n => `${n}: ${bn(C[n][i])}`).join("<br>"), Math.min(Math.max(gx * rc.width / W, 100), rc.width - 100), y(C.Germany[i]) * rc.height / H); });
+    hit.addEventListener("pointerleave", tp.hide);
+  });
+}
+
+/* 5. margin calculator */
+const base = Object.fromEntries(SEGS.map(s => [s, S.opinc[s][last] / S.sales[s][last] * 100]));
+const cur = { ...base };
+const sl = document.getElementById("sliders");
+sl.innerHTML = SEGS.map((s, i) => `<div class="sl"><label for="m${i}">${s} margin <b id="mv${i}"></b></label>
+  <input type="range" id="m${i}" min="${s === "AWS" ? 15 : -5}" max="${s === "AWS" ? 45 : 15}" step="0.5" value="${base[s].toFixed(1)}">
+  <small>2025 actual: ${pct(base[s], 1)} on ${bn(S.sales[s][last])} of sales</small></div>`).join("") + `<button type="button" class="reset" id="calc-reset">Reset to 2025 actuals</button>`;
+SEGS.forEach((s, i) => document.getElementById("m" + i).addEventListener("input", e => { cur[s] = +e.target.value; drawCalc(); }));
+document.getElementById("calc-reset").addEventListener("click", () => { SEGS.forEach((s, i) => { cur[s] = base[s]; document.getElementById("m" + i).value = base[s].toFixed(1); }); drawCalc(); });
+function drawCalc() {
+  const actual = tot("opinc", last);
+  const per = Object.fromEntries(SEGS.map(s => [s, S.sales[s][last] * cur[s] / 100]));
+  const total = SEGS.reduce((a, s) => a + per[s], 0), d = total - actual;
+  SEGS.forEach((s, i) => document.getElementById("mv" + i).textContent = pct(cur[s], 1));
+  const onePt = SEGS.map(s => [s, S.sales[s][last] / 100]).sort((a, b) => b[1] - a[1])[0];
+  document.getElementById("result").innerHTML = `
+    <p>Operating profit with these margins</p>
+    <div class="big">${bn(total)}</div>
+    <div class="delta ${d >= 0 ? "up" : "down"}">${Math.abs(d) < 50 ? "Same as 2025 actual" : (d > 0 ? "+" : "−") + bn(Math.abs(d)) + " vs 2025 actual (" + (d > 0 ? "+" : "−") + pct(Math.abs(d) / actual * 100, 1) + ")"}</div>
+    <table>${SEGS.map(s => `<tr><td>${s}</td><td>${sbn(per[s])}</td></tr>`).join("")}</table>
+    <p>One percentage point of margin is worth the most in <b>${onePt[0]}</b>: ${bn(onePt[1])} a year, because it has the most sales. AWS keeps the most per dollar, but because North America sells so much more, each extra point of margin there is worth more in total.</p>`;
+}
+
+function drawAll() { drawSplit(); drawMargin(); drawStreams(); drawEU(); drawCalc(); }
+drawAll();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawAll);
+new MutationObserver(drawAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>
+
+</body>
+</html>

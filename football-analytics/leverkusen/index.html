@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Leverkusen's Last Minutes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column like a match report; the toggle drives a 34-match strip and a points race above a match detail card. */
+:root {
+  --bg: #f3f4f5;
+  --panel: #ffffff;
+  --ink: #15171a;
+  --ink-2: #50565d;
+  --muted: #868d94;
+  --line: #e1e4e7;
+  --accent: #d71920;
+  --accent-soft: #fbe3e4;
+  --draw: #a7aeb5;
+  --loss: #15171a;
+  --on-loss: #ffffff;
+  --on-accent: #ffffff;
+  --font-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-body: "Barlow", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1113; --panel: #181b1e; --ink: #eef0f2; --ink-2: #b8bec5; --muted: #848b92; --line: #2a2f34;
+    --accent: #ff4d52; --accent-soft: #3a1a1c; --draw: #626a72; --loss: #eef0f2; --on-loss: #0f1113; --on-accent: #0f1113;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1113; --panel: #181b1e; --ink: #eef0f2; --ink-2: #b8bec5; --muted: #848b92; --line: #2a2f34;
+  --accent: #ff4d52; --accent-soft: #3a1a1c; --draw: #626a72; --loss: #eef0f2; --on-loss: #0f1113; --on-accent: #0f1113;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--font-body); }
+.wrap {
+  max-width: 880px; margin: 0 auto; display: grid; gap: 22px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 48px;
+}
+.eyebrow { font: 600 13px/1 var(--font-body); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+h1 { font: 700 clamp(40px, 8vw, 68px)/0.95 var(--font-display); margin: 10px 0 0; text-transform: uppercase; letter-spacing: .005em; text-wrap: balance; }
+h1 em { font-style: normal; color: var(--accent); }
+.lede { margin: 14px 0 0; color: var(--ink-2); max-width: 62ch; }
+h2 { font: 700 24px/1.1 var(--font-display); text-transform: uppercase; margin: 0; letter-spacing: .01em; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 16px; min-width: 0; }
+
+.controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; }
+.seg { display: inline-flex; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 3px; }
+.seg button { font: 600 14px var(--font-body); color: var(--ink-2); background: transparent; border: 0; border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.score { display: flex; flex-wrap: wrap; gap: 6px 26px; }
+.stat { display: grid; }
+.stat b { font: 700 40px/1 var(--font-display); font-variant-numeric: tabular-nums; transition: color .2s; }
+.stat span { font-size: 13px; color: var(--muted); }
+.stat.bad b { color: var(--accent); }
+
+.strip { display: grid; grid-template-columns: repeat(17, minmax(0, 1fr)); gap: 4px; }
+.cell { position: relative; aspect-ratio: 1; max-width: 100%; border: 0; border-radius: 4px; font: 700 15px/1 var(--font-display); cursor: pointer; display: grid; place-items: center; padding: 0; transition: background-color .25s, color .25s, transform .1s; }
+.cell.W { background: var(--accent); color: var(--on-accent); }
+.cell.D { background: var(--draw); color: var(--ink); }
+.cell.L { background: var(--loss); color: var(--on-loss); }
+.cell.changed::after { content: ""; position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; border-radius: 50%; background: var(--panel); }
+.cell[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
+.cell:hover { transform: translateY(-1px); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-2); display: inline-block; }
+
+.detail { border-top: 1px solid var(--line); padding-top: 16px; display: grid; gap: 12px; }
+.detail-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+.detail-head h3 { margin: 0; font: 700 28px/1 var(--font-display); text-transform: uppercase; }
+.detail-head .meta { font-size: 14px; color: var(--muted); }
+.verdict { font-size: 15px; color: var(--ink-2); margin: 0; max-width: 62ch; }
+.verdict strong { color: var(--accent); font-weight: 600; }
+.timeline { position: relative; height: 64px; margin: 4px 6px 0; }
+.timeline .axis { position: absolute; left: 0; right: 0; top: 31px; height: 2px; background: var(--line); }
+.timeline .cut { position: absolute; top: 14px; bottom: 6px; width: 0; border-left: 2px dashed var(--muted); }
+.timeline .cut span { position: absolute; top: -14px; left: 4px; font-size: 11px; color: var(--muted); white-space: nowrap; }
+.timeline .tick { position: absolute; top: 40px; font-size: 11px; color: var(--muted); transform: translateX(-50%); font-variant-numeric: tabular-nums; }
+.g { position: absolute; top: 22px; width: 20px; height: 20px; border-radius: 50%; transform: translateX(-50%); display: grid; place-items: center; font: 700 11px/1 var(--font-display); }
+.g.for { background: var(--accent); color: var(--on-accent); }
+.g.against { background: var(--panel); color: var(--ink); border: 2px solid var(--ink); }
+.goals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 24px; font-size: 14px; font-variant-numeric: tabular-nums; }
+.goals div { display: flex; gap: 8px; }
+.goals .min { color: var(--muted); width: 42px; flex: none; text-align: right; }
+.goals .late { color: var(--accent); font-weight: 600; }
+.goals .late .min { color: var(--accent); }
+.goals h4 { margin: 0 0 2px; font: 600 12px var(--font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font-family: var(--font-body); }
+.tk { fill: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.gl { stroke: var(--line); stroke-width: 1; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--panel); font-size: 13px; line-height: 1.4; padding: 7px 9px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, calc(-100% - 12px)); font-variant-numeric: tabular-nums; z-index: 3; }
+
+.notes { font-size: 13.5px; color: var(--muted); display: grid; gap: 6px; max-width: 70ch; }
+.notes p { margin: 0; }
+@media (max-width: 560px) {
+  .strip { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+  .goals { grid-template-columns: minmax(0, 1fr); }
+  .stat b { font-size: 34px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Bundesliga 2023/24 · Bayer 04 Leverkusen</div>
+    <h1>Unbeaten, <em>by the last minute</em></h1>
+    <p class="lede">Leverkusen won the league without losing a match. Switch the season to "Stop at 85'" to see what their record would have been if every game had ended five minutes early. Tap any match for the goals.</p>
+  </header>
+
+  <section class="panel" aria-labelledby="t-season">
+    <div class="controls">
+      <h2 id="t-season">The season, match by match</h2>
+      <div class="seg" role="group" aria-label="Match length">
+        <button type="button" id="mode-full" aria-pressed="true" data-mode="full">Full matches</button>
+        <button type="button" id="mode-85" aria-pressed="false" data-mode="85">Stop at 85'</button>
+      </div>
+    </div>
+    <div class="score" aria-live="polite">
+      <div class="stat"><b id="s-w">28</b><span>wins</span></div>
+      <div class="stat"><b id="s-d">6</b><span>draws</span></div>
+      <div class="stat" id="s-l-wrap"><b id="s-l">0</b><span>defeats</span></div>
+      <div class="stat" id="s-p-wrap"><b id="s-p">90</b><span>points</span></div>
+    </div>
+    <div class="strip" id="strip" role="group" aria-label="Matches 1 to 34"></div>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--accent)"></i>Win</span>
+      <span><i class="sw" style="background:var(--draw)"></i>Draw</span>
+      <span><i class="sw" style="background:var(--loss)"></i>Defeat</span>
+      <span><i class="dot"></i>Result changed by a goal after 85'</span>
+    </div>
+    <div class="detail" id="detail"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="t-race">
+    <div>
+      <h2 id="t-race">The points they won late</h2>
+      <p class="verdict">Total points after each match. The gap between the lines is what Leverkusen won after the 85th minute.</p>
+    </div>
+    <div class="chart" id="race"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="t-min">
+    <div>
+      <h2 id="t-min">When they scored</h2>
+      <p class="verdict">All Leverkusen goals by minute. Stoppage time counts with the half it belongs to; "90+" is second-half stoppage time.</p>
+    </div>
+    <div class="chart" id="minutes"></div>
+  </section>
+
+  <footer class="notes">
+    <p>Data: StatsBomb open data, Bundesliga 2023/24 (all 34 Leverkusen matches). Scores match the official results.</p>
+    <p>"Stop at 85'" removes every goal scored from the 86th minute onward, including stoppage time, by either team. xG (expected goals) measures the quality of chances: 1.0 xG is roughly one goal's worth of chances.</p>
+  </footer>
+</div>
+
+<script>
+const GAMES = [{"md":1,"date":"2023-08-19","opp":"RB Leipzig","venue":"H","score":"3-2","xgf":1.52,"xga":1.72,"pts":3,"pts85":3,"goals":[{"m":23,"p":1,"l":"24","who":"Frimpong","lev":true},{"m":34,"p":1,"l":"35","who":"Tah","lev":true},{"m":38,"p":1,"l":"39","who":"Carvajal","lev":false},{"m":63,"p":2,"l":"64","who":"Wirtz","lev":true},{"m":70,"p":2,"l":"71","who":"Openda","lev":false}]},{"md":2,"date":"2023-08-26","opp":"Borussia M\u00f6nchengladbach","venue":"A","score":"3-0","xgf":2.72,"xga":0.8,"pts":3,"pts85":3,"goals":[{"m":17,"p":1,"l":"18","who":"Boniface","lev":true},{"m":50,"p":1,"l":"45+6","who":"Tah","lev":true},{"m":52,"p":2,"l":"53","who":"Boniface","lev":true}]},{"md":3,"date":"2023-09-02","opp":"Darmstadt 98","venue":"H","score":"5-1","xgf":3.3,"xga":0.58,"pts":3,"pts85":3,"goals":[{"m":20,"p":1,"l":"21","who":"Boniface","lev":true},{"m":23,"p":1,"l":"24","who":"Vilhelmsson","lev":false},{"m":48,"p":2,"l":"49","who":"Palacios","lev":true},{"m":60,"p":2,"l":"61","who":"Boniface","lev":true},{"m":66,"p":2,"l":"67","who":"Hofmann","lev":true},{"m":82,"p":2,"l":"83","who":"Hlo\u017eek","lev":true}]},{"md":4,"date":"2023-09-15","opp":"Bayern Munich","venue":"A","score":"2-2","xgf":2.22,"xga":2.21,"pts":1,"pts85":1,"goals":[{"m":6,"p":1,"l":"7","who":"Kane","lev":false},{"m":23,"p":1,"l":"24","who":"Grimaldo","lev":true},{"m":85,"p":2,"l":"86","who":"Goretzka","lev":false},{"m":93,"p":2,"l":"90+4","who":"Palacios","lev":true}]},{"md":5,"date":"2023-09-24","opp":"FC Heidenheim","venue":"H","score":"4-1","xgf":3.71,"xga":0.33,"pts":3,"pts85":3,"goals":[{"m":8,"p":1,"l":"9","who":"Boniface","lev":true},{"m":57,"p":2,"l":"58","who":"Dink\u00e7i","lev":false},{"m":62,"p":2,"l":"63","who":"Hofmann","lev":true},{"m":73,"p":2,"l":"74","who":"Boniface","lev":true},{"m":81,"p":2,"l":"82","who":"Adli","lev":true}]},{"md":6,"date":"2023-09-30","opp":"FSV Mainz 05","venue":"A","score":"3-0","xgf":0.79,"xga":0.44,"pts":3,"pts85":3,"goals":[{"m":17,"p":1,"l":"18","who":"own goal","lev":true},{"m":58,"p":2,"l":"59","who":"Grimaldo","lev":true},{"m":64,"p":2,"l":"65","who":"Hofmann","lev":true}]},{"md":7,"date":"2023-10-08","opp":"FC K\u00f6ln","venue":"H","score":"3-0","xgf":2.94,"xga":1.19,"pts":3,"pts85":3,"goals":[{"m":21,"p":1,"l":"22","who":"Hofmann","lev":true},{"m":31,"p":1,"l":"32","who":"Frimpong","lev":true},{"m":66,"p":2,"l":"67","who":"Boniface","lev":true}]},{"md":8,"date":"2023-10-21","opp":"Wolfsburg","venue":"A","score":"2-1","xgf":1.96,"xga":1.2,"pts":3,"pts85":3,"goals":[{"m":12,"p":1,"l":"13","who":"Frimpong","lev":true},{"m":40,"p":1,"l":"41","who":"Lacroix","lev":false},{"m":61,"p":2,"l":"62","who":"Grimaldo","lev":true}]},{"md":9,"date":"2023-10-29","opp":"Freiburg","venue":"H","score":"2-1","xgf":1.43,"xga":0.77,"pts":3,"pts85":3,"goals":[{"m":35,"p":1,"l":"36","who":"Wirtz","lev":true},{"m":59,"p":2,"l":"60","who":"own goal","lev":true},{"m":69,"p":2,"l":"70","who":"Gulde","lev":false}]},{"md":10,"date":"2023-11-04","opp":"Hoffenheim","venue":"A","score":"3-2","xgf":1.27,"xga":1.48,"pts":3,"pts85":3,"goals":[{"m":8,"p":1,"l":"9","who":"Wirtz","lev":true},{"m":45,"p":1,"l":"45+1","who":"Grimaldo","lev":true},{"m":55,"p":2,"l":"56","who":"Stach","lev":false},{"m":57,"p":2,"l":"58","who":"Weghorst","lev":false},{"m":69,"p":2,"l":"70","who":"Grimaldo","lev":true}]},{"md":11,"date":"2023-11-12","opp":"Union Berlin","venue":"H","score":"4-0","xgf":1.88,"xga":0.04,"pts":3,"pts85":3,"goals":[{"m":22,"p":1,"l":"23","who":"Grimaldo","lev":true},{"m":56,"p":2,"l":"57","who":"Kossonou","lev":true},{"m":72,"p":2,"l":"73","who":"Tah","lev":true},{"m":82,"p":2,"l":"83","who":"Tella","lev":true}]},{"md":12,"date":"2023-11-25","opp":"Werder Bremen","venue":"A","score":"3-0","xgf":1.09,"xga":0.19,"pts":3,"pts85":3,"goals":[{"m":8,"p":1,"l":"9","who":"own goal","lev":true},{"m":42,"p":1,"l":"43","who":"Frimpong","lev":true},{"m":75,"p":2,"l":"76","who":"Grimaldo","lev":true}]},{"md":13,"date":"2023-12-03","opp":"Borussia Dortmund","venue":"H","score":"1-1","xgf":2.14,"xga":0.81,"pts":1,"pts85":1,"goals":[{"m":4,"p":1,"l":"5","who":"Ryerson","lev":false},{"m":78,"p":2,"l":"79","who":"Boniface","lev":true}]},{"md":14,"date":"2023-12-10","opp":"VfB Stuttgart","venue":"A","score":"1-1","xgf":1.53,"xga":2.4,"pts":1,"pts85":1,"goals":[{"m":39,"p":1,"l":"40","who":"F\u00fchrich","lev":false},{"m":46,"p":2,"l":"47","who":"Wirtz","lev":true}]},{"md":15,"date":"2023-12-17","opp":"Eintracht Frankfurt","venue":"H","score":"3-0","xgf":2.75,"xga":0.18,"pts":3,"pts85":3,"goals":[{"m":13,"p":1,"l":"14","who":"Boniface","lev":true},{"m":50,"p":2,"l":"51","who":"Frimpong","lev":true},{"m":56,"p":2,"l":"57","who":"Wirtz","lev":true}]},{"md":16,"date":"2023-12-20","opp":"Bochum","venue":"H","score":"4-0","xgf":3.4,"xga":0.29,"pts":3,"pts85":3,"goals":[{"m":29,"p":1,"l":"30","who":"Schick","lev":true},{"m":31,"p":1,"l":"32","who":"Schick","lev":true},{"m":45,"p":1,"l":"45+1","who":"Schick","lev":true},{"m":68,"p":2,"l":"69","who":"Boniface","lev":true}]},{"md":17,"date":"2024-01-13","opp":"Augsburg","venue":"A","score":"1-0","xgf":1.58,"xga":0.32,"pts":3,"pts85":1,"goals":[{"m":93,"p":2,"l":"90+4","who":"Palacios","lev":true}]},{"md":18,"date":"2024-01-20","opp":"RB Leipzig","venue":"A","score":"3-2","xgf":1.88,"xga":1.09,"pts":3,"pts85":1,"goals":[{"m":6,"p":1,"l":"7","who":"Simons","lev":false},{"m":46,"p":2,"l":"47","who":"Tella","lev":true},{"m":55,"p":2,"l":"56","who":"Openda","lev":false},{"m":62,"p":2,"l":"63","who":"Tah","lev":true},{"m":90,"p":2,"l":"90+1","who":"Hincapi\u00e9","lev":true}]},{"md":19,"date":"2024-01-27","opp":"Borussia M\u00f6nchengladbach","venue":"H","score":"0-0","xgf":2.56,"xga":0.18,"pts":1,"pts85":1,"goals":[]},{"md":20,"date":"2024-02-03","opp":"Darmstadt 98","venue":"A","score":"2-0","xgf":1.95,"xga":0.77,"pts":3,"pts85":3,"goals":[{"m":32,"p":1,"l":"33","who":"Tella","lev":true},{"m":51,"p":2,"l":"52","who":"Tella","lev":true}]},{"md":21,"date":"2024-02-10","opp":"Bayern Munich","venue":"H","score":"3-0","xgf":1.03,"xga":0.62,"pts":3,"pts85":3,"goals":[{"m":17,"p":1,"l":"18","who":"Stani\u0161i\u0107","lev":true},{"m":49,"p":2,"l":"50","who":"Grimaldo","lev":true},{"m":94,"p":2,"l":"90+5","who":"Frimpong","lev":true}]},{"md":22,"date":"2024-02-17","opp":"FC Heidenheim","venue":"A","score":"2-1","xgf":1.82,"xga":0.46,"pts":3,"pts85":3,"goals":[{"m":46,"p":1,"l":"45+2","who":"Frimpong","lev":true},{"m":80,"p":2,"l":"81","who":"Adli","lev":true},{"m":85,"p":2,"l":"86","who":"Kleindienst","lev":false}]},{"md":23,"date":"2024-02-23","opp":"FSV Mainz 05","venue":"H","score":"2-1","xgf":1.11,"xga":1.14,"pts":3,"pts85":3,"goals":[{"m":2,"p":1,"l":"3","who":"Xhaka","lev":true},{"m":6,"p":1,"l":"7","who":"Kohr","lev":false},{"m":67,"p":2,"l":"68","who":"Andrich","lev":true}]},{"md":24,"date":"2024-03-03","opp":"FC K\u00f6ln","venue":"A","score":"2-0","xgf":1.29,"xga":0.69,"pts":3,"pts85":3,"goals":[{"m":36,"p":1,"l":"37","who":"Frimpong","lev":true},{"m":72,"p":2,"l":"73","who":"Grimaldo","lev":true}]},{"md":25,"date":"2024-03-10","opp":"Wolfsburg","venue":"H","score":"2-0","xgf":1.79,"xga":0.23,"pts":3,"pts85":3,"goals":[{"m":36,"p":1,"l":"37","who":"Tella","lev":true},{"m":85,"p":2,"l":"86","who":"Wirtz","lev":true}]},{"md":26,"date":"2024-03-17","opp":"Freiburg","venue":"A","score":"3-2","xgf":2.6,"xga":0.93,"pts":3,"pts85":3,"goals":[{"m":1,"p":1,"l":"2","who":"Wirtz","lev":true},{"m":9,"p":1,"l":"10","who":"Doan","lev":false},{"m":39,"p":1,"l":"40","who":"Hlo\u017eek","lev":true},{"m":52,"p":2,"l":"53","who":"Schick","lev":true},{"m":78,"p":2,"l":"79","who":"Keitel","lev":false}]},{"md":27,"date":"2024-03-30","opp":"Hoffenheim","venue":"H","score":"2-1","xgf":2.77,"xga":0.65,"pts":3,"pts85":0,"goals":[{"m":32,"p":1,"l":"33","who":"Beier","lev":false},{"m":87,"p":2,"l":"88","who":"Andrich","lev":true},{"m":90,"p":2,"l":"90+1","who":"Schick","lev":true}]},{"md":28,"date":"2024-04-06","opp":"Union Berlin","venue":"A","score":"1-0","xgf":2.56,"xga":0.55,"pts":3,"pts85":3,"goals":[{"m":52,"p":1,"l":"45+8","who":"Wirtz","lev":true}]},{"md":29,"date":"2024-04-14","opp":"Werder Bremen","venue":"H","score":"5-0","xgf":3.0,"xga":0.68,"pts":3,"pts85":3,"goals":[{"m":24,"p":1,"l":"25","who":"Boniface","lev":true},{"m":59,"p":2,"l":"60","who":"Xhaka","lev":true},{"m":67,"p":2,"l":"68","who":"Wirtz","lev":true},{"m":82,"p":2,"l":"83","who":"Wirtz","lev":true},{"m":89,"p":2,"l":"90","who":"Wirtz","lev":true}]},{"md":30,"date":"2024-04-21","opp":"Borussia Dortmund","venue":"A","score":"1-1","xgf":1.36,"xga":0.55,"pts":1,"pts85":0,"goals":[{"m":80,"p":2,"l":"81","who":"F\u00fcllkrug","lev":false},{"m":96,"p":2,"l":"90+7","who":"Stani\u0161i\u0107","lev":true}]},{"md":31,"date":"2024-04-27","opp":"VfB Stuttgart","venue":"H","score":"2-2","xgf":1.65,"xga":1.8,"pts":1,"pts85":0,"goals":[{"m":46,"p":2,"l":"47","who":"F\u00fchrich","lev":false},{"m":56,"p":2,"l":"57","who":"Undav","lev":false},{"m":60,"p":2,"l":"61","who":"Adli","lev":true},{"m":95,"p":2,"l":"90+6","who":"Andrich","lev":true}]},{"md":32,"date":"2024-05-05","opp":"Eintracht Frankfurt","venue":"A","score":"5-1","xgf":2.59,"xga":1.44,"pts":3,"pts85":3,"goals":[{"m":11,"p":1,"l":"12","who":"Xhaka","lev":true},{"m":31,"p":1,"l":"32","who":"Ekitike","lev":false},{"m":43,"p":1,"l":"44","who":"Schick","lev":true},{"m":57,"p":2,"l":"58","who":"Palacios","lev":true},{"m":76,"p":2,"l":"77","who":"Frimpong","lev":true},{"m":88,"p":2,"l":"89","who":"Boniface","lev":true}]},{"md":33,"date":"2024-05-12","opp":"Bochum","venue":"A","score":"5-0","xgf":4.3,"xga":0.31,"pts":3,"pts85":3,"goals":[{"m":40,"p":1,"l":"41","who":"Schick","lev":true},{"m":46,"p":1,"l":"45+2","who":"Boniface","lev":true},{"m":75,"p":2,"l":"76","who":"Adli","lev":true},{"m":85,"p":2,"l":"86","who":"Stani\u0161i\u0107","lev":true},{"m":92,"p":2,"l":"90+3","who":"Grimaldo","lev":true}]},{"md":34,"date":"2024-05-18","opp":"Augsburg","venue":"H","score":"2-1","xgf":2.16,"xga":0.78,"pts":3,"pts85":3,"goals":[{"m":11,"p":1,"l":"12","who":"Boniface","lev":true},{"m":26,"p":1,"l":"27","who":"Andrich","lev":true},{"m":61,"p":2,"l":"62","who":"K\u00f6m\u00fcr","lev":false}]}];
+
+const NAMES = { "Borussia Dortmund": "Dortmund", "Borussia Mönchengladbach": "Gladbach", "VfB Stuttgart": "Stuttgart",
+  "Eintracht Frankfurt": "Frankfurt", "1. FC Heidenheim": "Heidenheim", "FC Bayern München": "Bayern Munich",
+  "Bayern Munich": "Bayern Munich", "VfL Wolfsburg": "Wolfsburg", "SV Werder Bremen": "Werder Bremen", "Werder Bremen": "Werder Bremen",
+  "1. FC Union Berlin": "Union Berlin", "Union Berlin": "Union Berlin", "SC Freiburg": "Freiburg", "FSV Mainz 05": "Mainz", "1. FSV Mainz 05": "Mainz",
+  "VfL Bochum 1848": "Bochum", "VfL Bochum": "Bochum", "SV Darmstadt 98": "Darmstadt", "Darmstadt 98": "Darmstadt", "1. FC Köln": "Köln", "FC Köln": "Köln",
+  "TSG Hoffenheim": "Hoffenheim", "FC Augsburg": "Augsburg", "RB Leipzig": "RB Leipzig" };
+const nm = o => NAMES[o] || o;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const svgNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) { const e = document.createElementNS(svgNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+const res = p => p === 3 ? "W" : p === 1 ? "D" : "L";
+const word = { W: "win", D: "draw", L: "defeat" };
+
+let mode = "full";
+let selected = GAMES.findIndex(g => g.opp.includes("Hoffenheim") && g.pts !== g.pts85);
+if (selected < 0) selected = 0;
+
+function scoreAt85(g) {
+  const early = g.goals.filter(x => x.m < 85);
+  return [early.filter(x => x.lev).length, early.filter(x => !x.lev).length];
+}
+
+function drawStrip() {
+  const strip = document.getElementById("strip");
+  strip.innerHTML = "";
+  GAMES.forEach((g, i) => {
+    const p = mode === "full" ? g.pts : g.pts85;
+    const r = res(p);
+    const b = document.createElement("button");
+    b.type = "button";
+    b.id = "m" + g.md;
+    b.className = "cell " + r + (g.pts !== g.pts85 ? " changed" : "");
+    b.textContent = r;
+    b.setAttribute("aria-pressed", i === selected);
+    b.setAttribute("aria-label", `Game ${g.md}, ${nm(g.opp)}, ${word[r]}`);
+    b.title = `Game ${g.md} · ${nm(g.opp)} (${g.venue === "H" ? "home" : "away"})`;
+    b.addEventListener("click", () => { selected = i; drawStrip(); drawDetail(); });
+    strip.appendChild(b);
+  });
+  const pts = GAMES.map(g => mode === "full" ? g.pts : g.pts85);
+  const w = pts.filter(p => p === 3).length, d = pts.filter(p => p === 1).length, l = pts.filter(p => p === 0).length;
+  const total = pts.reduce((a, b) => a + b, 0);
+  document.getElementById("s-w").textContent = w;
+  document.getElementById("s-d").textContent = d;
+  document.getElementById("s-l").textContent = l;
+  document.getElementById("s-p").textContent = total;
+  document.getElementById("s-l-wrap").classList.toggle("bad", l > 0);
+  document.getElementById("s-p-wrap").classList.toggle("bad", total < 90);
+}
+
+function drawDetail() {
+  const g = GAMES[selected];
+  const [a85, b85] = scoreAt85(g);
+  const full = res(g.pts), cut = res(g.pts85);
+  const venue = g.venue === "H" ? "Home" : "Away";
+  const date = new Date(g.date + "T12:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  let verdict;
+  if (full !== cut) verdict = `At 85 minutes it was ${a85}-${b85}, a <strong>${word[cut]}</strong>. Late goals turned it into a ${word[full]}, worth ${g.pts - g.pts85} extra point${g.pts - g.pts85 > 1 ? "s" : ""}.`;
+  else verdict = `Already decided before the 85th minute: ${a85}-${b85} at that point, final score ${g.score}.`;
+  const tl = g.goals.map(x => {
+    const pos = Math.min(x.p === 1 ? Math.min(x.m, 46) : Math.max(x.m, 46), 98) / 98 * 100;
+    return `<span class="g ${x.lev ? "for" : "against"}" style="left:${pos}%" title="${x.l}' ${x.who}">${x.l.split("+")[0] === x.l ? x.l : x.l.split("+")[0] + "+"}</span>`;
+  }).join("");
+  const list = side => {
+    const gs = g.goals.filter(x => x.lev === side);
+    return gs.length ? gs.map(x => `<div class="${x.m >= 85 ? "late" : ""}"><span class="min">${x.l}'</span><span>${x.who}</span></div>`).join("") : `<div><span class="min">–</span><span>No goals</span></div>`;
+  };
+  document.getElementById("detail").innerHTML = `
+    <div class="detail-head">
+      <h3>Game ${g.md} · ${nm(g.opp)} ${g.score}</h3>
+      <span class="meta">${venue} · ${date} · xG ${g.xgf.toFixed(1)} – ${g.xga.toFixed(1)}</span>
+    </div>
+    <p class="verdict">${verdict}</p>
+    <div class="timeline" aria-hidden="true">
+      <div class="axis"></div>
+      <div class="cut" style="left:${85 / 98 * 100}%"><span>85'</span></div>
+      ${[0, 45, 90].map(t => `<span class="tick" style="left:${t / 98 * 100}%">${t}'</span>`).join("")}
+      ${tl}
+    </div>
+    <div class="goals">
+      <div style="display:grid;gap:2px;align-content:start"><h4>Leverkusen</h4>${list(true)}</div>
+      <div style="display:grid;gap:2px;align-content:start"><h4>${nm(g.opp)}</h4>${list(false)}</div>
+    </div>`;
+}
+
+function drawRace() {
+  const box = document.getElementById("race");
+  box.innerHTML = "";
+  const W = 840, H = 300, m = { t: 14, r: 92, b: 30, l: 36 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Cumulative points: full matches vs stopped at 85 minutes" }, box);
+  let a = 0, b = 0;
+  const full = [0], cut = [0];
+  GAMES.forEach(g => { a += g.pts; b += g.pts85; full.push(a); cut.push(b); });
+  const x = i => m.l + i * (W - m.l - m.r) / GAMES.length;
+  const y = v => H - m.b - v / 100 * (H - m.t - m.b);
+  [0, 25, 50, 75, 100].forEach(v => {
+    el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: "gl" }, svg);
+    el("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end", class: "tk" }, svg).textContent = v;
+  });
+  [1, 9, 17, 25, 34].forEach(i => el("text", { x: x(i), y: H - 8, "text-anchor": "middle", class: "tk" }, svg).textContent = "Game " + i);
+  const path = arr => "M" + arr.map((v, i) => `${x(i)},${y(v)}`).join("L");
+  el("path", { d: path(full) + `L${x(GAMES.length)},${y(cut[cut.length - 1])}` + cut.slice().reverse().map((v, i) => `L${x(cut.length - 1 - i)},${y(v)}`).join("") + "Z", fill: css("--accent"), "fill-opacity": .12 }, svg);
+  el("path", { d: path(cut), fill: "none", stroke: css("--muted"), "stroke-width": 2, "stroke-dasharray": "5 4" }, svg);
+  el("path", { d: path(full), fill: "none", stroke: css("--accent"), "stroke-width": 2.5, "stroke-linejoin": "round" }, svg);
+  const n = GAMES.length;
+  el("circle", { cx: x(n), cy: y(full[n]), r: 4.5, fill: css("--accent"), stroke: css("--panel"), "stroke-width": 2 }, svg);
+  el("circle", { cx: x(n), cy: y(cut[n]), r: 4, fill: css("--muted"), stroke: css("--panel"), "stroke-width": 2 }, svg);
+  const lab = (v, t, c, dy) => { const e = el("text", { x: x(n) + 10, y: y(v) + dy, fill: c, "font-size": 13, "font-weight": 600 }, svg); e.textContent = t; };
+  lab(full[n], `${full[n]} pts`, css("--accent"), -2);
+  lab(full[n], "full matches", css("--ink-2"), 14);
+  lab(cut[n], `${cut[n]} pts`, css("--muted"), 10);
+  lab(cut[n], "stop at 85'", css("--ink-2"), 26);
+
+  const tip = document.createElement("div"); tip.className = "tip"; tip.hidden = true; box.appendChild(tip);
+  const cross = el("line", { y1: m.t, y2: H - m.b, stroke: css("--line"), "stroke-width": 1, visibility: "hidden" }, svg);
+  const hit = el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent" }, svg);
+  function move(ev) {
+    const r = svg.getBoundingClientRect();
+    const sx = (ev.clientX - r.left) * W / r.width;
+    const i = Math.max(1, Math.min(n, Math.round((sx - m.l) / ((W - m.l - m.r) / n))));
+    const g = GAMES[i - 1];
+    cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible");
+    tip.hidden = false;
+    tip.innerHTML = `<b>Game ${i} · ${nm(g.opp)} ${g.score}</b><br>${full[i]} pts · at 85': ${cut[i]} pts`;
+    tip.style.left = Math.min(Math.max(x(i) * r.width / W, 100), r.width - 100) + "px";
+    tip.style.top = y(full[i]) * r.height / H + "px";
+  }
+  hit.addEventListener("pointermove", move);
+  hit.addEventListener("pointerdown", move);
+  hit.addEventListener("pointerleave", () => { tip.hidden = true; cross.setAttribute("visibility", "hidden"); });
+}
+
+function drawMinutes() {
+  const box = document.getElementById("minutes");
+  box.innerHTML = "";
+  const bins = ["1-15", "16-30", "31-45+", "46-60", "61-75", "76-90", "90+"];
+  const counts = [0, 0, 0, 0, 0, 0, 0];
+  GAMES.forEach(g => g.goals.filter(x => x.lev).forEach(x => {
+    counts[x.p === 1 ? Math.min(Math.floor(x.m / 15), 2) : (x.m >= 90 ? 6 : 3 + Math.floor((x.m - 45) / 15))]++;
+  }));
+  const W = 840, H = 240, m = { t: 22, r: 8, b: 30, l: 36 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Leverkusen goals by minute" }, box);
+  const y = v => H - m.b - v / 20 * (H - m.t - m.b);
+  const bw = (W - m.l - m.r) / bins.length;
+  [0, 5, 10, 15, 20].forEach(v => {
+    el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: "gl" }, svg);
+    el("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end", class: "tk" }, svg).textContent = v;
+  });
+  const tip = document.createElement("div"); tip.className = "tip"; tip.hidden = true; box.appendChild(tip);
+  bins.forEach((lab, i) => {
+    const cx = m.l + bw * i + bw / 2, w = Math.min(64, bw * .62), top = y(counts[i]);
+    const late = i >= 5;
+    el("path", { d: `M${cx - w / 2},${y(0)}V${top + 4}Q${cx - w / 2},${top} ${cx - w / 2 + 4},${top}H${cx + w / 2 - 4}Q${cx + w / 2},${top} ${cx + w / 2},${top + 4}V${y(0)}Z`, fill: late ? css("--accent") : css("--draw") }, svg);
+    const t = el("text", { x: cx, y: top - 7, "text-anchor": "middle", fill: css("--ink"), "font-size": 13, "font-weight": 600 }, svg); t.textContent = counts[i];
+    el("text", { x: cx, y: H - 8, "text-anchor": "middle", class: "tk" }, svg).textContent = lab;
+    const h = el("rect", { x: m.l + bw * i, y: m.t, width: bw, height: H - m.t - m.b, fill: "transparent" }, svg);
+    h.addEventListener("pointerenter", () => {
+      const r = svg.getBoundingClientRect();
+      tip.hidden = false;
+      tip.innerHTML = `<b>${lab}'</b> · ${counts[i]} goals (${Math.round(counts[i] / counts.reduce((a, b) => a + b, 0) * 100)}%)`;
+      tip.style.left = cx * r.width / W + "px"; tip.style.top = top * r.height / H + "px";
+    });
+    h.addEventListener("pointerleave", () => tip.hidden = true);
+  });
+}
+
+document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
+  mode = b.dataset.mode;
+  document.querySelectorAll(".seg button").forEach(o => o.setAttribute("aria-pressed", o === b));
+  drawStrip();
+}));
+
+function drawAll() { drawStrip(); drawDetail(); drawRace(); drawMinutes(); }
+drawAll();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawAll);
+new MutationObserver(drawAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>
+
+</body>
+</html>

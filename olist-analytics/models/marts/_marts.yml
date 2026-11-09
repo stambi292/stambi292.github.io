@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: fact_orders
+    description: >
+      One row per order. Revenue = item price + freight. `is_valid_order` excludes
+      canceled and unavailable orders. Delivery metrics are null until delivered.
+    columns:
+      - name: order_id
+        data_tests: [unique, not_null]
+      - name: customer_unique_id
+        data_tests:
+          - not_null
+          - relationships: {arguments: {to: ref('dim_customers'), field: customer_unique_id}}
+      - name: gross_revenue
+        data_tests: [not_null]
+      - name: customer_order_number
+        data_tests: [not_null]
+
+  - name: fact_order_items
+    description: One row per order item, with product category.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [order_id, order_item_id]
+    columns:
+      - name: order_id
+        data_tests:
+          - relationships: {arguments: {to: ref('fact_orders'), field: order_id}}
+
+  - name: dim_customers
+    description: One row per real customer (customer_unique_id), with cohort and lifetime value.
+    columns:
+      - name: customer_unique_id
+        data_tests: [unique, not_null]
+
+  - name: dim_products
+    columns:
+      - name: product_id
+        data_tests: [unique, not_null]
+      - name: category
+        data_tests: [not_null]
+
+  - name: dim_sellers
+    columns:
+      - name: seller_id
+        data_tests: [unique, not_null]

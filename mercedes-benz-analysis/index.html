@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mercedes-Benz Profit Squeeze</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a black showroom. One column of panels, silver type, a single cool highlight for the line that matters and red for decline. */
+:root {
+  --bg: #000000;
+  --panel: #0d0d0e;
+  --raise: #17171a;
+  --ink: #f2f2f2;
+  --ink-2: #b4b6ba;
+  --muted: #7d8086;
+  --line: #26272b;
+  --silver: #9ea2a8;
+  --dim: #3b3d42;
+  --hi: #7fc4ff;
+  --down: #ff5f57;
+  --up: #5fd38d;
+  --font-display: "Cormorant Garamond", "Times New Roman", Georgia, serif;
+  --font-body: "Manrope", "Segoe UI", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--font-body); }
+.wrap { max-width: 960px; margin: 0 auto; display: grid; gap: 22px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 56px; }
+header { display: grid; gap: 22px; padding-bottom: 6px; }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+h1 { font: 600 clamp(42px, 8vw, 76px)/0.98 var(--font-display); margin: 10px 0 0; letter-spacing: -.01em; text-wrap: balance; }
+h1 em { font-style: italic; color: var(--silver); }
+.lede { margin: 16px 0 0; color: var(--ink-2); max-width: 62ch; }
+.hero { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.hero div { padding: 16px 16px 16px 0; display: grid; gap: 4px; }
+.hero div + div { padding-left: 16px; border-left: 1px solid var(--line); }
+.hero b { font: 600 38px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.hero b.down { color: var(--down); }
+.hero span { font-size: 13px; color: var(--muted); }
+.byline { font-size: 12.5px; color: var(--muted); }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 22px; display: grid; gap: 16px; min-width: 0; }
+h2 { font: 600 30px/1.1 var(--font-display); margin: 0; text-wrap: balance; }
+.sub { margin: 6px 0 0; color: var(--ink-2); font-size: 15px; max-width: 66ch; }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 4px; padding: 3px; background: var(--bg); }
+.seg button { font: 600 13.5px var(--font-body); color: var(--ink-2); background: transparent; border: 0; border-radius: 3px; padding: 7px 12px; cursor: pointer; letter-spacing: .01em; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--hi); outline-offset: 2px; }
+.chart { position: relative; min-width: 0; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font-family: var(--font-body); }
+.tk { fill: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.gl { stroke: var(--line); stroke-width: 1; }
+.callout { margin: 0; font-size: 15px; color: var(--ink-2); max-width: 70ch; }
+.callout strong { color: var(--ink); font-weight: 700; }
+.callout .d { color: var(--down); font-weight: 700; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 13px; line-height: 1.45; padding: 8px 10px; border-radius: 4px; white-space: nowrap; transform: translate(-50%, calc(-100% - 12px)); z-index: 3; font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+.calc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+.sliders { display: grid; gap: 16px; }
+.sl { display: grid; gap: 4px; }
+.sl label { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; color: var(--ink-2); }
+.sl label b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.sl input { width: 100%; accent-color: var(--ink); }
+.sl small { font-size: 12.5px; color: var(--muted); }
+.result { background: var(--raise); border: 1px solid var(--line); border-radius: 6px; padding: 18px; display: grid; gap: 8px; }
+.result .big { font: 600 48px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.result .delta { font-weight: 700; font-variant-numeric: tabular-nums; }
+.result .delta.up { color: var(--up); } .result .delta.down { color: var(--down); }
+.result p { margin: 0; font-size: 14px; color: var(--ink-2); }
+.result table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.result td { padding: 5px 0; border-top: 1px solid var(--line); color: var(--ink-2); }
+.result td:last-child { text-align: right; color: var(--ink); font-weight: 600; }
+.reset { font: 600 13px var(--font-body); color: var(--hi); background: none; border: 0; padding: 0; cursor: pointer; justify-self: start; }
+footer { font-size: 12.5px; color: var(--muted); display: grid; gap: 6px; max-width: 78ch; }
+footer p { margin: 0; }
+footer a { color: var(--ink-2); }
+@media (max-width: 760px) { .hero { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hero div:nth-child(3) { padding-left: 0; border-left: 0; } .calc { grid-template-columns: minmax(0, 1fr); } }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Mercedes-Benz Group · Annual results 2021–2025</div>
+      <h1>The profit <em>squeeze</em></h1>
+      <p class="lede">Mercedes-Benz still sells around 1.8 million cars a year at premium prices. But the profit it keeps from each car has fallen by two thirds since 2022. Explore where the money went.</p>
+    </div>
+    <div class="hero" id="hero"></div>
+    <div class="byline">Independent analysis by Stephen TamBi, based on Mercedes-Benz Group's published annual results. Not affiliated with or endorsed by Mercedes-Benz.</div>
+  </header>
+
+  <section class="panel" aria-labelledby="t-car">
+    <div>
+      <h2 id="t-car">What Mercedes earns per car</h2>
+      <p class="sub">Mercedes-Benz Cars: average revenue per car sold and adjusted operating profit (EBIT) per car. Pick a measure; hover a year for the details.</p>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Measure" id="measures"></div>
+    </div>
+    <div class="chart" id="percar"></div>
+    <p class="callout" id="percar-note"></p>
+  </section>
+
+  <section class="panel" aria-labelledby="t-ros">
+    <div>
+      <h2 id="t-ros">Margins: cars vs vans</h2>
+      <p class="sub">Adjusted return on sales: euros of operating profit kept from every €100 of revenue.</p>
+    </div>
+    <div class="legend"><span><i class="sw" style="background:var(--ink)"></i>Cars</span><span><i class="sw" style="background:var(--silver)"></i>Vans</span></div>
+    <div class="chart" id="ros"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="t-reg">
+    <div>
+      <h2 id="t-reg">Where the cars were sold in 2025</h2>
+      <p class="sub">Mercedes-Benz Cars unit sales by region, with the change versus 2024. Hover a bar for details.</p>
+    </div>
+    <div class="chart" id="regions"></div>
+    <p class="callout"><strong>China is the biggest single market and the biggest problem:</strong> <span class="d">−19%</span> in 2025. Europe held steady and Germany was flat, but they could not make up the volume lost in China and the U.S.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="t-fs">
+    <div>
+      <h2 id="t-fs">The financing business</h2>
+      <p class="sub">Mercedes-Benz's own bank finances and leases cars to customers. New business is the value of contracts signed in a year; return on equity is the profit it makes on its own capital.</p>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Financing measure" id="fsm"></div>
+    </div>
+    <div class="chart" id="fs"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="t-calc">
+    <div>
+      <h2 id="t-calc">What would bring the margin back?</h2>
+      <p class="sub">Start from 2025 for Mercedes-Benz Cars and change volume, price and cost per car. See operating profit and margin respond.</p>
+    </div>
+    <div class="calc">
+      <div class="sliders" id="sliders"></div>
+      <div class="result" id="result" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Sources: Mercedes-Benz Group annual results releases for 2022, 2023 and 2025 (each with prior-year comparison) and the Mercedes-Benz Group sales release for 2025. 2025 figures were published as preliminary. EBIT figures are adjusted EBIT as reported. In 2025 the financing arm, Mercedes-Benz Mobility, was renamed Financial Services.</p>
+    <p>Electrified share (xEV: battery-electric plus plug-in hybrid) for 2021–2023 is calculated from reported xEV units; 2024–2025 as reported. Regional figures are rounded. The calculator treats all costs as per-car costs, so it is a simplified sensitivity, not a forecast.</p>
+  </footer>
+</div>
+
+<script>
+const D = {"unit":"EUR millions unless noted","years":[2021,2022,2023,2024,2025],"group":{"revenue":[133893,150017,153218,145594,132214],"ebit":[16028,20458,19660,13599,5820],"net_profit":[11050,14809,14531,10409,5331],"fcf_industrial":[7880,8128,11316,9152,5414]},"cars":{"units":[1943930,2040719,2044051,1983403,1801291],"revenue":[96712,111601,112756,107761,96407],"adj_ebit":[12689,16245,14252,8677,4773],"adj_ros":[13.1,14.6,12.6,8.1,5.0],"xev_units":[271847,333490,401943,null,null],"xev_share_reported":[null,null,null,18.5,20.5],"bev_units":[null,null,null,185059,168823]},"vans":{"units":[386239,415344,447790,405610,359136],"revenue":[14735,17217,20288,19320,17148],"adj_ros":[8.3,11.2,15.1,14.6,10.2]},"financial_services":{"new_business":[63631,58031,62014,59486,55917],"contract_volume":[133687,132379,135027,138095,128751],"adj_roe":[22.0,16.8,12.3,8.7,9.7]},"regions_2025":{"note":"Mercedes-Benz Cars unit sales, rounded, preliminary; change vs 2024 as reported","rows":[["Asia",747000,-16],["of which China",551900,-19],["Europe",634600,-1],["of which Germany",213200,0],["North America",320600,-12],["of which U.S.",284600,-12],["Rest of world",98700,17]]}};
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const svgNS = "http://www.w3.org/2000/svg";
+function el(t, a, p) { const e = document.createElementNS(svgNS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; }
+function tip(box) { const t = document.createElement("div"); t.className = "tip"; t.hidden = true; box.appendChild(t);
+  return { show(h, x, y) { t.innerHTML = h; t.hidden = false; t.style.left = x + "px"; t.style.top = y + "px"; }, hide() { t.hidden = true; } }; }
+const Y = D.years, L = Y.length - 1, C = D.cars;
+const eur = v => "€" + Math.round(v).toLocaleString("en-US");
+const ebn = v => "€" + (v / 1000).toFixed(1) + "bn";
+const revCar = C.revenue.map((r, i) => r * 1e6 / C.units[i]);
+const profCar = C.adj_ebit.map((e, i) => e * 1e6 / C.units[i]);
+const xev = C.units.map((u, i) => C.xev_units[i] ? C.xev_units[i] / u * 100 : C.xev_share_reported[i]);
+
+(function hero() {
+  const G = D.group, peak = profCar.indexOf(Math.max(...profCar));
+  document.getElementById("hero").innerHTML =
+    `<div><b>${eur(profCar[peak])}</b><span>profit per car in ${Y[peak]}</span></div>` +
+    `<div><b class="down">${eur(profCar[L])}</b><span>profit per car in ${Y[L]}</span></div>` +
+    `<div><b>${ebn(G.revenue[L])}</b><span>group revenue ${Y[L]} (${((G.revenue[L] / G.revenue[L - 1] - 1) * 100).toFixed(0)}% vs ${Y[L - 1]})</span></div>` +
+    `<div><b class="down">${((G.ebit[L] / G.ebit[L - 1] - 1) * 100).toFixed(0)}%</b><span>group operating profit (EBIT) vs ${Y[L - 1]}</span></div>`;
+})();
+
+/* 1. per-car measures */
+const MEAS = {
+  profit: { label: "Profit per car", v: profCar, fmt: eur, max: 9000, step: 3000, color: "--hi" },
+  revenue: { label: "Revenue per car", v: revCar, fmt: eur, max: 60000, step: 20000, color: "--ink" },
+  units: { label: "Cars sold", v: C.units, fmt: v => (v / 1e6).toFixed(2) + "m", max: 2400000, step: 600000, color: "--silver" },
+  xev: { label: "Electrified share", v: xev, fmt: v => v.toFixed(1) + "%", max: 25, step: 5, color: "--silver" }
+};
+let meas = "profit";
+const mb = document.getElementById("measures");
+mb.innerHTML = Object.entries(MEAS).map(([k, m]) => `<button type="button" id="m-${k}" data-k="${k}" aria-pressed="${k === meas}">${m.label}</button>`).join("");
+mb.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { meas = b.dataset.k; mb.querySelectorAll("button").forEach(o => o.setAttribute("aria-pressed", o === b)); drawPerCar(); }));
+function drawPerCar() {
+  const M = MEAS[meas], box = document.getElementById("percar"); box.innerHTML = "";
+  const W = 900, H = 300, m = { t: 26, r: 10, b: 32, l: 70 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": M.label + " by year" }, box);
+  const gw = (W - m.l - m.r) / Y.length, bw = Math.min(90, gw * .5);
+  const y = v => H - m.b - v / M.max * (H - m.t - m.b);
+  for (let v = 0; v <= M.max; v += M.step) { el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: "gl" }, svg); el("text", { x: m.l - 10, y: y(v) + 4, "text-anchor": "end", class: "tk" }, svg).textContent = M.fmt(v); }
+  const tp = tip(box);
+  const peak = M.v.indexOf(Math.max(...M.v));
+  Y.forEach((yr, i) => {
+    const cx = m.l + gw * i + gw / 2, v = M.v[i], t = y(v);
+    const col = meas === "profit" ? (i === L ? css("--down") : i === peak ? css("--hi") : css("--dim")) : (i === L ? css(M.color) : css("--dim"));
+    el("rect", { x: cx - bw / 2, y: t, width: bw, height: y(0) - t, rx: 2, fill: col }, svg);
+    el("text", { x: cx, y: t - 8, "text-anchor": "middle", fill: css("--ink"), "font-size": 13, "font-weight": 600 }, svg).textContent = M.fmt(v);
+    el("text", { x: cx, y: H - 10, "text-anchor": "middle", class: "tk" }, svg).textContent = yr;
+    const hit = el("rect", { x: m.l + gw * i, y: m.t, width: gw, height: H - m.t - m.b, fill: "transparent" }, svg);
+    hit.addEventListener("pointerenter", () => { const r = svg.getBoundingClientRect();
+      tp.show(`<b>${yr}</b><br>${(C.units[i] / 1e6).toFixed(2)}m cars · revenue ${ebn(C.revenue[i])}<br>Revenue per car ${eur(revCar[i])}<br>Profit per car ${eur(profCar[i])} (${C.adj_ros[i]}% margin)`, Math.min(Math.max(cx * r.width / W, 120), r.width - 120), t * r.height / H); });
+    hit.addEventListener("pointerleave", tp.hide);
+  });
+  const note = {
+    profit: `Profit per car fell from <strong>${eur(profCar[1])} in 2022 to ${eur(profCar[L])} in 2025</strong>, a drop of ${Math.round((1 - profCar[L] / profCar[1]) * 100)}%.`,
+    revenue: `Revenue per car barely moved: <strong>${eur(revCar[1])} in 2022 vs ${eur(revCar[L])} in 2025</strong> (${((revCar[L] / revCar[1] - 1) * 100).toFixed(1)}%). Prices held up. The profit fell because costs per car rose and fewer cars were sold.`,
+    units: `Mercedes sold <strong>${((C.units[L] / C.units[2] - 1) * 100).toFixed(0)}% fewer cars in 2025 than in 2023</strong>. Fixed costs like factories and development are spread over fewer cars.`,
+    xev: `<strong>${xev[L].toFixed(1)}% of cars sold in 2025 were electrified</strong> (battery-electric or plug-in hybrid). Electric cars are generally more expensive to build, which can weigh on margins during the transition.`
+  }[meas];
+  document.getElementById("percar-note").innerHTML = note;
+}
+
+/* 2. margins cars vs vans */
+function drawRos() {
+  const box = document.getElementById("ros"); box.innerHTML = "";
+  const W = 900, H = 280, m = { t: 16, r: 110, b: 30, l: 44 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Return on sales, cars and vans" }, box);
+  const x = i => m.l + i * (W - m.l - m.r) / L, y = v => H - m.b - v / 16 * (H - m.t - m.b);
+  [0, 4, 8, 12, 16].forEach(v => { el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: "gl" }, svg); el("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end", class: "tk" }, svg).textContent = v + "%"; });
+  Y.forEach((yr, i) => el("text", { x: x(i), y: H - 8, "text-anchor": "middle", class: "tk" }, svg).textContent = yr);
+  [["Cars", C.adj_ros, "--ink"], ["Vans", D.vans.adj_ros, "--silver"]].forEach(([n, v, c]) => {
+    el("path", { d: "M" + v.map((r, i) => `${x(i)},${y(r)}`).join("L"), fill: "none", stroke: css(c), "stroke-width": 2.4 }, svg);
+    v.forEach((r, i) => el("circle", { cx: x(i), cy: y(r), r: i === L ? 5 : 3, fill: css(c), stroke: css("--panel"), "stroke-width": 1.5 }, svg));
+    el("text", { x: x(L) + 12, y: y(v[L]) + 5, fill: css(c), "font-size": 13, "font-weight": 700 }, svg).textContent = `${n} ${v[L]}%`;
+  });
+  const cross = el("line", { y1: m.t, y2: H - m.b, stroke: css("--dim"), visibility: "hidden" }, svg);
+  const tp = tip(box);
+  const hit = el("rect", { x: m.l - 30, y: m.t, width: W - m.l - m.r + 60, height: H - m.t - m.b, fill: "transparent" }, svg);
+  const mv = ev => { const r = svg.getBoundingClientRect(), sx = (ev.clientX - r.left) * W / r.width, i = Math.max(0, Math.min(L, Math.round((sx - m.l) / (W - m.l - m.r) * L)));
+    cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible");
+    tp.show(`<b>${Y[i]}</b><br>Cars ${C.adj_ros[i]}% · ${(C.units[i] / 1e6).toFixed(2)}m units<br>Vans ${D.vans.adj_ros[i]}% · ${Math.round(D.vans.units[i] / 1000)}k units`, Math.min(Math.max(x(i) * r.width / W, 110), r.width - 110), y(Math.max(C.adj_ros[i], D.vans.adj_ros[i])) * r.height / H); };
+  hit.addEventListener("pointermove", mv); hit.addEventListener("pointerdown", mv);
+  hit.addEventListener("pointerleave", () => { tp.hide(); cross.setAttribute("visibility", "hidden"); });
+}
+
+/* 3. regions */
+function drawRegions() {
+  const box = document.getElementById("regions"); box.innerHTML = "";
+  const rows = D.regions_2025.rows;
+  const W = 900, rowH = 38, m = { t: 4, r: 150, b: 4, l: 170 }, H = m.t + m.b + rows.length * rowH;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "2025 unit sales by region" }, box);
+  const x = v => m.l + v / 760000 * (W - m.l - m.r);
+  const tp = tip(box);
+  rows.forEach(([n, v, ch], i) => {
+    const sub = n.startsWith("of which"), yy = m.t + i * rowH, bh = sub ? 14 : 22, by = yy + (rowH - bh) / 2;
+    el("text", { x: m.l - 12, y: by + bh / 2 + 5, "text-anchor": "end", fill: css(sub ? "--muted" : "--ink"), "font-size": sub ? 13 : 14, "font-weight": sub ? 500 : 700 }, svg).textContent = sub ? n.replace("of which ", "↳ ") : n;
+    const xe = x(v);
+    el("rect", { x: m.l, y: by, width: xe - m.l, height: bh, rx: 2, fill: css(n.includes("China") ? "--down" : sub ? "--dim" : "--silver") }, svg);
+    el("text", { x: xe + 10, y: by + bh / 2 + 5, fill: css("--ink"), "font-size": 13, "font-weight": 600 }, svg).textContent = Math.round(v / 1000) + "k";
+    el("text", { x: W - 10, y: by + bh / 2 + 5, "text-anchor": "end", fill: css(ch < 0 ? "--down" : ch > 0 ? "--up" : "--muted"), "font-size": 13, "font-weight": 700 }, svg).textContent = (ch > 0 ? "+" : ch < 0 ? "−" : "±") + Math.abs(ch) + "% vs 2024";
+    const hit = el("rect", { x: 0, y: yy, width: W, height: rowH, fill: "transparent" }, svg);
+    hit.addEventListener("pointerenter", () => { const r = svg.getBoundingClientRect(); tp.show(`<b>${n.replace("of which ", "")}</b><br>${v.toLocaleString("en-US")} cars in 2025<br>${ch > 0 ? "+" : ""}${ch}% vs 2024 · ${(v / 1800800 * 100).toFixed(0)}% of total`, Math.min(Math.max(xe * r.width / W, 110), r.width - 110), by * r.height / H); });
+    hit.addEventListener("pointerleave", tp.hide);
+  });
+}
+
+/* 4. financial services */
+const FSM = { new_business: ["New business", v => ebn(v), 70000, 10000], contract_volume: ["Contract volume", v => ebn(v), 150000, 25000], adj_roe: ["Return on equity", v => v + "%", 25, 5] };
+let fsm = "new_business";
+const fb = document.getElementById("fsm");
+fb.innerHTML = Object.entries(FSM).map(([k, m]) => `<button type="button" id="f-${k}" data-k="${k}" aria-pressed="${k === fsm}">${m[0]}</button>`).join("");
+fb.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { fsm = b.dataset.k; fb.querySelectorAll("button").forEach(o => o.setAttribute("aria-pressed", o === b)); drawFs(); }));
+function drawFs() {
+  const [label, fmt, max, step] = FSM[fsm], v = D.financial_services[fsm], box = document.getElementById("fs"); box.innerHTML = "";
+  const W = 900, H = 240, m = { t: 26, r: 10, b: 30, l: 70 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": label }, box);
+  const gw = (W - m.l - m.r) / Y.length, bw = Math.min(80, gw * .45), y = val => H - m.b - val / max * (H - m.t - m.b);
+  for (let t = 0; t <= max; t += step) { el("line", { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t), class: "gl" }, svg); el("text", { x: m.l - 10, y: y(t) + 4, "text-anchor": "end", class: "tk" }, svg).textContent = fmt(t); }
+  Y.forEach((yr, i) => { const cx = m.l + gw * i + gw / 2, t = y(v[i]);
+    el("rect", { x: cx - bw / 2, y: t, width: bw, height: y(0) - t, rx: 2, fill: css(i === L ? "--silver" : "--dim") }, svg);
+    el("text", { x: cx, y: t - 8, "text-anchor": "middle", fill: css("--ink"), "font-size": 13, "font-weight": 600 }, svg).textContent = fmt(v[i]);
+    el("text", { x: cx, y: H - 8, "text-anchor": "middle", class: "tk" }, svg).textContent = yr; });
+}
+
+/* 5. calculator */
+const base = { units: C.units[L], price: revCar[L], cost: (C.revenue[L] - C.adj_ebit[L]) * 1e6 / C.units[L] };
+const adj = { units: 0, price: 0, cost: 0 };
+const SL = [["units", "Cars sold", -15, 15, 0.5, `2025: ${(base.units / 1e6).toFixed(2)}m cars`], ["price", "Revenue per car", -10, 10, 0.5, `2025: ${eur(base.price)}`], ["cost", "Cost per car", -10, 10, 0.5, `2025: ${eur(base.cost)} (revenue minus operating profit)`]];
+document.getElementById("sliders").innerHTML = SL.map(([k, l, mn, mx, st, note]) => `<div class="sl"><label for="c-${k}">${l} <b id="cv-${k}">±0%</b></label><input type="range" id="c-${k}" min="${mn}" max="${mx}" step="${st}" value="0"><small>${note}</small></div>`).join("") + `<button type="button" class="reset" id="c-reset">Reset to 2025</button>`;
+SL.forEach(([k]) => document.getElementById("c-" + k).addEventListener("input", e => { adj[k] = +e.target.value; drawCalc(); }));
+document.getElementById("c-reset").addEventListener("click", () => { SL.forEach(([k]) => { adj[k] = 0; document.getElementById("c-" + k).value = 0; }); drawCalc(); });
+function drawCalc() {
+  const u = base.units * (1 + adj.units / 100), p = base.price * (1 + adj.price / 100), c = base.cost * (1 + adj.cost / 100);
+  const rev = u * p / 1e6, ebit = u * (p - c) / 1e6, ros = ebit / rev * 100, d = ebit - C.adj_ebit[L];
+  SL.forEach(([k]) => document.getElementById("cv-" + k).textContent = (adj[k] > 0 ? "+" : adj[k] < 0 ? "−" : "±") + Math.abs(adj[k]) + "%");
+  const target = 10;
+  const costCutFor10 = (1 - (base.price * (1 - target / 100)) / base.cost) * 100;
+  document.getElementById("result").innerHTML = `
+    <p>Mercedes-Benz Cars operating profit</p>
+    <div class="big">${ebn(ebit)}</div>
+    <div class="delta ${Math.abs(d) < 20 ? "" : d > 0 ? "up" : "down"}">${Math.abs(d) < 20 ? "Same as 2025" : (d > 0 ? "+" : "−") + ebn(Math.abs(d)) + " vs 2025"}</div>
+    <table>
+      <tr><td>Margin (return on sales)</td><td>${ros.toFixed(1)}%</td></tr>
+      <tr><td>Profit per car</td><td>${eur(ebit * 1e6 / u)}</td></tr>
+      <tr><td>Revenue</td><td>${ebn(rev)}</td></tr>
+    </table>
+    <p>Each 1% on price is worth about ${ebn(base.units * base.price * 0.01 / 1e6)} a year. Getting back to a 10% margin at 2025 prices and volume would need about ${costCutFor10.toFixed(1)}% lower cost per car.</p>`;
+}
+
+drawPerCar(); drawRos(); drawRegions(); drawFs(); drawCalc();
+</script>
+
+</body>
+</html>

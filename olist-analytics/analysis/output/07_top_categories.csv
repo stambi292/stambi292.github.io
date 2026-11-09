@@ -1,0 +1,11 @@
+category,orders,revenue_brl,avg_order_value_brl,avg_review_score
+health_beauty,8766,1438658.0,164.12,4.19
+watches_gifts,5587,1299606.0,232.61,4.08
+bed_bath_table,9310,1241607.0,133.36,3.98
+sports_leisure,7636,1148347.0,150.39,4.19
+computers_accessories,6635,1050758.0,158.37,4.04
+furniture_decor,6306,897127.0,142.27,4.04
+housewares,5784,772454.0,133.55,4.17
+cool_stuff,3587,704456.0,196.39,4.19
+auto,3855,679068.0,176.15,4.11
+garden_tools,3456,576032.0,166.68,4.16

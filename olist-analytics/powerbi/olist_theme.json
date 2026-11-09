@@ -1,0 +1,13 @@
+{
+  "name": "Olist",
+  "dataColors": ["#0A4EE4", "#0A1F9C", "#FFAA00", "#6B93EF", "#001647", "#9FB9F6", "#D97A00", "#4D5C7E"],
+  "background": "#FFFFFF",
+  "foreground": "#001647",
+  "tableAccent": "#0A4EE4",
+  "good": "#0A7F3F",
+  "neutral": "#FFAA00",
+  "bad": "#D97A00",
+  "minimum": "#EEF2FC",
+  "center": "#6B93EF",
+  "maximum": "#0A1F9C"
+}

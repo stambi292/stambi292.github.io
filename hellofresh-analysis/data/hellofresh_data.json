@@ -1,0 +1,13 @@
+{
+ "unit": "EUR millions; orders and meals in millions",
+ "years": [2021, 2022, 2023, 2024, 2025],
+ "group": {"orders":[117.32,125.13,119.27,114.63,100.53], "meals":[964.3,1046.5,1008.7,965.5,851.6],
+           "revenue":[5993.4,7607.2,7596.6,7661.3,6760.8], "aebitda":[527.6,477.4,447.6,399.4,422.8], "aebitda_margin":[8.8,6.3,5.9,5.2,6.3]},
+ "segments": {"years":[2022,2023,2024,2025],
+   "North America":{"orders":[70.90,67.78,64.67,53.66],"revenue":[4963.1,5002.8,5035.8,4207.1],"margin":[8.8,8.3,7.3,9.0]},
+   "International":{"orders":[54.23,51.49,49.96,46.87],"revenue":[2643.9,2593.8,2625.5,2553.7],"margin":[6.5,6.7,7.0,8.0]}},
+ "products": {"years":[2023,2024,2025],
+   "Meal kits":{"revenue":[null,5529.2,4701.6],"margin":[9.0,9.8,13.5]},
+   "Ready-to-eat":{"revenue":[1400,2031.7,1921.6],"margin":[4.0,1.6,-1.2]},
+   "note":"2023 ready-to-eat revenue stated as about EUR 1.4bn; 2023 meal-kit revenue not reported"}
+}

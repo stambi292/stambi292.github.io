@@ -1,0 +1,299 @@
+<title>HelloFresh After the Boom</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap">
+<style>
+/* Layout: deep-green masthead with the headline numbers, then question panels on a soft green-white ground. Lime marks the one thing to look at. */
+:root {
+  --forest: #0b4f2c;
+  --forest-2: #13683c;
+  --lime: #91c11e;
+  --lime-ink: #4d7a0a;
+  --bg: #f4f8f2;
+  --panel: #ffffff;
+  --ink: #12261a;
+  --ink-2: #4b5d51;
+  --muted: #7e8f83;
+  --line: #dfe8dc;
+  --context: #c5d3c4;
+  --down: #d1453b;
+  --up: #1f8a4c;
+  --on-forest: #ffffff;
+  --on-forest-2: #c9e2cf;
+  --font-display: "Nunito", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Nunito Sans", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --forest: #08321d; --forest-2: #0f4a2b; --bg: #0b130e; --panel: #131d16; --ink: #e8f2ea; --ink-2: #b2c4b6; --muted: #7f9284;
+    --line: #233328; --context: #33463a; --lime-ink: #a9d63a; --down: #ef6b61; --up: #4cc77d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --forest: #08321d; --forest-2: #0f4a2b; --bg: #0b130e; --panel: #131d16; --ink: #e8f2ea; --ink-2: #b2c4b6; --muted: #7f9284;
+  --line: #233328; --context: #33463a; --lime-ink: #a9d63a; --down: #ef6b61; --up: #4cc77d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--font-body); }
+.inner { max-width: 960px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.band { background: var(--forest); color: var(--on-forest); }
+.band .inner { padding-block: 36px 30px; display: grid; gap: 22px; }
+.eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--on-forest-2); }
+h1 { font: 900 clamp(38px, 7vw, 62px)/1 var(--font-display); margin: 8px 0 0; letter-spacing: -.01em; text-wrap: balance; }
+h1 span { color: var(--lime); }
+.lede { margin: 14px 0 0; color: var(--on-forest-2); max-width: 62ch; }
+.hero { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.hero div { background: var(--forest-2); border-radius: 14px; padding: 14px 16px; display: grid; gap: 2px; }
+.hero b { font: 900 32px/1.1 var(--font-display); font-variant-numeric: tabular-nums; }
+.hero b.l { color: var(--lime); }
+.hero span { font-size: 13px; color: var(--on-forest-2); }
+.byline { font-size: 13px; color: var(--on-forest-2); }
+main.inner { padding-block: 26px 52px; display: grid; gap: 20px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: grid; gap: 16px; min-width: 0; }
+h2 { font: 800 24px/1.2 var(--font-display); margin: 0; text-wrap: balance; }
+.sub { margin: 4px 0 0; color: var(--ink-2); font-size: 15px; max-width: 66ch; }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.seg { display: inline-flex; flex-wrap: wrap; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.seg button { font: 700 14px var(--font-body); color: var(--ink-2); background: transparent; border: 0; border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--forest); color: var(--on-forest); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+.chart { position: relative; min-width: 0; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font-family: var(--font-body); }
+.tk { fill: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.gl { stroke: var(--line); stroke-width: 1; }
+.zero { stroke: var(--muted); stroke-width: 1; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13.5px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+.callout { margin: 0; font-size: 15px; color: var(--ink-2); max-width: 70ch; }
+.callout strong { color: var(--lime-ink); }
+.tip { position: absolute; pointer-events: none; background: var(--forest); color: var(--on-forest); font-size: 13px; line-height: 1.45; padding: 8px 10px; border-radius: 8px; white-space: nowrap; transform: translate(-50%, calc(-100% - 12px)); z-index: 3; font-variant-numeric: tabular-nums; }
+.calc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+.sliders { display: grid; gap: 16px; }
+.sl { display: grid; gap: 4px; }
+.sl label { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; color: var(--ink-2); }
+.sl label b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.sl input { width: 100%; accent-color: var(--forest-2); }
+.sl small { font-size: 12.5px; color: var(--muted); }
+.result { background: var(--bg); border-radius: 14px; padding: 18px; display: grid; gap: 8px; }
+.result .big { font: 900 42px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.result .delta { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--muted); }
+.result .delta.up { color: var(--up); } .result .delta.down { color: var(--down); }
+.result p { margin: 0; font-size: 14px; color: var(--ink-2); }
+.result table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.result td { padding: 5px 0; border-top: 1px solid var(--line); color: var(--ink-2); }
+.result td:last-child { text-align: right; color: var(--ink); font-weight: 700; }
+.reset { font: 700 13px var(--font-body); color: var(--forest-2); background: none; border: 0; padding: 0; cursor: pointer; justify-self: start; }
+footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; max-width: 78ch; }
+footer p { margin: 0; }
+@media (max-width: 760px) { .hero { grid-template-columns: repeat(2, minmax(0, 1fr)); } .calc { grid-template-columns: minmax(0, 1fr); } }
+</style>
+
+<header class="band">
+  <div class="inner">
+    <div>
+      <div class="eyebrow">HelloFresh SE · Annual results 2021–2025</div>
+      <h1>After the boom: <span>fewer orders, bigger baskets</span></h1>
+      <p class="lede">HelloFresh grew fast during the pandemic. Since 2022 it has delivered fewer orders every year, but each order is worth more and margins are recovering. Explore what changed.</p>
+    </div>
+    <div class="hero" id="hero"></div>
+    <div class="byline">Independent analysis by Stephen TamBi, based on HelloFresh SE's published annual results. Not affiliated with or endorsed by HelloFresh.</div>
+  </div>
+</header>
+
+<main class="inner">
+  <section class="panel" aria-labelledby="t-trend">
+    <div>
+      <h2 id="t-trend">Five years at a glance</h2>
+      <p class="sub">Pick a measure. Hover a year for all the numbers.</p>
+    </div>
+    <div class="controls"><div class="seg" role="group" aria-label="Measure" id="measures"></div></div>
+    <div class="chart" id="trend"></div>
+    <p class="callout" id="trend-note"></p>
+  </section>
+
+  <section class="panel" aria-labelledby="t-seg">
+    <div>
+      <h2 id="t-seg">North America vs International</h2>
+      <p class="sub">North America brings in most of the revenue, but it lost the most orders. Switch measure; hover for details.</p>
+    </div>
+    <div class="controls"><div class="seg" role="group" aria-label="Segment measure" id="segm"></div></div>
+    <div class="legend"><span><i class="sw" style="background:var(--forest-2)"></i>North America</span><span><i class="sw" style="background:var(--lime)"></i>International</span></div>
+    <div class="chart" id="seg"></div>
+    <p class="callout" id="seg-note"></p>
+  </section>
+
+  <section class="panel" aria-labelledby="t-prod">
+    <div>
+      <h2 id="t-prod">Meal kits vs ready-to-eat meals</h2>
+      <p class="sub">Margin (AEBITDA as % of revenue) for HelloFresh's two product types. Ready-to-eat means fully cooked meals, sold mainly under the Factor brand.</p>
+    </div>
+    <div class="legend"><span><i class="sw" style="background:var(--forest-2)"></i>Meal kits</span><span><i class="sw" style="background:var(--down)"></i>Ready-to-eat</span></div>
+    <div class="chart" id="prod"></div>
+    <p class="callout"><strong>Meal kits became more profitable as volume fell</strong>, while ready-to-eat slipped into a loss in 2025. The growth bet of recent years is now the part that costs money.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="t-calc">
+    <div>
+      <h2 id="t-calc">What would win back the profit?</h2>
+      <p class="sub">Start from 2025 and change the number of orders, the value of each order and the margin. See adjusted EBITDA respond.</p>
+    </div>
+    <div class="calc">
+      <div class="sliders" id="sliders"></div>
+      <div class="result" id="result" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Sources: HelloFresh SE annual results releases for 2022, 2023 and 2025 (each with prior-year comparison) and the 2024 results release. Segment figures use North America and International as reported from 2023 onwards, with 2022 comparatives. AEBITDA is adjusted EBITDA as reported.</p>
+    <p>Revenue per order is calculated as revenue divided by orders; HelloFresh's reported average order value excludes retail sales and is slightly lower. 2023 ready-to-eat revenue was reported only as about €1.4bn. The calculator keeps everything else at 2025 levels; it is a sensitivity estimate, not a forecast.</p>
+  </footer>
+</main>
+
+<script>
+const D = /*__DATA__*/{};
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const svgNS = "http://www.w3.org/2000/svg";
+function el(t, a, p) { const e = document.createElementNS(svgNS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; }
+function tip(box) { const t = document.createElement("div"); t.className = "tip"; t.hidden = true; box.appendChild(t);
+  return { show(h, x, y) { t.innerHTML = h; t.hidden = false; t.style.left = x + "px"; t.style.top = y + "px"; }, hide() { t.hidden = true; } }; }
+const Y = D.years, L = Y.length - 1, G = D.group;
+const ebn = v => "€" + (v / 1000).toFixed(2) + "bn";
+const em = v => "€" + Math.round(v) + "m";
+const perOrder = G.revenue.map((r, i) => r / G.orders[i]);
+const peak = G.orders.indexOf(Math.max(...G.orders));
+
+(function hero() {
+  document.getElementById("hero").innerHTML =
+    `<div><b>${G.orders[L].toFixed(1)}m</b><span>orders in ${Y[L]}, down ${Math.round((1 - G.orders[L] / G.orders[peak]) * 100)}% from the ${Y[peak]} peak</span></div>` +
+    `<div><b class="l">€${perOrder[L].toFixed(2)}</b><span>revenue per order in ${Y[L]}, up from €${perOrder[0].toFixed(2)} in ${Y[0]}</span></div>` +
+    `<div><b>${ebn(G.revenue[L])}</b><span>revenue in ${Y[L]} (${((G.revenue[L] / G.revenue[L - 1] - 1) * 100).toFixed(1)}% vs ${Y[L - 1]})</span></div>` +
+    `<div><b class="l">${G.aebitda_margin[L]}%</b><span>AEBITDA margin, up from ${G.aebitda_margin[L - 1]}% in ${Y[L - 1]}</span></div>`;
+})();
+
+/* 1. trend */
+const MEAS = {
+  orders: ["Orders", G.orders, v => v.toFixed(1) + "m", 140, 35],
+  perorder: ["Revenue per order", perOrder, v => "€" + v.toFixed(0), 80, 20],
+  revenue: ["Revenue", G.revenue, v => "€" + (v / 1000).toFixed(1) + "bn", 8000, 2000],
+  margin: ["AEBITDA margin", G.aebitda_margin, v => v + "%", 10, 2.5]
+};
+let meas = "orders";
+const mb = document.getElementById("measures");
+mb.innerHTML = Object.entries(MEAS).map(([k, m]) => `<button type="button" id="m-${k}" data-k="${k}" aria-pressed="${k === meas}">${m[0]}</button>`).join("");
+mb.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { meas = b.dataset.k; mb.querySelectorAll("button").forEach(o => o.setAttribute("aria-pressed", o === b)); drawTrend(); }));
+function drawTrend() {
+  const [label, v, fmt, max, step] = MEAS[meas], box = document.getElementById("trend"); box.innerHTML = "";
+  const W = 900, H = 290, m = { t: 26, r: 10, b: 30, l: 60 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": label + " by year" }, box);
+  const gw = (W - m.l - m.r) / Y.length, bw = Math.min(88, gw * .5), y = val => H - m.b - val / max * (H - m.t - m.b);
+  for (let t = 0; t <= max + 1e-9; t += step) { el("line", { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t), class: t ? "gl" : "zero" }, svg); el("text", { x: m.l - 10, y: y(t) + 4, "text-anchor": "end", class: "tk" }, svg).textContent = fmt(t); }
+  const tp = tip(box);
+  Y.forEach((yr, i) => {
+    const cx = m.l + gw * i + gw / 2, t = y(v[i]);
+    el("path", { d: `M${cx - bw / 2},${y(0)}V${t + 6}Q${cx - bw / 2},${t} ${cx - bw / 2 + 6},${t}H${cx + bw / 2 - 6}Q${cx + bw / 2},${t} ${cx + bw / 2},${t + 6}V${y(0)}Z`, fill: css(i === L ? "--lime" : "--context") }, svg);
+    el("text", { x: cx, y: t - 8, "text-anchor": "middle", fill: css("--ink"), "font-size": 13, "font-weight": 700 }, svg).textContent = fmt(v[i]);
+    el("text", { x: cx, y: H - 8, "text-anchor": "middle", class: "tk" }, svg).textContent = yr;
+    const hit = el("rect", { x: m.l + gw * i, y: m.t, width: gw, height: H - m.t - m.b, fill: "transparent" }, svg);
+    hit.addEventListener("pointerenter", () => { const r = svg.getBoundingClientRect();
+      tp.show(`<b>${yr}</b><br>${G.orders[i].toFixed(1)}m orders · ${Math.round(G.meals[i])}m meals<br>Revenue ${ebn(G.revenue[i])} · €${perOrder[i].toFixed(2)} per order<br>AEBITDA ${em(G.aebitda[i])} (${G.aebitda_margin[i]}%)`, Math.min(Math.max(cx * r.width / W, 120), r.width - 120), t * r.height / H); });
+    hit.addEventListener("pointerleave", tp.hide);
+  });
+  document.getElementById("trend-note").innerHTML = {
+    orders: `Orders peaked at <strong>${G.orders[peak].toFixed(1)}m in ${Y[peak]}</strong> and fell to ${G.orders[L].toFixed(1)}m in ${Y[L]}, about ${(G.orders[peak] - G.orders[L]).toFixed(0)} million fewer boxes a year.`,
+    perorder: `Each order brings in <strong>${Math.round((perOrder[L] / perOrder[0] - 1) * 100)}% more revenue than in ${Y[0]}</strong>: from €${perOrder[0].toFixed(2)} to €${perOrder[L].toFixed(2)}. Higher prices and bigger baskets made up for part of the lost volume.`,
+    revenue: `Revenue held near €7.6bn from 2022 to 2024 as higher order values offset fewer orders. <strong>In 2025 the drop in orders won:</strong> revenue fell ${Math.abs((G.revenue[L] / G.revenue[L - 1] - 1) * 100).toFixed(1)}%.`,
+    margin: `The margin fell every year from ${G.aebitda_margin[0]}% to ${G.aebitda_margin[3]}%, then <strong>recovered to ${G.aebitda_margin[L]}% in 2025</strong> as HelloFresh cut costs, even with less revenue.`
+  }[meas];
+}
+
+/* 2. segments */
+const SG = D.segments, SY = SG.years, SL_ = SY.length - 1;
+const SEGM = { revenue: ["Revenue", v => "€" + (v / 1000).toFixed(1) + "bn", 6000, 1500], orders: ["Orders", v => v.toFixed(0) + "m", 80, 20], margin: ["AEBITDA margin", v => v + "%", 10, 2.5] };
+let sm = "revenue";
+const sb = document.getElementById("segm");
+sb.innerHTML = Object.entries(SEGM).map(([k, m]) => `<button type="button" id="s-${k}" data-k="${k}" aria-pressed="${k === sm}">${m[0]}</button>`).join("");
+sb.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { sm = b.dataset.k; sb.querySelectorAll("button").forEach(o => o.setAttribute("aria-pressed", o === b)); drawSeg(); }));
+function drawSeg() {
+  const [label, fmt, max, step] = SEGM[sm], box = document.getElementById("seg"); box.innerHTML = "";
+  const W = 900, H = 280, m = { t: 26, r: 10, b: 30, l: 60 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": label + " by segment" }, box);
+  const gw = (W - m.l - m.r) / SY.length, bw = Math.min(56, gw * .3), y = v => H - m.b - v / max * (H - m.t - m.b);
+  for (let t = 0; t <= max + 1e-9; t += step) { el("line", { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t), class: t ? "gl" : "zero" }, svg); el("text", { x: m.l - 10, y: y(t) + 4, "text-anchor": "end", class: "tk" }, svg).textContent = fmt(t); }
+  const tp = tip(box);
+  SY.forEach((yr, i) => {
+    const gx = m.l + gw * i + gw / 2;
+    [["North America", "--forest-2", -1], ["International", "--lime", 1]].forEach(([n, c, s]) => {
+      const v = SG[n][sm][i], bx = gx + s * (bw / 2 + 3) - bw / 2, t = y(v);
+      el("path", { d: `M${bx},${y(0)}V${t + 5}Q${bx},${t} ${bx + 5},${t}H${bx + bw - 5}Q${bx + bw},${t} ${bx + bw},${t + 5}V${y(0)}Z`, fill: css(c) }, svg);
+      el("text", { x: bx + bw / 2, y: t - 7, "text-anchor": "middle", fill: css("--ink"), "font-size": 12, "font-weight": 700 }, svg).textContent = fmt(v);
+    });
+    el("text", { x: gx, y: H - 8, "text-anchor": "middle", class: "tk" }, svg).textContent = yr;
+    const hit = el("rect", { x: m.l + gw * i, y: m.t, width: gw, height: H - m.t - m.b, fill: "transparent" }, svg);
+    hit.addEventListener("pointerenter", () => { const r = svg.getBoundingClientRect();
+      tp.show(`<b>${yr}</b><br>` + ["North America", "International"].map(n => `${n}: ${SG[n].orders[i].toFixed(1)}m orders · €${(SG[n].revenue[i] / 1000).toFixed(2)}bn · ${SG[n].margin[i]}%`).join("<br>"), Math.min(Math.max(gx * r.width / W, 150), r.width - 150), m.t * r.height / H + 20); });
+    hit.addEventListener("pointerleave", tp.hide);
+  });
+  const na = SG["North America"], int = SG.International;
+  document.getElementById("seg-note").innerHTML = {
+    revenue: `North America made <strong>${Math.round(na.revenue[SL_] / (na.revenue[SL_] + int.revenue[SL_]) * 100)}% of revenue in 2025</strong>, but its revenue fell ${Math.abs((na.revenue[SL_] / na.revenue[SL_ - 1] - 1) * 100).toFixed(0)}% in one year, while International held almost flat.`,
+    orders: `North America lost <strong>${(na.orders[0] - na.orders[SL_]).toFixed(1)}m orders since 2022</strong> (−${Math.round((1 - na.orders[SL_] / na.orders[0]) * 100)}%); International lost ${(int.orders[0] - int.orders[SL_]).toFixed(1)}m (−${Math.round((1 - int.orders[SL_] / int.orders[0]) * 100)}%).`,
+    margin: `Both regions are <strong>more profitable per euro than in 2022</strong>: North America ${na.margin[SL_].toFixed(1)}%, International ${int.margin[SL_].toFixed(1)}% in 2025.`
+  }[sm];
+}
+
+/* 3. products margin */
+function drawProd() {
+  const P = D.products, PY = P.years, box = document.getElementById("prod"); box.innerHTML = "";
+  const W = 900, H = 260, m = { t: 16, r: 140, b: 30, l: 50 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Margin by product type" }, box);
+  const x = i => m.l + i * (W - m.l - m.r) / (PY.length - 1), y = v => H - m.b - (v + 4) / 19 * (H - m.t - m.b);
+  [-4, 0, 5, 10, 15].forEach(v => { el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), class: v ? "gl" : "zero" }, svg); el("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end", class: "tk" }, svg).textContent = v + "%"; });
+  PY.forEach((yr, i) => el("text", { x: x(i), y: H - 8, "text-anchor": "middle", class: "tk" }, svg).textContent = yr);
+  const tp = tip(box);
+  [["Meal kits", "--forest-2"], ["Ready-to-eat", "--down"]].forEach(([n, c]) => {
+    const v = P[n].margin;
+    el("path", { d: "M" + v.map((r, i) => `${x(i)},${y(r)}`).join("L"), fill: "none", stroke: css(c), "stroke-width": 3, "stroke-linejoin": "round" }, svg);
+    v.forEach((r, i) => {
+      el("circle", { cx: x(i), cy: y(r), r: 6, fill: css(c), stroke: css("--panel"), "stroke-width": 2 }, svg);
+      const h = el("circle", { cx: x(i), cy: y(r), r: 16, fill: "transparent" }, svg);
+      h.addEventListener("pointerenter", () => { const rc = svg.getBoundingClientRect(); const rev = P[n].revenue[i]; tp.show(`<b>${n} · ${PY[i]}</b><br>Margin ${r}%${rev ? `<br>Revenue ${n === "Ready-to-eat" && i === 0 ? "about " : ""}€${(rev / 1000).toFixed(1)}bn` : ""}`, x(i) * rc.width / W, y(r) * rc.height / H); });
+      h.addEventListener("pointerleave", tp.hide);
+    });
+    el("text", { x: x(PY.length - 1) + 14, y: y(v[v.length - 1]) + 5, fill: css(c), "font-size": 14, "font-weight": 700 }, svg).textContent = `${n} ${v[v.length - 1]}%`;
+  });
+}
+
+/* 4. calculator */
+const base = { orders: G.orders[L], value: perOrder[L], margin: G.aebitda_margin[L] };
+const exactMargin = G.aebitda[L] / G.revenue[L] * 100;
+const adj = { orders: 0, value: 0, margin: null };
+document.getElementById("sliders").innerHTML = `
+  <div class="sl"><label for="c-orders">Orders <b id="cv-orders"></b></label><input type="range" id="c-orders" min="-20" max="30" step="1" value="0"><small>2025: ${base.orders.toFixed(1)}m orders</small></div>
+  <div class="sl"><label for="c-value">Revenue per order <b id="cv-value"></b></label><input type="range" id="c-value" min="-10" max="10" step="0.5" value="0"><small>2025: €${base.value.toFixed(2)}</small></div>
+  <div class="sl"><label for="c-margin">AEBITDA margin <b id="cv-margin"></b></label><input type="range" id="c-margin" min="3" max="12" step="0.1" value="${base.margin}"><small>2025: ${base.margin}% · 2021: ${G.aebitda_margin[0]}%</small></div>
+  <button type="button" class="reset" id="c-reset">Reset to 2025</button>`;
+["orders", "value", "margin"].forEach(k => document.getElementById("c-" + k).addEventListener("input", e => { adj[k] = +e.target.value; drawCalc(); }));
+const marginNow = () => adj.margin === null ? exactMargin : adj.margin;
+document.getElementById("c-reset").addEventListener("click", () => { adj.orders = 0; adj.value = 0; adj.margin = null; document.getElementById("c-orders").value = 0; document.getElementById("c-value").value = 0; document.getElementById("c-margin").value = base.margin; drawCalc(); });
+function drawCalc() {
+  const o = base.orders * (1 + adj.orders / 100), v = base.value * (1 + adj.value / 100), rev = o * v, ae = rev * marginNow() / 100, d = ae - G.aebitda[L];
+  const sg = n => (n > 0 ? "+" : n < 0 ? "−" : "±") + Math.abs(n);
+  document.getElementById("cv-orders").textContent = sg(adj.orders) + "%";
+  document.getElementById("cv-value").textContent = sg(adj.value) + "%";
+  document.getElementById("cv-margin").textContent = marginNow().toFixed(1) + "%";
+  const onePctOrders = base.orders * 0.01 * base.value * base.margin / 100, onePtMargin = base.orders * base.value / 100;
+  document.getElementById("result").innerHTML = `
+    <p>Adjusted EBITDA</p>
+    <div class="big">${em(ae)}</div>
+    <div class="delta ${Math.abs(d) < 2 ? "" : d > 0 ? "up" : "down"}">${Math.abs(d) < 2 ? "Same as 2025" : (d > 0 ? "+" : "−") + em(Math.abs(d)) + " vs 2025"}</div>
+    <table><tr><td>Orders</td><td>${o.toFixed(1)}m</td></tr><tr><td>Revenue</td><td>${ebn(rev)}</td></tr><tr><td>Margin</td><td>${marginNow().toFixed(1)}%</td></tr></table>
+    <p>At 2025 levels, 1% more orders adds about ${em(onePctOrders)} of AEBITDA. One extra point of margin adds about ${em(onePtMargin)}, roughly what ${(onePtMargin / onePctOrders).toFixed(0)}% more orders would bring.</p>`;
+}
+
+function drawAll() { drawTrend(); drawSeg(); drawProd(); drawCalc(); }
+drawAll();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawAll);
+new MutationObserver(drawAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>

@@ -1,0 +1,39 @@
+// ===== Olist Power BI measures =====
+// Create each one in Power BI: select the fact_orders table > Home > New measure,
+// then paste ONE measure (name = formula) and press Enter.
+
+Total Revenue = SUM ( fact_orders[revenue] )
+
+Orders = COUNTROWS ( fact_orders )
+
+Customers = DISTINCTCOUNT ( fact_orders[customer_unique_id] )
+
+Avg Order Value = DIVIDE ( [Total Revenue], [Orders] )
+
+Avg Review = AVERAGE ( fact_orders[review_score] )
+
+// is_late_flag is 1 (late), 0 (on time) or empty (not delivered yet).
+// COUNT ignores empty values, so this is late orders / delivered orders.
+Late Delivery % = DIVIDE ( SUM ( fact_orders[is_late_flag] ), COUNT ( fact_orders[is_late_flag] ) )
+
+Avg Delivery Days = AVERAGE ( fact_orders[delivery_days] )
+
+Bad Review % =
+DIVIDE (
+    CALCULATE ( COUNTROWS ( fact_orders ), fact_orders[review_score] <= 2 ),
+    COUNT ( fact_orders[review_score] )
+)
+
+Freight Share % = DIVIDE ( SUM ( fact_orders[freight_value] ), [Total Revenue] )
+
+// Needs the relationship dim_date[date] -> fact_orders[order_date]
+// and dim_date marked as a date table (see the guide, step 4).
+Revenue Previous Month = CALCULATE ( [Total Revenue], DATEADD ( dim_date[date], -1, MONTH ) )
+
+Revenue MoM % = DIVIDE ( [Total Revenue] - [Revenue Previous Month], [Revenue Previous Month] )
+
+Repeat Customer % =
+DIVIDE (
+    CALCULATE ( COUNTROWS ( dim_customers ), dim_customers[is_repeat_customer] = 1 ),
+    COUNTROWS ( dim_customers )
+)
