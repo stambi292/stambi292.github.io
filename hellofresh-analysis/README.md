@@ -1,6 +1,6 @@
 # HelloFresh: After the Boom
 
-By **Stephen TamBi** · [Website](https://stambi292.github.io) · [LinkedIn](https://www.linkedin.com/in/stephen-tambi-1b4326317/)
+By **Stephen tAMBI** · [Website](https://stambi292.github.io) · [LinkedIn](https://www.linkedin.com/in/stephen-tambi-1b4326317/)
 
 An interactive analysis of HelloFresh SE's results from 2021 to 2025: fewer orders, bigger baskets, and whether efficiency or volume matters more for profit.
 

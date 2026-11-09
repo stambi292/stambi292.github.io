@@ -1,4 +1,4 @@
-# Stephen TamBi · Data Analytics Portfolio
+# Stephen tAMBI · Data Analytics Portfolio
 
 Live site: **https://stambi292.github.io**
 

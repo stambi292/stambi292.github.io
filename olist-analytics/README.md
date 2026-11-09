@@ -1,6 +1,6 @@
 # Olist E-commerce Analytics
 
-By **Stephen TamBi** · [Website](https://stambi292.github.io) · [LinkedIn](https://www.linkedin.com/in/stephen-tambi-1b4326317/)
+By **Stephen tAMBI** · [Website](https://stambi292.github.io) · [LinkedIn](https://www.linkedin.com/in/stephen-tambi-1b4326317/)
 
 End-to-end analytics project on ~100,000 real orders from **Olist**, a Brazilian online marketplace (2016–2018). Raw CSVs are modeled into a tested **star schema with dbt + DuckDB**, analyzed with **SQL and Python**, presented in an **interactive dashboard**, and summarized as **business recommendations**.
 
