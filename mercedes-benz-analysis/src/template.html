@@ -289,7 +289,7 @@ function drawCalc() {
   document.getElementById("result").innerHTML = `
     <p>Mercedes-Benz Cars operating profit</p>
     <div class="big">${ebn(ebit)}</div>
-    <div class="delta ${d >= 0 ? "up" : "down"}">${Math.abs(d) < 20 ? "Same as 2025" : (d > 0 ? "+" : "−") + ebn(Math.abs(d)) + " vs 2025"}</div>
+    <div class="delta ${Math.abs(d) < 20 ? "" : d > 0 ? "up" : "down"}">${Math.abs(d) < 20 ? "Same as 2025" : (d > 0 ? "+" : "−") + ebn(Math.abs(d)) + " vs 2025"}</div>
     <table>
       <tr><td>Margin (return on sales)</td><td>${ros.toFixed(1)}%</td></tr>
       <tr><td>Profit per car</td><td>${eur(ebit * 1e6 / u)}</td></tr>

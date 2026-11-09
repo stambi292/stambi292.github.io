@@ -24,7 +24,14 @@ An interactive analysis of Amazon's reported results from 2018 to 2025: which pa
 `data/amazon_data.json` was built by hand from Amazon's Form 10-K annual reports and fourth-quarter results releases (SEC EDGAR). Every year was checked: segments, revenue streams and countries all add up to Amazon's reported totals.
 
 ## How it's built
-A single HTML page with inline SVG charts and plain JavaScript, no libraries. `src/template.html` is the page before the data is inserted.
+- `scripts/check_data.py` checks the dataset: totals and breakdowns must match the reported figures.
+- `scripts/build_page.py` inserts the data into `src/template.html` and writes `index.html`.
+- The page itself is plain HTML, inline SVG charts and JavaScript, with no libraries.
+
+```
+python scripts/check_data.py
+python scripts/build_page.py
+```
 
 ## Sources
 - Amazon.com, Inc. Form 10-K, fiscal years 2020, 2022 and 2025 (segment and product tables)

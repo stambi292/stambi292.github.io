@@ -23,7 +23,14 @@ An interactive analysis of HelloFresh SE's results from 2021 to 2025: fewer orde
 `data/hellofresh_data.json` was built from HelloFresh SE's annual results releases. Regions were checked to add up to group totals, and margins to match profit divided by revenue.
 
 ## How it's built
-A single HTML page with inline SVG charts and plain JavaScript, no libraries. `src/template.html` is the page before the data is inserted.
+- `scripts/check_data.py` checks the dataset: totals and breakdowns must match the reported figures.
+- `scripts/build_page.py` inserts the data into `src/template.html` and writes `index.html`.
+- The page itself is plain HTML, inline SVG charts and JavaScript, with no libraries.
+
+```
+python scripts/check_data.py
+python scripts/build_page.py
+```
 
 ## Sources
 - HelloFresh SE annual results releases for FY 2022, 2023, 2024 and 2025

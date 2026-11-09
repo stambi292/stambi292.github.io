@@ -24,7 +24,14 @@ An interactive analysis of Mercedes-Benz Group's results from 2021 to 2025: why 
 `data/mercedes_data.json` was built from Mercedes-Benz Group's annual results releases and its 2025 sales release. Margins were cross-checked against reported profit and revenue. 2025 figures were published as preliminary.
 
 ## How it's built
-A single HTML page with inline SVG charts and plain JavaScript, no libraries. `src/template.html` is the page before the data is inserted.
+- `scripts/check_data.py` checks the dataset: totals and breakdowns must match the reported figures.
+- `scripts/build_page.py` inserts the data into `src/template.html` and writes `index.html`.
+- The page itself is plain HTML, inline SVG charts and JavaScript, with no libraries.
+
+```
+python scripts/check_data.py
+python scripts/build_page.py
+```
 
 ## Sources
 - Mercedes-Benz Group annual results releases for 2022, 2023 and 2025
