@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fashion Returns</title>
+<meta name="description" content="2.3 million order lines from a German online fashion retailer: what makes customers send clothes back, which items will come back, and what cutting returns is worth in euros.">
+<meta name="author" content="Stephen tAMBI">
+<meta property="og:title" content="Half of it comes back: fashion returns">
+<meta property="og:description" content="2.3 million fashion order lines. What drives returns, a model that predicts them, and what cutting them is worth.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://stambi292.github.io/fashion-returns/">
+<meta property="og:image" content="https://stambi292.github.io/fashion-returns/images/preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: kraft-parcel masthead with a return-label stamp, headline numbers, what drives returns (tabbed bars), who returns, the prediction model (deciles), the savings calculator, recommendations, method. */
+:root {
+  --bg: #f7f4ef; --panel: #ffffff; --ink: #1b1d24; --ink-2: #4d505a; --muted: #81848d; --line: #e4ded4; --grid: #eee9e1;
+  --kraft: #c98a3d; --kraft-deep: #8a5a1f; --kraft-soft: #f6e9d6; --mast: #22252e; --on-mast: #ffffff; --on-mast-2: #b9bcc6;
+  --bar: #c98a3d; --bar-2: #c9c4bb; --good: #1e7d55; --good-soft: #e1f2ea;
+  --font-display: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111216; --panel: #1a1c22; --ink: #eeeef1; --ink-2: #b9bbc3; --muted: #878a93; --line: #2b2e36; --grid: #23262d;
+  --kraft: #e2a85c; --kraft-deep: #f0c287; --kraft-soft: #3a2b18; --mast: #0b0c0f; --bar: #e2a85c; --bar-2: #4a4d56; --good: #4ad296; --good-soft: #12301f; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #111216; --panel: #1a1c22; --ink: #eeeef1; --ink-2: #b9bbc3; --muted: #878a93; --line: #2b2e36; --grid: #23262d;
+  --kraft: #e2a85c; --kraft-deep: #f0c287; --kraft-soft: #3a2b18; --mast: #0b0c0f; --bar: #e2a85c; --bar-2: #4a4d56; --good: #4ad296; --good-soft: #12301f; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 var(--font-body); }
+.inner { max-width: 1000px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+.mast { background: var(--mast); color: var(--on-mast); position: relative; overflow: hidden; }
+.mast::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: repeating-linear-gradient(90deg, var(--kraft) 0 28px, transparent 28px 40px); }
+.mast .inner { padding-block: 22px 60px; display: grid; gap: 14px; position: relative; }
+.back { color: var(--on-mast-2); text-decoration: none; font-weight: 600; font-size: 15px; }
+.eyebrow { font: 500 13px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--kraft); margin-top: 18px; }
+h1 { font: 800 clamp(42px, 7.5vw, 74px)/1 var(--font-display); margin: 0; letter-spacing: -.02em; max-width: 13ch; text-wrap: balance; }
+h1 em { font-style: normal; color: var(--kraft); }
+.stamp { position: absolute; right: 18px; top: 58px; transform: rotate(-8deg); border: 3px solid var(--kraft); color: var(--kraft); border-radius: 8px; padding: 8px 14px; font: 700 15px/1.25 var(--font-mono); letter-spacing: .1em; text-align: center; opacity: .9; }
+.stamp b { display: block; font-size: 30px; letter-spacing: .02em; }
+.lede { margin: 4px 0 0; max-width: 62ch; color: var(--on-mast-2); font-size: 19px; }
+.byline { font-size: 14px; color: var(--on-mast-2); }
+h2 { font: 700 28px/1.15 var(--font-display); margin: 0 0 8px; letter-spacing: -.01em; text-wrap: balance; }
+.intro { margin: 0 0 18px; color: var(--ink-2); max-width: 66ch; }
+section { padding-block: 44px 4px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: -32px; position: relative; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.kpi b { display: block; font: 800 32px/1.05 var(--font-display); font-variant-numeric: tabular-nums; }
+.kpi span { color: var(--ink-2); font-size: 15px; line-height: 1.4; display: block; margin-top: 4px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 22px; display: grid; gap: 16px; min-width: 0; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tabs button, .seg button { font: 600 14.5px var(--font-body); border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+.tabs button[aria-pressed="true"], .seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--kraft); outline-offset: 2px; }
+.bars { display: grid; gap: 10px; }
+.brow { display: grid; grid-template-columns: minmax(0, 170px) minmax(0, 1fr) 64px; gap: 12px; align-items: center; }
+.brow .l { font-weight: 600; font-size: 15.5px; }
+.brow .l small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
+.track { position: relative; height: 26px; background: var(--grid); border-radius: 4px; }
+.fill { position: absolute; inset: 0 auto 0 0; background: var(--bar); border-radius: 0 4px 4px 0; transition: width .45s ease; }
+.avg { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--ink); }
+.brow .v { font: 700 17px var(--font-display); font-variant-numeric: tabular-nums; text-align: right; }
+.takeaway { margin: 0; padding: 12px 14px; background: var(--kraft-soft); border-radius: 8px; color: var(--ink); }
+.legend { font-size: 14px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.legend i { display: inline-block; width: 2px; height: 14px; background: var(--ink); }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.big { font: 800 56px/1 var(--font-display); font-variant-numeric: tabular-nums; color: var(--kraft-deep); }
+.dec svg { display: block; width: 100%; height: auto; }
+.dec text { fill: var(--muted); font: 500 12px var(--font-body); }
+.calc { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 26px; }
+.ctrl { display: grid; gap: 6px; }
+.ctrl label { font-weight: 600; display: flex; justify-content: space-between; gap: 10px; }
+.ctrl label span { font: 700 14px var(--font-mono); color: var(--kraft-deep); white-space: nowrap; }
+.ctrl small { color: var(--muted); font-size: 14px; line-height: 1.4; }
+input[type=range] { width: 100%; accent-color: var(--kraft); }
+.out { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-content: start; }
+.tile { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 2px; }
+.tile b { font: 800 28px/1.1 var(--font-display); font-variant-numeric: tabular-nums; }
+.tile span { color: var(--ink-2); font-size: 14.5px; }
+.tile.net { grid-column: 1 / -1; background: var(--good-soft); border-color: transparent; } .tile.net b { color: var(--good); font-size: 38px; }
+.note { font-size: 14.5px; color: var(--muted); margin: 0; max-width: 72ch; }
+.recs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.rec { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 6px; align-content: start; }
+.rec h3 { margin: 0; font: 700 19px/1.25 var(--font-display); }
+.rec p { margin: 0; color: var(--ink-2); font-size: 15.5px; }
+.rec .tag { font: 500 12px var(--font-mono); color: var(--kraft-deep); text-transform: uppercase; letter-spacing: .06em; }
+footer { padding-block: 40px 56px; color: var(--muted); font-size: 14.5px; display: grid; gap: 6px; }
+footer a { color: var(--ink-2); }
+@media (max-width: 820px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .two, .recs, .calc { grid-template-columns: minmax(0, 1fr); }
+  .stamp { display: none; }
+  .brow { grid-template-columns: minmax(0, 1fr) 56px; }
+  .brow .track { grid-column: 1 / -1; grid-row: 2; }
+}
+@media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="inner">
+    <a class="back" href="../">← Stephen tAMBI · Projects</a>
+    <div class="eyebrow">Online fashion · returns · machine learning</div>
+    <h1>Half of it <em>comes back</em></h1>
+    <p class="lede">Online fashion retailers like Zalando say about half of the items customers order are sent back. I analysed 2.3 million order lines from a German online fashion shop to find what drives returns, built a model that predicts them at checkout, and priced what cutting them is worth.</p>
+    <div class="byline">Independent analysis by Stephen tAMBI on public competition data. Not affiliated with Zalando or any retailer.</div>
+    <div class="stamp" aria-hidden="true">RETOURE<b id="stampRate">52.7%</b></div>
+  </div>
+</header>
+
+<main class="inner">
+  <div class="kpis" id="kpis"></div>
+
+  <section aria-labelledby="h-drivers">
+    <h2 id="h-drivers">What makes people send it back</h2>
+    <p class="intro">Return rate by the things a shop knows the moment an order is placed. The black line is the average.</p>
+    <div class="card">
+      <div class="tabs" role="group" aria-label="Driver" id="tabs"></div>
+      <div class="bars" id="bars"></div>
+      <div class="legend"><i></i> average return rate, <span id="avgLbl"></span></div>
+      <p class="takeaway" id="takeaway"></p>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-who">
+    <h2 id="h-who">A few customers send back most of it</h2>
+    <div class="two">
+      <div class="card"><div class="big" id="top10"></div><p style="margin:0;color:var(--ink-2)">of all returns come from the <b>top 10% of customers</b>. The top 1% alone send back <b id="top1"></b>.</p></div>
+      <div class="card"><div class="big" id="never"></div><p style="margin:0;color:var(--ink-2)">of customers <b>never returned anything</b> in 21 months. A blanket rule for everyone punishes the wrong people.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-model">
+    <h2 id="h-model">Predicting returns at checkout</h2>
+    <p class="intro" id="modelIntro"></p>
+    <div class="card">
+      <div class="dec"><svg id="dec" viewBox="0 0 900 280" role="img" aria-label="Actual return rate by model risk group"></svg></div>
+      <p class="note" id="modelNote"></p>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-calc">
+    <h2 id="h-calc">What cutting returns is worth</h2>
+    <p class="intro">Two levers from the analysis, per year, for a shop the size of this one. Move the sliders.</p>
+    <div class="card">
+      <div class="calc">
+        <div style="display:grid;gap:18px;align-content:start">
+          <div class="ctrl">
+            <label for="s1">Size-bracketing orders fixed <span id="s1v"></span></label>
+            <input id="s1" type="range" min="0" max="50" step="5" value="20">
+            <small>Share of "same item in two sizes" orders that become one right size thanks to better size advice.</small>
+          </div>
+          <div class="ctrl">
+            <label for="s2">Fewer returns in the riskiest 10% <span id="s2v"></span></label>
+            <input id="s2" type="range" min="0" max="30" step="5" value="10">
+            <small>Fit notes, size prompts or reviews shown only for the items the model flags.</small>
+          </div>
+          <div class="ctrl">
+            <label for="s3">Cost of one return <span id="s3v"></span></label>
+            <input id="s3" type="range" min="3" max="15" step="1" value="5">
+            <small>Shipping, checking and repacking. Studies range from €2.85 to €10–15 per item.</small>
+          </div>
+        </div>
+        <div class="out">
+          <div class="tile"><b id="o1"></b><span>returns avoided by size advice</span></div>
+          <div class="tile"><b id="o2"></b><span>returns avoided by targeted nudges</span></div>
+          <div class="tile"><b id="o3"></b><span>fewer returns overall</span></div>
+          <div class="tile"><b id="o4"></b><span id="o4t">new return rate</span></div>
+          <div class="tile net"><b id="oNet"></b><span>saved per year in return handling alone</span></div>
+        </div>
+      </div>
+      <p class="note" id="calcNote"></p>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-recs">
+    <h2 id="h-recs">What a fashion retailer should do</h2>
+    <div class="recs" id="recs"></div>
+  </section>
+
+  <section aria-labelledby="h-method">
+    <h2 id="h-method">How it was built</h2>
+    <div class="card">
+      <ul style="margin:0;padding-left:20px;display:grid;gap:6px;color:var(--ink-2)">
+        <li><b>Data:</b> <span id="mData"></span></li>
+        <li><b>Drivers:</b> return rate = items returned ÷ items ordered, split by order features. "Two sizes" means the same article and colour ordered in more than one size in the same order.</li>
+        <li><b>Model:</b> gradient boosting (scikit-learn) on price, discount, size and colour bracketing, basket size, payment type, device, product group, voucher and the customer's own earlier return rate. Trained on Jan 2014 to Mar 2015, tested on Apr to Sep 2015.</li>
+        <li><b>Money:</b> savings count only the handling cost of each avoided return. Lost margin, shipping out and the carbon cost are left out, so the real value is higher. The two levers partly overlap, so their sum is an upper estimate.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>Data: Data Mining Cup 2016 by prudsys AG, order data of a German online fashion retailer (the retailer is not named). Zalando return figures: Zalando corporate website ("Returns at Zalando") and its April 2025 return policy update. Return cost range: University of Bamberg, Research Group Returns Management (2022).</span>
+    <span>Independent analysis by Stephen tAMBI. Not affiliated with Zalando or any retailer.</span>
+  </footer>
+</main>
+
+<script>
+const D = {"dataset":{"lines":2277971,"items":2299247,"orders":738376,"customers":311165,"from":"2014-01","to":"2015-09","months":20.9,"sales":82291025,"returnRate":52.7,"returnedValue":46786251,"returnedValueShare":56.9,"returnedItems":1210749,"avgPrice":35.79},"drivers":{"sizes":[{"label":"One size","share":86.4,"rate":49.0},{"label":"Two sizes","share":13.2,"rate":75.9},{"label":"Three or more","share":0.4,"rate":73.6}],"orderItems":[{"label":"1","share":8.7,"rate":36.1},{"label":"2","share":16.7,"rate":43.5},{"label":"3","share":15.7,"rate":47.0},{"label":"4","share":14.0,"rate":52.8},{"label":"5","share":10.7,"rate":56.0},{"label":"6+","share":34.2,"rate":62.8}],"price":[{"label":"Under \u20ac15","share":13.2,"rate":40.1},{"label":"\u20ac15\u201330","share":40.3,"rate":49.0},{"label":"\u20ac30\u201350","share":29.9,"rate":58.0},{"label":"\u20ac50\u201380","share":14.0,"rate":61.6},{"label":"Over \u20ac80","share":2.6,"rate":63.4}],"payment":[{"label":"Paid upfront","share":22.0,"rate":39.7},{"label":"Pay later (invoice)","share":78.0,"rate":56.3}],"discount":[{"label":"Full price","share":65.0,"rate":53.4},{"label":"Up to 40% off","share":14.5,"rate":54.3},{"label":"40-60% off","share":11.2,"rate":52.2},{"label":"Over 60% off","share":7.9,"rate":47.2}]},"customers":{"n":311165,"top10share":53.5,"top1share":15.7,"neverReturn":31.3},"model":{"auc":0.73,"ap":0.731,"base":53.2,"testLines":747790,"deciles":[{"decile":1,"rate":81.8,"avgScore":82.7},{"decile":2,"rate":74.7,"avgScore":75.5},{"decile":3,"rate":69.4,"avgScore":70.3},{"decile":4,"rate":64.5,"avgScore":65.2},{"decile":5,"rate":58.8,"avgScore":59.4},{"decile":6,"rate":52.7,"avgScore":53.1},{"decile":7,"rate":46.3,"avgScore":46.1},{"decile":8,"rate":38.6,"avgScore":38.1},{"decile":9,"rate":29.6,"avgScore":28.8},{"decile":10,"rate":15.3,"avgScore":14.3}]},"recs":[{"tag":"Size advice","h":"Step in when a second size goes in the basket","p":"Bracketed items come back 75.9% of the time. The moment a customer adds the same item in a second size is the best time to show a size recommendation or fit notes from other buyers. Zalando reports its Size & Fit tools already prevented 8% of size-related returns in 2025."},{"tag":"Targeting","h":"Use the risk score to help, not to punish","p":"The riskiest tenth of items comes back 81.8% of the time. Show those items extra fit information, model measurements and reviews before checkout, and leave low-risk items alone so the shopping stays easy."},{"tag":"Customers","h":"Deal with the few, not the many","p":"53.5% of returns come from 10% of customers, and 31.3% never return anything. Rules should target extreme, persistent returners, as Zalando did in 2025 for about 0.02% of its customers, while free returns stay free for everyone else."},{"tag":"Payment","h":"Keep pay-later, but use it as a signal","p":"Invoice customers return more, but they are most of the business. Removing invoice payment would lose sales; feeding payment type into the risk model captures the effect without changing the checkout."}]};
+(() => {
+  const NS = 'http://www.w3.org/2000/svg';
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const n0 = v => Math.round(v).toLocaleString('en-US');
+  const eur = v => '€' + (v >= 1e6 ? (v / 1e6).toFixed(1) + 'm' : n0(v));
+  const S = D.dataset, avg = S.returnRate, yr = 12 / S.months;
+
+  document.getElementById('stampRate').textContent = avg + '%';
+  const two = D.drivers.sizes[1];
+  document.getElementById('kpis').innerHTML = [
+    [avg + '%', 'of items ordered were sent back'],
+    ['€' + (S.returnedValue / 1e6).toFixed(1) + 'm', `of €${(S.sales / 1e6).toFixed(1)}m in sales came back (${S.returnedValueShare}%)`],
+    [two.rate + '%', 'return rate when the same item is ordered in two sizes'],
+    [D.customers.top10share + '%', 'of returns come from 10% of customers'],
+  ].map(([a, b]) => `<div class="kpi"><b>${a}</b><span>${b}</span></div>`).join('');
+
+  const TABS = [
+    ['sizes', 'Sizes ordered', 'share of items', r => `Ordering the same item in two sizes is "bracketing": the customer plans to send one back. These items come back <b>${r[1].rate}%</b> of the time against ${r[0].rate}% for a single size, and they are ${r[1].share}% of everything ordered.`],
+    ['orderItems', 'Items in the basket', 'share of items', r => `Big baskets are try-on sessions. A single-item order comes back ${r[0].rate}% of the time; in baskets of six or more it's <b>${r[5].rate}%</b>, and those baskets hold ${r[5].share}% of all items.`],
+    ['price', 'Item price', 'share of items', r => `The more an item costs, the more likely it goes back: <b>${r[0].rate}%</b> under €15, <b>${r[4].rate}%</b> over €80. Expensive items are where returns cost most.`],
+    ['payment', 'Payment', 'share of items', r => `Customers paying later by invoice return <b>${r[1].rate}%</b> of items, against ${r[0].rate}% for those who pay upfront. But invoice is ${r[1].share}% of all items, so dropping it would cost sales.`],
+    ['discount', 'Discount', 'share of items', r => `Discounts barely matter until they get deep: items over 60% off come back ${r[3].rate}% of the time, close to the full-price ${r[0].rate}%. Returns are about fit and choice, not price cuts.`],
+  ];
+  const labels = { orderItems: v => v === '6+' ? '6 or more' : v + (v === '1' ? ' item' : ' items') };
+  let tab = 'sizes';
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = TABS.map(([k, t]) => `<button type="button" data-k="${k}" aria-pressed="${k === tab}">${t}</button>`).join('');
+  tabsEl.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; tab = b.dataset.k; tabsEl.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); drawBars(); });
+  document.getElementById('avgLbl').textContent = avg + '%';
+  function drawBars() {
+    const [k, , sub, take] = TABS.find(t => t[0] === tab), rows = D.drivers[k], max = 90;
+    document.getElementById('bars').innerHTML = rows.map(r => `<div class="brow"><div class="l">${labels[k] ? labels[k](r.label) : r.label}<small>${r.share}% of items</small></div><div class="track"><div class="fill" style="width:${r.rate / max * 100}%"></div><div class="avg" style="left:${avg / max * 100}%"></div></div><div class="v">${r.rate}%</div></div>`).join('');
+    document.getElementById('takeaway').innerHTML = take(rows);
+  }
+  drawBars();
+
+  document.getElementById('top10').textContent = D.customers.top10share + '%';
+  document.getElementById('top1').textContent = D.customers.top1share + '%';
+  document.getElementById('never').textContent = D.customers.neverReturn + '%';
+
+  const M = D.model, dec = M.deciles;
+  document.getElementById('modelIntro').innerHTML = `The model scores every item in a basket before it ships. Tested on six months it never saw, the riskiest 10% of items came back <b>${dec[0].rate}%</b> of the time and the safest 10% only <b>${dec[9].rate}%</b>.`;
+  document.getElementById('modelNote').textContent = `Bars: actual return rate in each tenth of items, sorted by the model's risk score. ROC-AUC ${M.auc} on ${n0(M.testLines)} test lines. The model is a sorting tool, not a verdict: about one in five "riskiest" items is kept.`;
+  function drawDec() {
+    const svg = document.getElementById('dec'); svg.innerHTML = '';
+    const W = Math.max(320, svg.clientWidth || 900), H = W < 600 ? 240 : 280, L = 40, R = 8, T = 24, B = 44;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const el = (t, a, txt) => { const e = document.createElementNS(NS, t); for (const x in a) e.setAttribute(x, a[x]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+    const y = v => T + (H - T - B) * (1 - v / 100), bw = (W - L - R) / 10;
+    [0, 25, 50, 75, 100].forEach(v => { el('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: css('--grid') }); el('text', { x: L - 6, y: y(v) + 4, 'text-anchor': 'end' }, v + '%'); });
+    dec.forEach((d, i) => {
+      const x = L + i * bw + 3, hi = i === 0 || i === 9;
+      el('rect', { x, y: y(d.rate), width: bw - 6, height: y(0) - y(d.rate), rx: 3, fill: hi ? css('--kraft') : css('--bar-2') });
+      if (W >= 600 || hi) el('text', { x: x + (bw - 6) / 2, y: y(d.rate) - 6, 'text-anchor': 'middle', style: 'font-weight:700;fill:' + css('--ink') }, Math.round(d.rate) + '%');
+      el('text', { x: x + (bw - 6) / 2, y: H - B + 16, 'text-anchor': 'middle' }, i + 1);
+    });
+    el('line', { x1: L, x2: W - R, y1: y(avg), y2: y(avg), stroke: css('--ink'), 'stroke-width': 1.5, 'stroke-dasharray': '5 4' });
+    el('text', { x: L, y: H - 6 }, '← riskiest items');
+    el('text', { x: W - R, y: H - 6, 'text-anchor': 'end' }, 'safest items →');
+  }
+
+  const s1 = document.getElementById('s1'), s2 = document.getElementById('s2'), s3 = document.getElementById('s3');
+  const one = D.drivers.sizes[0], br = D.drivers.sizes.slice(1);
+  const brItems = br.reduce((a, r) => a + r.share, 0) / 100 * S.items * yr;
+  const brRate = br.reduce((a, r) => a + r.share * r.rate, 0) / br.reduce((a, r) => a + r.share, 0);
+  const topItems = 0.1 * S.items * yr, topRate = dec[0].rate / 100, retYr = S.returnedItems * yr;
+  function calc() {
+    const a = +s1.value / 100, b = +s2.value / 100, c = +s3.value;
+    document.getElementById('s1v').textContent = s1.value + '%';
+    document.getElementById('s2v').textContent = s2.value + '%';
+    document.getElementById('s3v').textContent = '€' + c;
+    const r1 = brItems * a * (brRate - one.rate) / 100, r2 = topItems * topRate * b, tot = r1 + r2;
+    document.getElementById('o1').textContent = n0(r1);
+    document.getElementById('o2').textContent = n0(r2);
+    document.getElementById('o3').textContent = (tot / retYr * 100).toFixed(1) + '%';
+    document.getElementById('o4').textContent = (avg * (1 - tot / retYr)).toFixed(1) + '%';
+    document.getElementById('o4t').textContent = `new return rate, from ${avg}%`;
+    document.getElementById('oNet').textContent = eur(tot * c);
+  }
+  document.getElementById('calcNote').textContent = `Per year: this shop sold about ${n0(S.items * yr)} items and handled about ${n0(retYr)} returns. A retailer with Zalando's volume handles many times more, so the same percentages are worth far more there.`;
+  [s1, s2, s3].forEach(s => s.addEventListener('input', calc));
+  calc();
+
+  document.getElementById('recs').innerHTML = D.recs.map(r => `<div class="rec"><span class="tag">${r.tag}</span><h3>${r.h}</h3><p>${r.p}</p></div>`).join('');
+  document.getElementById('mData').textContent = `${n0(S.lines)} order lines (${n0(S.items)} items, ${n0(S.orders)} orders, ${n0(S.customers)} customers) from a German online fashion retailer, January 2014 to September 2015, published for the Data Mining Cup 2016. Each line says how many items came back.`;
+
+  drawDec();
+  addEventListener('resize', drawDec);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { drawDec(); });
+})();
+</script>
+</body>
+</html>

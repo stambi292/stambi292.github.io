@@ -1,0 +1,193 @@
+{
+ "dataset": {
+  "lines": 2277971,
+  "items": 2299247,
+  "orders": 738376,
+  "customers": 311165,
+  "from": "2014-01",
+  "to": "2015-09",
+  "months": 20.9,
+  "sales": 82291025,
+  "returnRate": 52.7,
+  "returnedValue": 46786251,
+  "returnedValueShare": 56.9,
+  "returnedItems": 1210749,
+  "avgPrice": 35.79
+ },
+ "drivers": {
+  "sizes": [
+   {
+    "label": "One size",
+    "share": 86.4,
+    "rate": 49.0
+   },
+   {
+    "label": "Two sizes",
+    "share": 13.2,
+    "rate": 75.9
+   },
+   {
+    "label": "Three or more",
+    "share": 0.4,
+    "rate": 73.6
+   }
+  ],
+  "orderItems": [
+   {
+    "label": "1",
+    "share": 8.7,
+    "rate": 36.1
+   },
+   {
+    "label": "2",
+    "share": 16.7,
+    "rate": 43.5
+   },
+   {
+    "label": "3",
+    "share": 15.7,
+    "rate": 47.0
+   },
+   {
+    "label": "4",
+    "share": 14.0,
+    "rate": 52.8
+   },
+   {
+    "label": "5",
+    "share": 10.7,
+    "rate": 56.0
+   },
+   {
+    "label": "6+",
+    "share": 34.2,
+    "rate": 62.8
+   }
+  ],
+  "price": [
+   {
+    "label": "Under \u20ac15",
+    "share": 13.2,
+    "rate": 40.1
+   },
+   {
+    "label": "\u20ac15\u201330",
+    "share": 40.3,
+    "rate": 49.0
+   },
+   {
+    "label": "\u20ac30\u201350",
+    "share": 29.9,
+    "rate": 58.0
+   },
+   {
+    "label": "\u20ac50\u201380",
+    "share": 14.0,
+    "rate": 61.6
+   },
+   {
+    "label": "Over \u20ac80",
+    "share": 2.6,
+    "rate": 63.4
+   }
+  ],
+  "payment": [
+   {
+    "label": "Paid upfront",
+    "share": 22.0,
+    "rate": 39.7
+   },
+   {
+    "label": "Pay later (invoice)",
+    "share": 78.0,
+    "rate": 56.3
+   }
+  ],
+  "discount": [
+   {
+    "label": "Full price",
+    "share": 65.0,
+    "rate": 53.4
+   },
+   {
+    "label": "Up to 40% off",
+    "share": 14.5,
+    "rate": 54.3
+   },
+   {
+    "label": "40-60% off",
+    "share": 11.2,
+    "rate": 52.2
+   },
+   {
+    "label": "Over 60% off",
+    "share": 7.9,
+    "rate": 47.2
+   }
+  ]
+ },
+ "customers": {
+  "n": 311165,
+  "top10share": 53.5,
+  "top1share": 15.7,
+  "neverReturn": 31.3
+ },
+ "model": {
+  "auc": 0.73,
+  "ap": 0.731,
+  "base": 53.2,
+  "testLines": 747790,
+  "deciles": [
+   {
+    "decile": 1,
+    "rate": 81.8,
+    "avgScore": 82.7
+   },
+   {
+    "decile": 2,
+    "rate": 74.7,
+    "avgScore": 75.5
+   },
+   {
+    "decile": 3,
+    "rate": 69.4,
+    "avgScore": 70.3
+   },
+   {
+    "decile": 4,
+    "rate": 64.5,
+    "avgScore": 65.2
+   },
+   {
+    "decile": 5,
+    "rate": 58.8,
+    "avgScore": 59.4
+   },
+   {
+    "decile": 6,
+    "rate": 52.7,
+    "avgScore": 53.1
+   },
+   {
+    "decile": 7,
+    "rate": 46.3,
+    "avgScore": 46.1
+   },
+   {
+    "decile": 8,
+    "rate": 38.6,
+    "avgScore": 38.1
+   },
+   {
+    "decile": 9,
+    "rate": 29.6,
+    "avgScore": 28.8
+   },
+   {
+    "decile": 10,
+    "rate": 15.3,
+    "avgScore": 14.3
+   }
+  ]
+ }
+}
