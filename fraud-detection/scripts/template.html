@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Catching Card Fraud</title>
+<meta name="description" content="A machine learning model for card fraud on 284,807 real transactions, priced in euros: how much fraud each alert threshold stops, what the false alarms cost, and which setting saves a bank the most.">
+<meta property="og:title" content="Catching Card Fraud">
+<meta property="og:description" content="Machine learning on 284,807 card transactions. Pick an alert threshold and see the euros stopped, missed and spent on reviews.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://stambi292.github.io/fraud-detection/">
+<meta property="og:image" content="https://stambi292.github.io/fraud-detection/images/preview.png">
+<meta name="author" content="Stephen tAMBI">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a card-terminal style masthead, headline numbers, the decision panel (threshold + review cost → euros), the savings curve, why accuracy misleads, recommendations, method. */
+:root {
+  --bg: #f4f5f7; --panel: #ffffff; --ink: #13151a; --ink-2: #4a4f5a; --muted: #7c828d; --line: #dfe2e7; --grid: #eceef1;
+  --mast: #16181d; --on-mast: #ffffff; --on-mast-2: #b3b8c2;
+  --alert: #e08a0b; --alert-soft: #fdf0dc; --saved: #138a5a; --saved-soft: #e1f3ea; --lost: #d64545; --neutral: #6b7383;
+  --font-display: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d0f12; --panel: #161a1f; --ink: #eef0f3; --ink-2: #b6bbc5; --muted: #858b96; --line: #272c33; --grid: #1f242a;
+  --mast: #08090b; --alert: #f5a524; --alert-soft: #3a2a0e; --saved: #34d08b; --saved-soft: #0f2e21; --lost: #f06a6a; --neutral: #8f97a6; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0d0f12; --panel: #161a1f; --ink: #eef0f3; --ink-2: #b6bbc5; --muted: #858b96; --line: #272c33; --grid: #1f242a;
+  --mast: #08090b; --alert: #f5a524; --alert-soft: #3a2a0e; --saved: #34d08b; --saved-soft: #0f2e21; --lost: #f06a6a; --neutral: #8f97a6; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 var(--font-body); }
+.inner { max-width: 1000px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+.mast { background: var(--mast); color: var(--on-mast); }
+.mast .inner { padding-block: 22px 52px; display: grid; gap: 14px; }
+.back { color: var(--on-mast-2); text-decoration: none; font-weight: 600; font-size: 15px; }
+.eyebrow { font: 500 13px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--alert); margin-top: 18px; }
+h1 { font: 800 clamp(40px, 7vw, 68px)/1 var(--font-display); margin: 0; letter-spacing: -.02em; text-wrap: balance; }
+.lede { margin: 4px 0 0; max-width: 64ch; color: var(--on-mast-2); font-size: 19px; }
+.byline { font-size: 14px; color: var(--on-mast-2); }
+.ticker { font: 500 13px var(--font-mono); color: var(--on-mast-2); display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.ticker b { color: var(--alert); font-weight: 500; }
+h2 { font: 700 28px/1.15 var(--font-display); margin: 0 0 8px; letter-spacing: -.01em; text-wrap: balance; }
+.intro { margin: 0 0 18px; color: var(--ink-2); max-width: 66ch; }
+section { padding-block: 40px 4px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: -30px; position: relative; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.kpi b { display: block; font: 800 34px/1.05 var(--font-display); font-variant-numeric: tabular-nums; }
+.kpi span { color: var(--ink-2); font-size: 15px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 22px; display: grid; gap: 18px; min-width: 0; }
+.panel { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 26px; }
+.ctrl { display: grid; gap: 8px; }
+.ctrl label { font-weight: 600; display: flex; justify-content: space-between; gap: 10px; }
+.ctrl label span { font: 500 14px var(--font-mono); color: var(--alert); }
+.ctrl small { color: var(--muted); font-size: 14px; }
+input[type=range] { width: 100%; accent-color: var(--alert); }
+input:focus-visible, button:focus-visible { outline: 2px solid var(--alert); outline-offset: 2px; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: 600 14px var(--font-body); border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+.out { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.tile { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 2px; }
+.tile b { font: 800 28px/1.1 var(--font-display); font-variant-numeric: tabular-nums; }
+.tile span { color: var(--ink-2); font-size: 14.5px; }
+.tile.saved { background: var(--saved-soft); border-color: transparent; } .tile.saved b { color: var(--saved); }
+.tile.lost b { color: var(--lost); }
+.tile.alert b { color: var(--alert); }
+.tile.net { grid-column: 1 / -1; background: var(--ink); border-color: var(--ink); } .tile.net b, .tile.net span { color: var(--panel); }
+.hint { font-size: 15px; color: var(--ink-2); margin: 0; }
+.hint button { font: 600 14px var(--font-body); background: none; border: 0; color: var(--alert); cursor: pointer; padding: 0; text-decoration: underline; }
+.chart svg { display: block; width: 100%; height: auto; }
+.chart text { fill: var(--muted); font: 500 12px var(--font-body); }
+.note { font-size: 14.5px; color: var(--muted); margin-top: 10px; max-width: 72ch; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.big { font: 800 52px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.recs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.rec { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 6px; align-content: start; }
+.rec h3 { margin: 0; font: 700 19px/1.25 var(--font-display); }
+.rec p { margin: 0; color: var(--ink-2); font-size: 15.5px; }
+.rec .tag { font: 500 12px var(--font-mono); color: var(--alert); text-transform: uppercase; letter-spacing: .06em; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--muted); font-weight: 600; }
+footer { padding-block: 40px 56px; color: var(--muted); font-size: 14.5px; display: grid; gap: 6px; }
+footer a { color: var(--ink-2); }
+@media (max-width: 800px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .panel, .two, .recs { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="inner">
+    <a class="back" href="../">← Stephen tAMBI · Projects</a>
+    <div class="eyebrow">Fintech · machine learning · card fraud</div>
+    <h1>Catching card fraud, priced in euros</h1>
+    <p class="lede">A card issuer sees hundreds of thousands of payments a day and only a handful are fraud. I trained a machine learning model on 284,807 real card transactions and turned its output into the decision a bank actually makes: which payments to stop or review, and what that is worth.</p>
+    <div class="ticker" id="ticker"></div>
+    <div class="byline">Independent analysis by Stephen tAMBI on a public, anonymised dataset. Not affiliated with any bank or payment company.</div>
+  </div>
+</header>
+
+<main class="inner">
+  <div class="kpis" id="kpis"></div>
+
+  <section aria-labelledby="h-panel">
+    <h2 id="h-panel">Set the alarm, see the money</h2>
+    <p class="intro">The model gives every payment a fraud score from 0 to 1. The bank chooses a threshold: payments above it are flagged for review. Lower thresholds catch more fraud but flag more honest customers. Results are for the model's test period, the last hours of the data it never saw while learning.</p>
+    <div class="card">
+      <div class="panel">
+        <div style="display:grid;gap:20px;align-content:start">
+          <div class="ctrl">
+            <label for="thr">Alert threshold <span id="thrv">0.50</span></label>
+            <input id="thr" type="range" min="0" max="99" step="1" value="17">
+            <small>Flag a payment when its fraud score is at least this.</small>
+          </div>
+          <div class="ctrl">
+            <label for="cost">Cost of reviewing one alert <span id="costv">€5</span></label>
+            <input id="cost" type="range" min="0" max="30" step="1" value="5">
+            <small>Analyst time, a call to the customer, a declined purchase.</small>
+          </div>
+          <div class="ctrl">
+            <label>Show results</label>
+            <div class="seg" role="group" aria-label="Period">
+              <button type="button" data-p="test" aria-pressed="true">Test period</button>
+              <button type="button" data-p="year" aria-pressed="false">Per year, same volume</button>
+            </div>
+          </div>
+          <p class="hint" id="hint"></p>
+        </div>
+        <div style="display:grid;gap:14px;align-content:start">
+          <div class="out">
+            <div class="tile saved"><b id="oCaughtEur">€0</b><span id="oCaught">frauds caught</span></div>
+            <div class="tile lost"><b id="oMissedEur">€0</b><span id="oMissed">frauds missed</span></div>
+            <div class="tile alert"><b id="oFalse">0</b><span>honest payments flagged (false alarms)</span></div>
+            <div class="tile"><b id="oReview">€0</b><span id="oReviewTxt">spent reviewing alerts</span></div>
+            <div class="tile net"><b id="oNet">€0</b><span>net saving: fraud stopped minus review cost</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="chart"><svg id="curve" viewBox="0 0 900 300" role="img" aria-label="Net saving by threshold"></svg></div>
+    </div>
+    <p class="note" id="yearNote"></p>
+  </section>
+
+  <section aria-labelledby="h-acc">
+    <h2 id="h-acc">Why "99.8% accurate" means nothing here</h2>
+    <div class="two">
+      <div class="card">
+        <div class="big" id="accBig">99.83%</div>
+        <p style="margin:0;color:var(--ink-2)">is the accuracy of a "model" that says <b>no payment is ever fraud</b>. It catches nothing. With fraud this rare, accuracy hides the problem, so I judged the models on <b>precision-recall</b>: how much fraud they find, and how clean their alerts are.</p>
+      </div>
+      <div class="card">
+        <table id="models"><thead><tr><th>Model</th><th>PR-AUC</th><th>ROC-AUC</th></tr></thead><tbody></tbody></table>
+        <p class="note" style="margin:0">PR-AUC runs from about 0.002 (guessing) to 1.0 (perfect). Higher is better.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-recs">
+    <h2 id="h-recs">What a bank should do with this</h2>
+    <div class="recs" id="recs"></div>
+  </section>
+
+  <section aria-labelledby="h-method">
+    <h2 id="h-method">How it was built</h2>
+    <div class="card">
+      <ul style="margin:0;padding-left:20px;display:grid;gap:6px;color:var(--ink-2)">
+        <li><b>Data:</b> 284,807 card transactions by European cardholders over two days in September 2013, 492 of them fraud. The bank anonymised the features (V1 to V28 are principal components), so only time and amount keep their meaning.</li>
+        <li><b>Honest test:</b> the models trained on the first 70% of the time window and were tested on the last 30%, the way a bank would use them: on future payments, not shuffled ones.</li>
+        <li><b>Models:</b> logistic regression as a baseline, gradient boosting and a random forest, all weighted for the rare fraud class, in Python with scikit-learn. The random forest scored best and drives the page. The page's numbers all come from the test period.</li>
+        <li><b>Money:</b> a caught fraud saves its amount, a missed one loses it, and every alert costs the review cost you set. Chargeback fees and lost customers are left out, so real savings are likely larger.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>Data: Credit Card Fraud Detection dataset, Machine Learning Group of the Université Libre de Bruxelles (Dal Pozzolo et al.), published on <a href="https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud">Kaggle</a>. Amounts are treated as euros, as the dataset comes from European cardholders.</span>
+    <span>Independent analysis by Stephen tAMBI. Not affiliated with any bank or payment company.</span>
+  </footer>
+</main>
+
+<script>
+const D = /*__DATA__*/null;
+(() => {
+  const NS = 'http://www.w3.org/2000/svg';
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const eur = v => (v < 0 ? '−€' : '€') + Math.abs(Math.round(v)).toLocaleString('en-US');
+  const C = D.curve.filter(c => c.t > 0), T = D.test, scale = 8760 / T.hours;
+  let period = 'test';
+
+  document.getElementById('ticker').innerHTML =
+    `<span>TXN <b>${D.dataset.transactions.toLocaleString('en-US')}</b></span><span>FRAUD <b>${D.dataset.frauds}</b></span><span>RATE <b>${D.dataset.fraudRate}%</b></span><span>WINDOW <b>${D.dataset.hours} h</b></span>`;
+  const rec = D.recommended;
+  document.getElementById('kpis').innerHTML = [
+    [D.dataset.fraudRate + '%', 'of payments are fraud: 1 in ' + Math.round(100 / D.dataset.fraudRate)],
+    [eur(D.dataset.fraudEur), 'of fraud in two days of data'],
+    [Math.round(rec.caughtEur / T.fraudEur * 100) + '%', 'of fraud euros stopped at the recommended setting'],
+    [Math.round(rec.falseAlarms / rec.flagged * 100) + '%', 'of alerts are honest customers at that setting'],
+  ].map(([a, b]) => `<div class="kpi"><b>${a}</b><span>${b}</span></div>`).join('');
+
+  const thr = document.getElementById('thr'), cost = document.getElementById('cost');
+  const net = (c, k) => c.caughtEur - k * c.flagged;
+  const bestFor = k => C.reduce((b, c) => net(c, k) > net(b, k) ? c : b, C[0]);
+  function point() { return C[Math.min(C.length - 1, +thr.value)]; }
+  function update() {
+    const c = point(), k = +cost.value, s = period === 'year' ? scale : 1;
+    document.getElementById('thrv').textContent = c.t.toFixed(2);
+    document.getElementById('costv').textContent = '€' + k;
+    document.getElementById('oCaughtEur').textContent = eur(c.caughtEur * s);
+    document.getElementById('oCaught').textContent = `stopped: ${Math.round(c.caught * s).toLocaleString('en-US')} of ${Math.round(T.frauds * s).toLocaleString('en-US')} frauds caught`;
+    document.getElementById('oMissedEur').textContent = eur(c.missedEur * s);
+    document.getElementById('oMissed').textContent = `lost: ${Math.round(c.missed * s).toLocaleString('en-US')} frauds missed`;
+    document.getElementById('oFalse').textContent = Math.round(c.falseAlarms * s).toLocaleString('en-US');
+    document.getElementById('oReview').textContent = eur(k * c.flagged * s);
+    document.getElementById('oReviewTxt').textContent = `spent reviewing ${Math.round(c.flagged * s).toLocaleString('en-US')} alerts`;
+    document.getElementById('oNet').textContent = eur(net(c, k) * s);
+    const b = bestFor(k);
+    document.getElementById('hint').innerHTML = b.t === c.t
+      ? `This is the best threshold for a €${k} review cost.`
+      : `At €${k} per review, a threshold of <b>${b.t.toFixed(2)}</b> saves the most (${eur(net(b, k) * s)}). <button type="button" id="goBest">Use it</button>`;
+    const g = document.getElementById('goBest'); if (g) g.addEventListener('click', () => { thr.value = C.indexOf(b); update(); });
+    document.getElementById('yearNote').textContent = period === 'year'
+      ? `"Per year" multiplies the ${T.hours}-hour test period by ${Math.round(scale)}, assuming the same payment volume and fraud rate all year. It shows the scale, not a forecast.`
+      : `Test period: ${T.transactions.toLocaleString('en-US')} payments over ${T.hours} hours, with ${T.frauds} frauds worth ${eur(T.fraudEur)}.`;
+    drawCurve(c, k, b);
+  }
+  function drawCurve(cur, k, best) {
+    const svg = document.getElementById('curve'); svg.innerHTML = '';
+    const el = (t, a) => { const e = document.createElementNS(NS, t); for (const x in a) e.setAttribute(x, a[x]); svg.appendChild(e); return e; };
+    const W = Math.max(320, svg.clientWidth || 900), H = W < 600 ? 260 : 300, L = 64, R = 14, Tp = 22, B = 40; svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const vals = C.map(c => net(c, k)), min = Math.min(0, ...vals), max = Math.max(...vals, 1);
+    const t0 = C[0].t, x = t => L + (t - t0) / (1 - t0) * (W - L - R), y = v => Tp + (H - Tp - B) * (1 - (v - min) / (max - min));
+    const steps = 4; for (let i = 0; i <= steps; i++) { const v = min + (max - min) * i / steps; el('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: css('--grid') }); el('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end' }).textContent = eur(v); }
+    if (min < 0) el('line', { x1: L, x2: W - R, y1: y(0), y2: y(0), stroke: css('--muted') });
+    [0.01, .25, .5, .75, 1].forEach(t => { el('text', { x: x(t), y: H - 18, 'text-anchor': 'middle' }).textContent = t.toFixed(2); });
+    el('text', { x: (W + L) / 2, y: H - 2, 'text-anchor': 'middle' }).textContent = 'Alert threshold';
+    el('polyline', { points: C.map(c => x(c.t) + ',' + y(net(c, k))).join(' '), fill: 'none', stroke: css('--saved'), 'stroke-width': 3, 'stroke-linejoin': 'round' });
+    el('circle', { cx: x(best.t), cy: y(net(best, k)), r: 6, fill: css('--saved'), stroke: css('--panel'), 'stroke-width': 2 });
+    el('text', { x: x(best.t), y: y(net(best, k)) - 12, 'text-anchor': 'middle', style: 'font-weight:700;fill:' + css('--saved') }).textContent = 'best';
+    el('line', { x1: x(cur.t), x2: x(cur.t), y1: Tp, y2: H - B, stroke: css('--alert'), 'stroke-width': 2, 'stroke-dasharray': '5 4' });
+    el('text', { x: x(cur.t) + 6, y: H - B - 10, style: 'font-weight:700;fill:' + css('--alert') }).textContent = 'your setting';
+  }
+  thr.addEventListener('input', update); cost.addEventListener('input', update);
+  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => { period = b.dataset.p; document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); update(); }));
+  thr.value = C.indexOf(C.find(c => c.t === rec.t));
+
+  document.getElementById('accBig').textContent = (100 - D.dataset.fraudRate).toFixed(2) + '%';
+  document.querySelector('#models tbody').innerHTML = Object.entries(D.models).map(([n, m]) => `<tr><td>${n}${n === D.best ? ' <b>(used)</b>' : ''}</td><td>${m.pr_auc.toFixed(3)}</td><td>${m.roc_auc.toFixed(3)}</td></tr>`).join('');
+  document.getElementById('recs').innerHTML = D.recs.map(r => `<div class="rec"><span class="tag">${r.tag}</span><h3>${r.h}</h3><p>${r.p}</p></div>`).join('');
+
+  update();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', update);
+  addEventListener('resize', update);
+})();
+</script>
+</body>
+</html>

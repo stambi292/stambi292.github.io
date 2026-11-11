@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Catching Card Fraud</title>
+<meta name="description" content="A machine learning model for card fraud on 284,807 real transactions, priced in euros: how much fraud each alert threshold stops, what the false alarms cost, and which setting saves a bank the most.">
+<meta property="og:title" content="Catching Card Fraud">
+<meta property="og:description" content="Machine learning on 284,807 card transactions. Pick an alert threshold and see the euros stopped, missed and spent on reviews.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://stambi292.github.io/fraud-detection/">
+<meta property="og:image" content="https://stambi292.github.io/fraud-detection/images/preview.png">
+<meta name="author" content="Stephen tAMBI">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a card-terminal style masthead, headline numbers, the decision panel (threshold + review cost → euros), the savings curve, why accuracy misleads, recommendations, method. */
+:root {
+  --bg: #f4f5f7; --panel: #ffffff; --ink: #13151a; --ink-2: #4a4f5a; --muted: #7c828d; --line: #dfe2e7; --grid: #eceef1;
+  --mast: #16181d; --on-mast: #ffffff; --on-mast-2: #b3b8c2;
+  --alert: #e08a0b; --alert-soft: #fdf0dc; --saved: #138a5a; --saved-soft: #e1f3ea; --lost: #d64545; --neutral: #6b7383;
+  --font-display: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d0f12; --panel: #161a1f; --ink: #eef0f3; --ink-2: #b6bbc5; --muted: #858b96; --line: #272c33; --grid: #1f242a;
+  --mast: #08090b; --alert: #f5a524; --alert-soft: #3a2a0e; --saved: #34d08b; --saved-soft: #0f2e21; --lost: #f06a6a; --neutral: #8f97a6; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0d0f12; --panel: #161a1f; --ink: #eef0f3; --ink-2: #b6bbc5; --muted: #858b96; --line: #272c33; --grid: #1f242a;
+  --mast: #08090b; --alert: #f5a524; --alert-soft: #3a2a0e; --saved: #34d08b; --saved-soft: #0f2e21; --lost: #f06a6a; --neutral: #8f97a6; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 var(--font-body); }
+.inner { max-width: 1000px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+.mast { background: var(--mast); color: var(--on-mast); }
+.mast .inner { padding-block: 22px 52px; display: grid; gap: 14px; }
+.back { color: var(--on-mast-2); text-decoration: none; font-weight: 600; font-size: 15px; }
+.eyebrow { font: 500 13px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--alert); margin-top: 18px; }
+h1 { font: 800 clamp(40px, 7vw, 68px)/1 var(--font-display); margin: 0; letter-spacing: -.02em; text-wrap: balance; }
+.lede { margin: 4px 0 0; max-width: 64ch; color: var(--on-mast-2); font-size: 19px; }
+.byline { font-size: 14px; color: var(--on-mast-2); }
+.ticker { font: 500 13px var(--font-mono); color: var(--on-mast-2); display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.ticker b { color: var(--alert); font-weight: 500; }
+h2 { font: 700 28px/1.15 var(--font-display); margin: 0 0 8px; letter-spacing: -.01em; text-wrap: balance; }
+.intro { margin: 0 0 18px; color: var(--ink-2); max-width: 66ch; }
+section { padding-block: 40px 4px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: -30px; position: relative; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.kpi b { display: block; font: 800 34px/1.05 var(--font-display); font-variant-numeric: tabular-nums; }
+.kpi span { color: var(--ink-2); font-size: 15px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 22px; display: grid; gap: 18px; min-width: 0; }
+.panel { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 26px; }
+.ctrl { display: grid; gap: 8px; }
+.ctrl label { font-weight: 600; display: flex; justify-content: space-between; gap: 10px; }
+.ctrl label span { font: 500 14px var(--font-mono); color: var(--alert); }
+.ctrl small { color: var(--muted); font-size: 14px; }
+input[type=range] { width: 100%; accent-color: var(--alert); }
+input:focus-visible, button:focus-visible { outline: 2px solid var(--alert); outline-offset: 2px; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: 600 14px var(--font-body); border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+.out { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.tile { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 2px; }
+.tile b { font: 800 28px/1.1 var(--font-display); font-variant-numeric: tabular-nums; }
+.tile span { color: var(--ink-2); font-size: 14.5px; }
+.tile.saved { background: var(--saved-soft); border-color: transparent; } .tile.saved b { color: var(--saved); }
+.tile.lost b { color: var(--lost); }
+.tile.alert b { color: var(--alert); }
+.tile.net { grid-column: 1 / -1; background: var(--ink); border-color: var(--ink); } .tile.net b, .tile.net span { color: var(--panel); }
+.hint { font-size: 15px; color: var(--ink-2); margin: 0; }
+.hint button { font: 600 14px var(--font-body); background: none; border: 0; color: var(--alert); cursor: pointer; padding: 0; text-decoration: underline; }
+.chart svg { display: block; width: 100%; height: auto; }
+.chart text { fill: var(--muted); font: 500 12px var(--font-body); }
+.note { font-size: 14.5px; color: var(--muted); margin-top: 10px; max-width: 72ch; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.big { font: 800 52px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.recs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.rec { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 6px; align-content: start; }
+.rec h3 { margin: 0; font: 700 19px/1.25 var(--font-display); }
+.rec p { margin: 0; color: var(--ink-2); font-size: 15.5px; }
+.rec .tag { font: 500 12px var(--font-mono); color: var(--alert); text-transform: uppercase; letter-spacing: .06em; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--muted); font-weight: 600; }
+footer { padding-block: 40px 56px; color: var(--muted); font-size: 14.5px; display: grid; gap: 6px; }
+footer a { color: var(--ink-2); }
+@media (max-width: 800px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .panel, .two, .recs { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="inner">
+    <a class="back" href="../">← Stephen tAMBI · Projects</a>
+    <div class="eyebrow">Fintech · machine learning · card fraud</div>
+    <h1>Catching card fraud, priced in euros</h1>
+    <p class="lede">A card issuer sees hundreds of thousands of payments a day and only a handful are fraud. I trained a machine learning model on 284,807 real card transactions and turned its output into the decision a bank actually makes: which payments to stop or review, and what that is worth.</p>
+    <div class="ticker" id="ticker"></div>
+    <div class="byline">Independent analysis by Stephen tAMBI on a public, anonymised dataset. Not affiliated with any bank or payment company.</div>
+  </div>
+</header>
+
+<main class="inner">
+  <div class="kpis" id="kpis"></div>
+
+  <section aria-labelledby="h-panel">
+    <h2 id="h-panel">Set the alarm, see the money</h2>
+    <p class="intro">The model gives every payment a fraud score from 0 to 1. The bank chooses a threshold: payments above it are flagged for review. Lower thresholds catch more fraud but flag more honest customers. Results are for the model's test period, the last hours of the data it never saw while learning.</p>
+    <div class="card">
+      <div class="panel">
+        <div style="display:grid;gap:20px;align-content:start">
+          <div class="ctrl">
+            <label for="thr">Alert threshold <span id="thrv">0.50</span></label>
+            <input id="thr" type="range" min="0" max="99" step="1" value="17">
+            <small>Flag a payment when its fraud score is at least this.</small>
+          </div>
+          <div class="ctrl">
+            <label for="cost">Cost of reviewing one alert <span id="costv">€5</span></label>
+            <input id="cost" type="range" min="0" max="30" step="1" value="5">
+            <small>Analyst time, a call to the customer, a declined purchase.</small>
+          </div>
+          <div class="ctrl">
+            <label>Show results</label>
+            <div class="seg" role="group" aria-label="Period">
+              <button type="button" data-p="test" aria-pressed="true">Test period</button>
+              <button type="button" data-p="year" aria-pressed="false">Per year, same volume</button>
+            </div>
+          </div>
+          <p class="hint" id="hint"></p>
+        </div>
+        <div style="display:grid;gap:14px;align-content:start">
+          <div class="out">
+            <div class="tile saved"><b id="oCaughtEur">€0</b><span id="oCaught">frauds caught</span></div>
+            <div class="tile lost"><b id="oMissedEur">€0</b><span id="oMissed">frauds missed</span></div>
+            <div class="tile alert"><b id="oFalse">0</b><span>honest payments flagged (false alarms)</span></div>
+            <div class="tile"><b id="oReview">€0</b><span id="oReviewTxt">spent reviewing alerts</span></div>
+            <div class="tile net"><b id="oNet">€0</b><span>net saving: fraud stopped minus review cost</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="chart"><svg id="curve" viewBox="0 0 900 300" role="img" aria-label="Net saving by threshold"></svg></div>
+    </div>
+    <p class="note" id="yearNote"></p>
+  </section>
+
+  <section aria-labelledby="h-acc">
+    <h2 id="h-acc">Why "99.8% accurate" means nothing here</h2>
+    <div class="two">
+      <div class="card">
+        <div class="big" id="accBig">99.83%</div>
+        <p style="margin:0;color:var(--ink-2)">is the accuracy of a "model" that says <b>no payment is ever fraud</b>. It catches nothing. With fraud this rare, accuracy hides the problem, so I judged the models on <b>precision-recall</b>: how much fraud they find, and how clean their alerts are.</p>
+      </div>
+      <div class="card">
+        <table id="models"><thead><tr><th>Model</th><th>PR-AUC</th><th>ROC-AUC</th></tr></thead><tbody></tbody></table>
+        <p class="note" style="margin:0">PR-AUC runs from about 0.002 (guessing) to 1.0 (perfect). Higher is better.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-recs">
+    <h2 id="h-recs">What a bank should do with this</h2>
+    <div class="recs" id="recs"></div>
+  </section>
+
+  <section aria-labelledby="h-method">
+    <h2 id="h-method">How it was built</h2>
+    <div class="card">
+      <ul style="margin:0;padding-left:20px;display:grid;gap:6px;color:var(--ink-2)">
+        <li><b>Data:</b> 284,807 card transactions by European cardholders over two days in September 2013, 492 of them fraud. The bank anonymised the features (V1 to V28 are principal components), so only time and amount keep their meaning.</li>
+        <li><b>Honest test:</b> the models trained on the first 70% of the time window and were tested on the last 30%, the way a bank would use them: on future payments, not shuffled ones.</li>
+        <li><b>Models:</b> logistic regression as a baseline, gradient boosting and a random forest, all weighted for the rare fraud class, in Python with scikit-learn. The random forest scored best and drives the page. The page's numbers all come from the test period.</li>
+        <li><b>Money:</b> a caught fraud saves its amount, a missed one loses it, and every alert costs the review cost you set. Chargeback fees and lost customers are left out, so real savings are likely larger.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>Data: Credit Card Fraud Detection dataset, Machine Learning Group of the Université Libre de Bruxelles (Dal Pozzolo et al.), published on <a href="https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud">Kaggle</a>. Amounts are treated as euros, as the dataset comes from European cardholders.</span>
+    <span>Independent analysis by Stephen tAMBI. Not affiliated with any bank or payment company.</span>
+  </footer>
+</main>
+
+<script>
+const D = {"dataset":{"transactions":284807,"frauds":492,"fraudRate":0.173,"fraudEur":60127.97,"hours":48.0},"test":{"transactions":85439,"frauds":108,"fraudEur":14566.58,"hours":11.1,"medianFraud":5.86,"maxFraud":1504.93},"models":{"Logistic regression":{"pr_auc":0.768,"roc_auc":0.98},"Gradient boosting":{"pr_auc":0.782,"roc_auc":0.959},"Random forest":{"pr_auc":0.82,"roc_auc":0.968}},"best":"Random forest","curve":[{"t":0.0,"flagged":85439,"caught":108,"falseAlarms":85331,"missed":0,"caughtEur":14566.58,"missedEur":0.0},{"t":0.01,"flagged":814,"caught":96,"falseAlarms":718,"missed":12,"caughtEur":13095.25,"missedEur":1471.33},{"t":0.02,"flagged":387,"caught":91,"falseAlarms":296,"missed":17,"caughtEur":12420.28,"missedEur":2146.3},{"t":0.03,"flagged":258,"caught":89,"falseAlarms":169,"missed":19,"caughtEur":12390.58,"missedEur":2176.0},{"t":0.04,"flagged":200,"caught":88,"falseAlarms":112,"missed":20,"caughtEur":12032.63,"missedEur":2533.95},{"t":0.05,"flagged":162,"caught":88,"falseAlarms":74,"missed":20,"caughtEur":12032.63,"missedEur":2533.95},{"t":0.06,"flagged":141,"caught":86,"falseAlarms":55,"missed":22,"caughtEur":12031.1,"missedEur":2535.48},{"t":0.07,"flagged":120,"caught":86,"falseAlarms":34,"missed":22,"caughtEur":12031.1,"missedEur":2535.48},{"t":0.08,"flagged":112,"caught":85,"falseAlarms":27,"missed":23,"caughtEur":12030.1,"missedEur":2536.48},{"t":0.09,"flagged":109,"caught":85,"falseAlarms":24,"missed":23,"caughtEur":12030.1,"missedEur":2536.48},{"t":0.1,"flagged":107,"caught":85,"falseAlarms":22,"missed":23,"caughtEur":12030.1,"missedEur":2536.48},{"t":0.11,"flagged":106,"caught":85,"falseAlarms":21,"missed":23,"caughtEur":12030.1,"missedEur":2536.48},{"t":0.12,"flagged":105,"caught":85,"falseAlarms":20,"missed":23,"caughtEur":12030.1,"missedEur":2536.48},{"t":0.13,"flagged":104,"caught":85,"falseAlarms":19,"missed":23,"caughtEur":12030.1,"missedEur":2536.48},{"t":0.14,"flagged":104,"caught":85,"falseAlarms":19,"missed":23,"caughtEur":12030.1,"missedEur":2536.48},{"t":0.15,"flagged":102,"caught":85,"falseAlarms":17,"missed":23,"caughtEur":12030.1,"missedEur":2536.48},{"t":0.16,"flagged":100,"caught":84,"falseAlarms":16,"missed":24,"caughtEur":12027.88,"missedEur":2538.7},{"t":0.17,"flagged":98,"caught":84,"falseAlarms":14,"missed":24,"caughtEur":12027.88,"missedEur":2538.7},{"t":0.18,"flagged":96,"caught":84,"falseAlarms":12,"missed":24,"caughtEur":12027.88,"missedEur":2538.7},{"t":0.19,"flagged":96,"caught":84,"falseAlarms":12,"missed":24,"caughtEur":12027.88,"missedEur":2538.7},{"t":0.2,"flagged":95,"caught":83,"falseAlarms":12,"missed":25,"caughtEur":11790.62,"missedEur":2775.96},{"t":0.21,"flagged":94,"caught":83,"falseAlarms":11,"missed":25,"caughtEur":11790.62,"missedEur":2775.96},{"t":0.22,"flagged":92,"caught":83,"falseAlarms":9,"missed":25,"caughtEur":11790.62,"missedEur":2775.96},{"t":0.23,"flagged":92,"caught":83,"falseAlarms":9,"missed":25,"caughtEur":11790.62,"missedEur":2775.96},{"t":0.24,"flagged":91,"caught":83,"falseAlarms":8,"missed":25,"caughtEur":11790.62,"missedEur":2775.96},{"t":0.25,"flagged":90,"caught":83,"falseAlarms":7,"missed":25,"caughtEur":11790.62,"missedEur":2775.96},{"t":0.26,"flagged":90,"caught":83,"falseAlarms":7,"missed":25,"caughtEur":11790.62,"missedEur":2775.96},{"t":0.27,"flagged":90,"caught":83,"falseAlarms":7,"missed":25,"caughtEur":11790.62,"missedEur":2775.96},{"t":0.28,"flagged":90,"caught":83,"falseAlarms":7,"missed":25,"caughtEur":11790.62,"missedEur":2775.96},{"t":0.29,"flagged":89,"caught":83,"falseAlarms":6,"missed":25,"caughtEur":11790.62,"missedEur":2775.96},{"t":0.3,"flagged":88,"caught":83,"falseAlarms":5,"missed":25,"caughtEur":11790.62,"missedEur":2775.96},{"t":0.31,"flagged":87,"caught":82,"falseAlarms":5,"missed":26,"caughtEur":11466.03,"missedEur":3100.55},{"t":0.32,"flagged":87,"caught":82,"falseAlarms":5,"missed":26,"caughtEur":11466.03,"missedEur":3100.55},{"t":0.33,"flagged":86,"caught":82,"falseAlarms":4,"missed":26,"caughtEur":11466.03,"missedEur":3100.55},{"t":0.34,"flagged":86,"caught":82,"falseAlarms":4,"missed":26,"caughtEur":11466.03,"missedEur":3100.55},{"t":0.35,"flagged":86,"caught":82,"falseAlarms":4,"missed":26,"caughtEur":11466.03,"missedEur":3100.55},{"t":0.36,"flagged":85,"caught":81,"falseAlarms":4,"missed":27,"caughtEur":10469.76,"missedEur":4096.82},{"t":0.37,"flagged":84,"caught":81,"falseAlarms":3,"missed":27,"caughtEur":10469.76,"missedEur":4096.82},{"t":0.38,"flagged":84,"caught":81,"falseAlarms":3,"missed":27,"caughtEur":10469.76,"missedEur":4096.82},{"t":0.39,"flagged":84,"caught":81,"falseAlarms":3,"missed":27,"caughtEur":10469.76,"missedEur":4096.82},{"t":0.4,"flagged":83,"caught":81,"falseAlarms":2,"missed":27,"caughtEur":10469.76,"missedEur":4096.82},{"t":0.41,"flagged":83,"caught":81,"falseAlarms":2,"missed":27,"caughtEur":10469.76,"missedEur":4096.82},{"t":0.42,"flagged":82,"caught":81,"falseAlarms":1,"missed":27,"caughtEur":10469.76,"missedEur":4096.82},{"t":0.43,"flagged":80,"caught":79,"falseAlarms":1,"missed":29,"caughtEur":10468.0,"missedEur":4098.58},{"t":0.44,"flagged":79,"caught":78,"falseAlarms":1,"missed":30,"caughtEur":10172.0,"missedEur":4394.58},{"t":0.45,"flagged":79,"caught":78,"falseAlarms":1,"missed":30,"caughtEur":10172.0,"missedEur":4394.58},{"t":0.46,"flagged":79,"caught":78,"falseAlarms":1,"missed":30,"caughtEur":10172.0,"missedEur":4394.58},{"t":0.47,"flagged":78,"caught":77,"falseAlarms":1,"missed":31,"caughtEur":9924.14,"missedEur":4642.44},{"t":0.48,"flagged":78,"caught":77,"falseAlarms":1,"missed":31,"caughtEur":9924.14,"missedEur":4642.44},{"t":0.49,"flagged":77,"caught":76,"falseAlarms":1,"missed":32,"caughtEur":9914.85,"missedEur":4651.73},{"t":0.5,"flagged":77,"caught":76,"falseAlarms":1,"missed":32,"caughtEur":9914.85,"missedEur":4651.73},{"t":0.51,"flagged":77,"caught":76,"falseAlarms":1,"missed":32,"caughtEur":9914.85,"missedEur":4651.73},{"t":0.52,"flagged":77,"caught":76,"falseAlarms":1,"missed":32,"caughtEur":9914.85,"missedEur":4651.73},{"t":0.53,"flagged":77,"caught":76,"falseAlarms":1,"missed":32,"caughtEur":9914.85,"missedEur":4651.73},{"t":0.54,"flagged":76,"caught":75,"falseAlarms":1,"missed":33,"caughtEur":9869.34,"missedEur":4697.24},{"t":0.55,"flagged":74,"caught":73,"falseAlarms":1,"missed":35,"caughtEur":9824.54,"missedEur":4742.04},{"t":0.56,"flagged":74,"caught":73,"falseAlarms":1,"missed":35,"caughtEur":9824.54,"missedEur":4742.04},{"t":0.57,"flagged":73,"caught":72,"falseAlarms":1,"missed":36,"caughtEur":9824.54,"missedEur":4742.04},{"t":0.58,"flagged":72,"caught":72,"falseAlarms":0,"missed":36,"caughtEur":9824.54,"missedEur":4742.04},{"t":0.59,"flagged":72,"caught":72,"falseAlarms":0,"missed":36,"caughtEur":9824.54,"missedEur":4742.04},{"t":0.6,"flagged":72,"caught":72,"falseAlarms":0,"missed":36,"caughtEur":9824.54,"missedEur":4742.04},{"t":0.61,"flagged":72,"caught":72,"falseAlarms":0,"missed":36,"caughtEur":9824.54,"missedEur":4742.04},{"t":0.62,"flagged":71,"caught":71,"falseAlarms":0,"missed":37,"caughtEur":9822.54,"missedEur":4744.04},{"t":0.63,"flagged":68,"caught":68,"falseAlarms":0,"missed":40,"caughtEur":7724.35,"missedEur":6842.23},{"t":0.64,"flagged":66,"caught":66,"falseAlarms":0,"missed":42,"caughtEur":6798.28,"missedEur":7768.3},{"t":0.65,"flagged":65,"caught":65,"falseAlarms":0,"missed":43,"caughtEur":6720.39,"missedEur":7846.19},{"t":0.66,"flagged":65,"caught":65,"falseAlarms":0,"missed":43,"caughtEur":6720.39,"missedEur":7846.19},{"t":0.67,"flagged":63,"caught":63,"falseAlarms":0,"missed":45,"caughtEur":6564.85,"missedEur":8001.73},{"t":0.68,"flagged":63,"caught":63,"falseAlarms":0,"missed":45,"caughtEur":6564.85,"missedEur":8001.73},{"t":0.69,"flagged":61,"caught":61,"falseAlarms":0,"missed":47,"caughtEur":5059.16,"missedEur":9507.42},{"t":0.7,"flagged":60,"caught":60,"falseAlarms":0,"missed":48,"caughtEur":5058.39,"missedEur":9508.19},{"t":0.71,"flagged":60,"caught":60,"falseAlarms":0,"missed":48,"caughtEur":5058.39,"missedEur":9508.19},{"t":0.72,"flagged":59,"caught":59,"falseAlarms":0,"missed":49,"caughtEur":4862.73,"missedEur":9703.85},{"t":0.73,"flagged":59,"caught":59,"falseAlarms":0,"missed":49,"caughtEur":4862.73,"missedEur":9703.85},{"t":0.74,"flagged":56,"caught":56,"falseAlarms":0,"missed":52,"caughtEur":4853.82,"missedEur":9712.76},{"t":0.75,"flagged":52,"caught":52,"falseAlarms":0,"missed":56,"caughtEur":4249.44,"missedEur":10317.14},{"t":0.76,"flagged":51,"caught":51,"falseAlarms":0,"missed":57,"caughtEur":4248.44,"missedEur":10318.14},{"t":0.77,"flagged":50,"caught":50,"falseAlarms":0,"missed":58,"caughtEur":4248.44,"missedEur":10318.14},{"t":0.78,"flagged":49,"caught":49,"falseAlarms":0,"missed":59,"caughtEur":3903.44,"missedEur":10663.14},{"t":0.79,"flagged":48,"caught":48,"falseAlarms":0,"missed":60,"caughtEur":3902.67,"missedEur":10663.91},{"t":0.8,"flagged":47,"caught":47,"falseAlarms":0,"missed":61,"caughtEur":3582.66,"missedEur":10983.92},{"t":0.81,"flagged":45,"caught":45,"falseAlarms":0,"missed":63,"caughtEur":2853.65,"missedEur":11712.93},{"t":0.82,"flagged":44,"caught":44,"falseAlarms":0,"missed":64,"caughtEur":2853.27,"missedEur":11713.31},{"t":0.83,"flagged":38,"caught":38,"falseAlarms":0,"missed":70,"caughtEur":1758.42,"missedEur":12808.16},{"t":0.84,"flagged":37,"caught":37,"falseAlarms":0,"missed":71,"caughtEur":1663.6,"missedEur":12902.98},{"t":0.85,"flagged":32,"caught":32,"falseAlarms":0,"missed":76,"caughtEur":1416.06,"missedEur":13150.52},{"t":0.86,"flagged":26,"caught":26,"falseAlarms":0,"missed":82,"caughtEur":1199.56,"missedEur":13367.02},{"t":0.87,"flagged":21,"caught":21,"falseAlarms":0,"missed":87,"caughtEur":1051.37,"missedEur":13515.21},{"t":0.88,"flagged":16,"caught":16,"falseAlarms":0,"missed":92,"caughtEur":877.01,"missedEur":13689.57},{"t":0.89,"flagged":10,"caught":10,"falseAlarms":0,"missed":98,"caughtEur":22.05,"missedEur":14544.53},{"t":0.9,"flagged":7,"caught":7,"falseAlarms":0,"missed":101,"caughtEur":14.59,"missedEur":14551.99},{"t":0.91,"flagged":4,"caught":4,"falseAlarms":0,"missed":104,"caughtEur":9.69,"missedEur":14556.89},{"t":0.92,"flagged":1,"caught":1,"falseAlarms":0,"missed":107,"caughtEur":1.0,"missedEur":14565.58},{"t":0.93,"flagged":0,"caught":0,"falseAlarms":0,"missed":108,"caughtEur":0.0,"missedEur":14566.58},{"t":0.94,"flagged":0,"caught":0,"falseAlarms":0,"missed":108,"caughtEur":0.0,"missedEur":14566.58},{"t":0.95,"flagged":0,"caught":0,"falseAlarms":0,"missed":108,"caughtEur":0.0,"missedEur":14566.58},{"t":0.96,"flagged":0,"caught":0,"falseAlarms":0,"missed":108,"caughtEur":0.0,"missedEur":14566.58},{"t":0.97,"flagged":0,"caught":0,"falseAlarms":0,"missed":108,"caughtEur":0.0,"missedEur":14566.58},{"t":0.98,"flagged":0,"caught":0,"falseAlarms":0,"missed":108,"caughtEur":0.0,"missedEur":14566.58},{"t":0.99,"flagged":0,"caught":0,"falseAlarms":0,"missed":108,"caughtEur":0.0,"missedEur":14566.58},{"t":1.0,"flagged":0,"caught":0,"falseAlarms":0,"missed":108,"caughtEur":0.0,"missedEur":14566.58}],"recommended":{"t":0.18,"flagged":96,"caught":84,"falseAlarms":12,"missed":24,"caughtEur":12027.88,"missedEur":2538.7},"recs":[{"tag":"Two tiers","h":"Block the obvious, review the rest","p":"Above a score of 0.50 the model flagged 77 payments and 76 were fraud, so these can be declined automatically. Between 0.18 and 0.50 sit 19 more alerts with 8 frauds worth \u20ac2,113: send those to an analyst or a 3-D Secure check."},{"tag":"Threshold","h":"Set the threshold by cost, not by accuracy","p":"The best setting depends on what a review costs. At \u20ac5 to \u20ac15 per alert, 0.18 saves the most; at \u20ac30 the best point moves up to 0.30. Finance and fraud teams should agree the review cost first, then let the curve pick the threshold."},{"tag":"Blind spot","h":"Cover the frauds the model misses","p":"At the recommended setting 24 frauds worth \u20ac2,539 still get through, about \u20ac106 each. Simple rules on top of the model, like limits on many payments in a short time or a new merchant, can catch part of this."},{"tag":"Over time","h":"Retrain and watch the alerts","p":"Fraudsters change tactics, so a model trained once slowly gets worse. Retrain on recent payments on a fixed schedule, and track the share of alerts that turn out to be fraud: a falling share is the early warning."}]};
+(() => {
+  const NS = 'http://www.w3.org/2000/svg';
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const eur = v => (v < 0 ? '−€' : '€') + Math.abs(Math.round(v)).toLocaleString('en-US');
+  const C = D.curve.filter(c => c.t > 0), T = D.test, scale = 8760 / T.hours;
+  let period = 'test';
+
+  document.getElementById('ticker').innerHTML =
+    `<span>TXN <b>${D.dataset.transactions.toLocaleString('en-US')}</b></span><span>FRAUD <b>${D.dataset.frauds}</b></span><span>RATE <b>${D.dataset.fraudRate}%</b></span><span>WINDOW <b>${D.dataset.hours} h</b></span>`;
+  const rec = D.recommended;
+  document.getElementById('kpis').innerHTML = [
+    [D.dataset.fraudRate + '%', 'of payments are fraud: 1 in ' + Math.round(100 / D.dataset.fraudRate)],
+    [eur(D.dataset.fraudEur), 'of fraud in two days of data'],
+    [Math.round(rec.caughtEur / T.fraudEur * 100) + '%', 'of fraud euros stopped at the recommended setting'],
+    [Math.round(rec.falseAlarms / rec.flagged * 100) + '%', 'of alerts are honest customers at that setting'],
+  ].map(([a, b]) => `<div class="kpi"><b>${a}</b><span>${b}</span></div>`).join('');
+
+  const thr = document.getElementById('thr'), cost = document.getElementById('cost');
+  const net = (c, k) => c.caughtEur - k * c.flagged;
+  const bestFor = k => C.reduce((b, c) => net(c, k) > net(b, k) ? c : b, C[0]);
+  function point() { return C[Math.min(C.length - 1, +thr.value)]; }
+  function update() {
+    const c = point(), k = +cost.value, s = period === 'year' ? scale : 1;
+    document.getElementById('thrv').textContent = c.t.toFixed(2);
+    document.getElementById('costv').textContent = '€' + k;
+    document.getElementById('oCaughtEur').textContent = eur(c.caughtEur * s);
+    document.getElementById('oCaught').textContent = `stopped: ${Math.round(c.caught * s).toLocaleString('en-US')} of ${Math.round(T.frauds * s).toLocaleString('en-US')} frauds caught`;
+    document.getElementById('oMissedEur').textContent = eur(c.missedEur * s);
+    document.getElementById('oMissed').textContent = `lost: ${Math.round(c.missed * s).toLocaleString('en-US')} frauds missed`;
+    document.getElementById('oFalse').textContent = Math.round(c.falseAlarms * s).toLocaleString('en-US');
+    document.getElementById('oReview').textContent = eur(k * c.flagged * s);
+    document.getElementById('oReviewTxt').textContent = `spent reviewing ${Math.round(c.flagged * s).toLocaleString('en-US')} alerts`;
+    document.getElementById('oNet').textContent = eur(net(c, k) * s);
+    const b = bestFor(k);
+    document.getElementById('hint').innerHTML = b.t === c.t
+      ? `This is the best threshold for a €${k} review cost.`
+      : `At €${k} per review, a threshold of <b>${b.t.toFixed(2)}</b> saves the most (${eur(net(b, k) * s)}). <button type="button" id="goBest">Use it</button>`;
+    const g = document.getElementById('goBest'); if (g) g.addEventListener('click', () => { thr.value = C.indexOf(b); update(); });
+    document.getElementById('yearNote').textContent = period === 'year'
+      ? `"Per year" multiplies the ${T.hours}-hour test period by ${Math.round(scale)}, assuming the same payment volume and fraud rate all year. It shows the scale, not a forecast.`
+      : `Test period: ${T.transactions.toLocaleString('en-US')} payments over ${T.hours} hours, with ${T.frauds} frauds worth ${eur(T.fraudEur)}.`;
+    drawCurve(c, k, b);
+  }
+  function drawCurve(cur, k, best) {
+    const svg = document.getElementById('curve'); svg.innerHTML = '';
+    const el = (t, a) => { const e = document.createElementNS(NS, t); for (const x in a) e.setAttribute(x, a[x]); svg.appendChild(e); return e; };
+    const W = Math.max(320, svg.clientWidth || 900), H = W < 600 ? 260 : 300, L = 64, R = 14, Tp = 22, B = 40; svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const vals = C.map(c => net(c, k)), min = Math.min(0, ...vals), max = Math.max(...vals, 1);
+    const t0 = C[0].t, x = t => L + (t - t0) / (1 - t0) * (W - L - R), y = v => Tp + (H - Tp - B) * (1 - (v - min) / (max - min));
+    const steps = 4; for (let i = 0; i <= steps; i++) { const v = min + (max - min) * i / steps; el('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: css('--grid') }); el('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end' }).textContent = eur(v); }
+    if (min < 0) el('line', { x1: L, x2: W - R, y1: y(0), y2: y(0), stroke: css('--muted') });
+    [0.01, .25, .5, .75, 1].forEach(t => { el('text', { x: x(t), y: H - 18, 'text-anchor': 'middle' }).textContent = t.toFixed(2); });
+    el('text', { x: (W + L) / 2, y: H - 2, 'text-anchor': 'middle' }).textContent = 'Alert threshold';
+    el('polyline', { points: C.map(c => x(c.t) + ',' + y(net(c, k))).join(' '), fill: 'none', stroke: css('--saved'), 'stroke-width': 3, 'stroke-linejoin': 'round' });
+    el('circle', { cx: x(best.t), cy: y(net(best, k)), r: 6, fill: css('--saved'), stroke: css('--panel'), 'stroke-width': 2 });
+    el('text', { x: x(best.t), y: y(net(best, k)) - 12, 'text-anchor': 'middle', style: 'font-weight:700;fill:' + css('--saved') }).textContent = 'best';
+    el('line', { x1: x(cur.t), x2: x(cur.t), y1: Tp, y2: H - B, stroke: css('--alert'), 'stroke-width': 2, 'stroke-dasharray': '5 4' });
+    el('text', { x: x(cur.t) + 6, y: H - B - 10, style: 'font-weight:700;fill:' + css('--alert') }).textContent = 'your setting';
+  }
+  thr.addEventListener('input', update); cost.addEventListener('input', update);
+  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => { period = b.dataset.p; document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); update(); }));
+  thr.value = C.indexOf(C.find(c => c.t === rec.t));
+
+  document.getElementById('accBig').textContent = (100 - D.dataset.fraudRate).toFixed(2) + '%';
+  document.querySelector('#models tbody').innerHTML = Object.entries(D.models).map(([n, m]) => `<tr><td>${n}${n === D.best ? ' <b>(used)</b>' : ''}</td><td>${m.pr_auc.toFixed(3)}</td><td>${m.roc_auc.toFixed(3)}</td></tr>`).join('');
+  document.getElementById('recs').innerHTML = D.recs.map(r => `<div class="rec"><span class="tag">${r.tag}</span><h3>${r.h}</h3><p>${r.p}</p></div>`).join('');
+
+  update();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', update);
+  addEventListener('resize', update);
+})();
+</script>
+</body>
+</html>
