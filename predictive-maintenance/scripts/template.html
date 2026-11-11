@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fix It Before It Fails</title>
+<meta name="description" content="Predictive maintenance with machine learning on 100 NASA turbofan engines: predict remaining useful life from 15 sensors and price service policies against fixed schedules.">
+<meta name="author" content="Stephen tAMBI">
+<meta property="og:title" content="Fix it before it fails: predictive maintenance">
+<meta property="og:description" content="Machine learning on 100 engines run to failure. Zero failures and 37% lower maintenance cost than the best fixed schedule.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://stambi292.github.io/predictive-maintenance/">
+<meta property="og:image" content="https://stambi292.github.io/predictive-maintenance/images/preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: dark slate masthead like an instrument panel with an amber warning accent, headline numbers, one engine's life traced by the model, accuracy on unseen engines, the policy simulator, recommendations, method. */
+:root {
+  --bg: #f3f4f5; --panel: #ffffff; --ink: #161a1e; --ink-2: #4a5159; --muted: #7b828a; --line: #dfe2e5; --grid: #eceef0;
+  --mast: #1c2228; --on-mast: #f3f4f5; --on-mast-2: #aab2ba; --amber: #f2a900; --amber-ink: #9a6a00; --amber-soft: #fdf3d9;
+  --blue: #2c6db5; --blue-soft: #e3edf8; --red: #c8402f; --red-soft: #fbe6e2; --good: #1e7d55; --good-soft: #e1f2ea; --gray: #a0a7ae;
+  --font-display: "Archivo", "Segoe UI", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1215; --panel: #181c21; --ink: #eef0f2; --ink-2: #b9c0c7; --muted: #868e96; --line: #2a3037; --grid: #222830;
+  --mast: #0a0c0e; --amber: #ffbf33; --amber-ink: #ffcf66; --amber-soft: #33290f; --blue: #6fa7e6; --blue-soft: #18263a;
+  --red: #f0705e; --red-soft: #3a1c18; --good: #4ad296; --good-soft: #12301f; --gray: #5d656d; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1215; --panel: #181c21; --ink: #eef0f2; --ink-2: #b9c0c7; --muted: #868e96; --line: #2a3037; --grid: #222830;
+  --mast: #0a0c0e; --amber: #ffbf33; --amber-ink: #ffcf66; --amber-soft: #33290f; --blue: #6fa7e6; --blue-soft: #18263a;
+  --red: #f0705e; --red-soft: #3a1c18; --good: #4ad296; --good-soft: #12301f; --gray: #5d656d; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 var(--font-body); }
+.inner { max-width: 1000px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+.mast { background: var(--mast); color: var(--on-mast); position: relative; overflow: hidden; }
+.mast::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: repeating-linear-gradient(135deg, var(--amber) 0 18px, #1c2228 18px 36px); }
+.mast .inner { padding-block: 22px 64px; display: grid; gap: 14px; }
+.back { color: var(--on-mast-2); text-decoration: none; font-weight: 600; font-size: 15px; }
+.eyebrow { font: 600 13px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--amber); margin-top: 18px; }
+h1 { font: 800 clamp(42px, 7.4vw, 74px)/1 var(--font-display); margin: 0; letter-spacing: -.02em; max-width: 14ch; text-wrap: balance; }
+h1 em { font-style: normal; color: var(--amber); }
+.lede { margin: 4px 0 0; max-width: 64ch; color: var(--on-mast-2); font-size: 19px; }
+.byline { font-size: 14px; color: var(--on-mast-2); }
+.readout { font: 500 13px var(--font-mono); color: var(--on-mast-2); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.readout b { color: var(--amber); font-weight: 600; }
+h2 { font: 700 28px/1.15 var(--font-display); margin: 0 0 8px; letter-spacing: -.01em; text-wrap: balance; }
+.intro { margin: 0 0 18px; color: var(--ink-2); max-width: 68ch; }
+section { padding-block: 44px 4px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: -32px; position: relative; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+.kpi b { display: block; font: 800 32px/1.05 var(--font-display); font-variant-numeric: tabular-nums; }
+.kpi span { color: var(--ink-2); font-size: 15px; line-height: 1.4; display: block; margin-top: 4px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 22px; display: grid; gap: 16px; min-width: 0; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: 600 14.5px var(--font-body); border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.chart svg { display: block; width: 100%; height: auto; }
+.chart text { fill: var(--muted); font: 500 12px var(--font-body); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 18px; height: 3px; margin-right: 6px; vertical-align: 4px; border-radius: 2px; }
+.two { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 7px 6px; border-bottom: 1px solid var(--line); }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--muted); font-weight: 600; }
+.sim { display: grid; grid-template-columns: minmax(0, 330px) minmax(0, 1fr); gap: 26px; }
+.ctrl { display: grid; gap: 6px; }
+.ctrl label { font-weight: 600; display: flex; justify-content: space-between; gap: 10px; }
+.ctrl label span { font: 600 14px var(--font-mono); color: var(--amber-ink); white-space: nowrap; }
+.ctrl small { color: var(--muted); font-size: 14px; line-height: 1.4; }
+input[type=range] { width: 100%; accent-color: var(--amber); }
+.pol { display: grid; gap: 12px; align-content: start; }
+.prow { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; }
+.prow.win { border-color: var(--good); background: var(--good-soft); }
+.prow .top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.prow h3 { margin: 0; font: 700 18px var(--font-display); }
+.prow .cost { font: 800 26px var(--font-display); font-variant-numeric: tabular-nums; }
+.prow .bar { height: 10px; background: var(--grid); border-radius: 5px; overflow: hidden; }
+.prow .bar div { height: 100%; border-radius: 5px; }
+.prow .facts { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 14.5px; color: var(--ink-2); }
+.prow .facts b { color: var(--ink); }
+.note { font-size: 14.5px; color: var(--muted); margin: 0; max-width: 74ch; }
+.recs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.rec { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 6px; align-content: start; }
+.rec h3 { margin: 0; font: 700 19px/1.25 var(--font-display); }
+.rec p { margin: 0; color: var(--ink-2); font-size: 15.5px; }
+.rec .tag { font: 600 12px var(--font-mono); color: var(--amber-ink); text-transform: uppercase; letter-spacing: .06em; }
+footer { padding-block: 40px 56px; color: var(--muted); font-size: 14.5px; display: grid; gap: 6px; }
+footer a { color: var(--ink-2); }
+@media (max-width: 820px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .two, .recs, .sim { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="inner">
+    <a class="back" href="../">← Stephen tAMBI · Projects</a>
+    <div class="eyebrow">Predictive maintenance · machine learning · sensor data</div>
+    <h1>Fix it before it <em>fails</em></h1>
+    <p class="lede">Service a machine too early and you throw away good life; too late and it breaks in the field. I trained a machine learning model on 100 jet engines that were run until they failed, taught it to read 15 sensors and predict how many cycles each engine has left, and priced what that is worth against a fixed service schedule.</p>
+    <div class="readout" id="readout"></div>
+    <div class="byline">Independent analysis by Stephen tAMBI on the public NASA C-MAPSS dataset. Not affiliated with NASA or any manufacturer.</div>
+  </div>
+</header>
+
+<main class="inner">
+  <div class="kpis" id="kpis"></div>
+
+  <section aria-labelledby="h-trace">
+    <h2 id="h-trace">Watching an engine wear out</h2>
+    <p class="intro">For engines it never saw while learning, the model predicts the remaining life at every cycle. Early on it only knows the engine is healthy; as the sensors drift, the prediction locks on to the real countdown.</p>
+    <div class="card">
+      <div class="seg" role="group" aria-label="Engine" id="engSeg"></div>
+      <div class="chart"><svg id="trace" viewBox="0 0 900 300" role="img" aria-label="True and predicted remaining life of one engine"></svg></div>
+      <div class="legend"><span><i style="background:var(--gray)"></i>True remaining life</span><span><i style="background:var(--blue)"></i>Model's prediction</span><span><i style="background:var(--amber)"></i>Service trigger (safety margin)</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-acc">
+    <h2 id="h-acc">How accurate is it?</h2>
+    <p class="intro" id="accIntro"></p>
+    <div class="two">
+      <div class="card"><div class="chart"><svg id="scatter" viewBox="0 0 520 380" role="img" aria-label="Predicted against true remaining life for 100 test engines"></svg></div></div>
+      <div class="card">
+        <table id="models"><thead><tr><th>Model</th><th>Error (RMSE, cycles)</th></tr></thead><tbody></tbody></table>
+        <p class="note">Root-mean-square error on 100 test engines, remaining life capped at 125 cycles (the standard for this dataset). Lower is better.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-sim">
+    <h2 id="h-sim">What it is worth</h2>
+    <p class="intro">Three ways to look after the same 100 engines. The costs are assumptions; move them and the best policy is recalculated.</p>
+    <div class="card">
+      <div class="sim">
+        <div style="display:grid;gap:18px;align-content:start">
+          <div class="ctrl"><label for="cf">Cost of a failure in the field <span id="cfv"></span></label><input id="cf" type="range" min="20" max="500" step="10" value="100"><small>Repair, downtime, recovery, lost missions or orders (thousand €).</small></div>
+          <div class="ctrl"><label for="cp">Cost of a planned service <span id="cpv"></span></label><input id="cp" type="range" min="2" max="50" step="1" value="10"><small>Parts and labour when the engine is brought in on time (thousand €).</small></div>
+          <div class="ctrl"><label for="th">Safety margin for the model <span id="thv"></span></label><input id="th" type="range" min="0" max="60" step="2" value="20"><small>Service when the predicted remaining life drops to this many cycles.</small></div>
+        </div>
+        <div class="pol" id="pol"></div>
+      </div>
+      <p class="note">Cost per 1,000 operating cycles, so that running engines longer counts as a benefit. The fixed schedule uses the service interval that is cheapest for your costs. Simulated on the 100 training engines with predictions made by models that had not seen them (5-fold cross-validation).</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-recs">
+    <h2 id="h-recs">How a manufacturer should use this</h2>
+    <div class="recs" id="recs"></div>
+  </section>
+
+  <section aria-labelledby="h-method">
+    <h2 id="h-method">How it was built</h2>
+    <div class="card">
+      <ul style="margin:0;padding-left:20px;display:grid;gap:6px;color:var(--ink-2)">
+        <li><b>Data:</b> <span id="mData"></span></li>
+        <li><b>Features:</b> each sensor's value, its 10-cycle average and its 20-cycle trend (slope), so the model sees both the level and the direction of wear.</li>
+        <li><b>Models:</b> linear regression, random forest and gradient boosting in Python with scikit-learn, trained on the 100 run-to-failure engines and tested on 100 separate engines whose true remaining life is published.</li>
+        <li><b>Policies:</b> run-to-failure; a fixed service interval; and predictive service when the predicted remaining life falls to the safety margin (from cycle 30 on). Each service or failure resets the engine.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>Data: NASA Prognostics Center of Excellence, Turbofan Engine Degradation Simulation Data Set (C-MAPSS), sub-dataset FD001: A. Saxena, K. Goebel, D. Simon and N. Eklund, 2008. Simulated engines, one operating condition, one failure mode.</span>
+    <span>Independent analysis by Stephen tAMBI. Not affiliated with NASA or any manufacturer.</span>
+  </footer>
+</main>
+
+<script>
+const D = /*__DATA__*/null;
+(() => {
+  const NS = 'http://www.w3.org/2000/svg';
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const n0 = v => Math.round(v).toLocaleString('en-US');
+  const S = D.scores, best = D.best, G = D.data;
+  const el = (svg, t, a, txt) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+  document.getElementById('readout').innerHTML = `<span>ENGINES <b>${G.trainEngines}+${G.testEngines}</b></span><span>SENSORS <b>${G.sensors}</b></span><span>READINGS <b>${n0(G.rows)}</b></span><span>LIFE <b>${G.lifeMin}–${G.lifeMax} cycles</b></span>`;
+
+  const cs = () => [+document.getElementById('cf').value * 1000, +document.getElementById('cp').value * 1000];
+  const rate = (p, cf, cp) => (p.services * cp + p.failures * cf) / p.cycles * 1000;
+
+  // KPIs at default costs
+  const [cf0, cp0] = [100000, 10000];
+  const p20 = D.predictive.find(p => p.th === 20), bf0 = D.fixed.reduce((b, p) => rate(p, cf0, cp0) < rate(b, cf0, cp0) ? p : b);
+  const save = 1 - rate(p20, cf0, cp0) / rate(bf0, cf0, cp0), more = p20.cycles / bf0.cycles - 1;
+  document.getElementById('kpis').innerHTML = [
+    ['±' + S[best].rmse, 'cycles: typical error predicting remaining life on unseen engines'],
+    [p20.failures, 'failures in the field with predictive service (safety margin 20)'],
+    [Math.round(save * 100) + '%', 'lower maintenance cost than the best fixed schedule'],
+    ['+' + Math.round(more * 100) + '%', 'more operating cycles from the same engines'],
+  ].map(([a, b]) => `<div class="kpi"><b>${a}</b><span>${b}</span></div>`).join('');
+
+  // Trace
+  const units = Object.keys(D.traces); let unit = units[1];
+  const seg = document.getElementById('engSeg');
+  seg.innerHTML = units.map(u => `<button type="button" data-u="${u}" aria-pressed="${u === unit}">Engine ${u} · ${D.traces[u].length} cycles</button>`).join('');
+  seg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; unit = b.dataset.u; seg.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); drawTrace(); });
+  function drawTrace() {
+    const svg = document.getElementById('trace'); svg.innerHTML = '';
+    const W = Math.max(320, svg.clientWidth || 900), H = W < 600 ? 250 : 300, L = 44, R = 14, T = 16, B = 40;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const t = D.traces[unit], maxC = t[t.length - 1].c, maxY = Math.max(...t.map(p => Math.max(p.rul, p.pred)));
+    const x = c => L + (c / maxC) * (W - L - R), y = v => T + (H - T - B) * (1 - v / maxY);
+    const ticks = maxY > 250 ? [0, 100, 200, 300] : [0, 50, 100, 150, 200, 250].filter(v => v <= maxY);
+    ticks.forEach(v => { el(svg, 'line', { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: css('--grid') }); el(svg, 'text', { x: L - 6, y: y(v) + 4, 'text-anchor': 'end' }, v); });
+    const th = +document.getElementById('th').value;
+    el(svg, 'line', { x1: L, x2: W - R, y1: y(th), y2: y(th), stroke: css('--amber'), 'stroke-width': 2, 'stroke-dasharray': '6 4' });
+    el(svg, 'polyline', { points: t.map(p => x(p.c) + ',' + y(p.rul)).join(' '), fill: 'none', stroke: css('--gray'), 'stroke-width': 2.5 });
+    el(svg, 'polyline', { points: t.map(p => x(p.c) + ',' + y(p.pred)).join(' '), fill: 'none', stroke: css('--blue'), 'stroke-width': 2.5, 'stroke-linejoin': 'round' });
+    const hit = t.find(p => p.c >= 30 && p.pred <= th);
+    if (hit) {
+      el(svg, 'circle', { cx: x(hit.c), cy: y(hit.pred), r: 6, fill: css('--amber'), stroke: css('--panel'), 'stroke-width': 2 });
+      const left = x(hit.c) > W * 0.7;
+      el(svg, 'text', { x: x(hit.c) + (left ? -10 : 10), y: y(hit.pred) - 12, 'text-anchor': left ? 'end' : 'start', style: 'font-weight:700;fill:' + css('--ink') }, `service at cycle ${hit.c}, ${hit.rul} cycles before failure`);
+    }
+    [0, Math.round(maxC / 2), maxC].forEach(c => el(svg, 'text', { x: x(c), y: H - B + 18, 'text-anchor': 'middle' }, c));
+    el(svg, 'text', { x: (W + L) / 2, y: H - 4, 'text-anchor': 'middle' }, 'Operating cycle');
+  }
+
+  // Accuracy
+  document.getElementById('accIntro').innerHTML = `On 100 engines it had never seen, the ${best.toLowerCase()} model's remaining-life predictions were off by <b>${S[best].rmse}</b> cycles on average (RMSE), against <b>${S['Average engine (no model)'].rmse}</b> for simply assuming an average engine. Each dot is one test engine; on the diagonal the prediction is exact.`;
+  document.querySelector('#models tbody').innerHTML = Object.entries(S).map(([n, s]) => `<tr><td>${n}${n === best ? ' <b>(used)</b>' : ''}</td><td>${s.rmse}</td></tr>`).join('');
+  function drawScatter() {
+    const svg = document.getElementById('scatter'); svg.innerHTML = '';
+    const W = 520, H = 380, L = 48, R = 14, T = 14, B = 44, M = 150;
+    const x = v => L + v / M * (W - L - R), y = v => T + (H - T - B) * (1 - v / M);
+    [0, 50, 100, 150].forEach(v => { el(svg, 'line', { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: css('--grid') }); el(svg, 'text', { x: L - 6, y: y(v) + 4, 'text-anchor': 'end' }, v); el(svg, 'text', { x: x(v), y: H - B + 18, 'text-anchor': 'middle' }, v); });
+    el(svg, 'line', { x1: x(0), y1: y(0), x2: x(M), y2: y(M), stroke: css('--muted'), 'stroke-dasharray': '4 4' });
+    D.test.forEach(p => el(svg, 'circle', { cx: x(Math.min(p.true, D.cap)), cy: y(Math.min(p.pred, M)), r: 5, fill: css('--blue'), 'fill-opacity': .7, stroke: css('--panel'), 'stroke-width': 1 }));
+    el(svg, 'text', { x: (W + L) / 2, y: H - 6, 'text-anchor': 'middle' }, 'True remaining life (cycles, capped at 125)');
+    el(svg, 'text', { x: 12, y: (H - B) / 2, 'text-anchor': 'middle', transform: `rotate(-90 12 ${(H - B) / 2})` }, 'Predicted');
+  }
+
+  // Simulator
+  function sim() {
+    const [cf, cp] = cs(), th = +document.getElementById('th').value;
+    document.getElementById('cfv').textContent = '€' + (cf / 1000) + 'k'; document.getElementById('cpv').textContent = '€' + (cp / 1000) + 'k'; document.getElementById('thv').textContent = th + ' cycles';
+    const p0 = D.predictive.find(p => p.th === 0), runToFail = { cycles: p0.cycles + p0.wasted, failures: 100, services: 0 };
+    const bf = D.fixed.reduce((b, p) => rate(p, cf, cp) < rate(b, cf, cp) ? p : b);
+    const pp = D.predictive.find(p => p.th === th);
+    const rows = [
+      { name: 'Run to failure', p: runToFail, sub: 'repair only after a breakdown', wasted: 0 },
+      { name: `Fixed schedule, every ${bf.n} cycles`, p: bf, sub: 'the cheapest interval for these costs', wasted: bf.wasted },
+      { name: `Predictive, margin ${th}`, p: pp, sub: 'service when the model says it is due', wasted: pp.wasted },
+    ].map(r => ({ ...r, cost: rate(r.p, cf, cp) }));
+    const min = Math.min(...rows.map(r => r.cost)), max = Math.max(...rows.map(r => r.cost));
+    document.getElementById('pol').innerHTML = rows.map(r => `<div class="prow${r.cost === min ? ' win' : ''}"><div class="top"><h3>${r.name}${r.cost === min ? ' · cheapest' : ''}</h3><span class="cost">€${n0(r.cost)}</span></div><div class="bar"><div style="width:${r.cost / max * 100}%;background:${r.cost === min ? css('--good') : r.name.startsWith('Run') ? css('--red') : css('--blue')}"></div></div><div class="facts"><span><b>${r.p.failures}</b> failures</span><span><b>${r.p.services}</b> planned services</span><span><b>${r.wasted ? Math.round(r.wasted / Math.max(1, r.p.services)) : 0}</b> cycles of life left unused per service</span><span>${r.sub}</span></div></div>`).join('');
+    drawTrace();
+  }
+  ['cf', 'cp', 'th'].forEach(id => document.getElementById(id).addEventListener('input', sim));
+
+  document.getElementById('recs').innerHTML = D.recs.map(r => `<div class="rec"><span class="tag">${r.tag}</span><h3>${r.h}</h3><p>${r.p}</p></div>`).join('');
+  document.getElementById('mData').textContent = `NASA C-MAPSS FD001: ${G.trainEngines} simulated turbofan engines run until failure (${G.lifeMin} to ${G.lifeMax} cycles, median ${G.lifeMedian}) and ${G.testEngines} test engines stopped before failure, ${n0(G.rows)} sensor readings in total. ${G.sensors} sensors that change over an engine's life were used.`;
+
+  sim(); drawScatter();
+  addEventListener('resize', drawTrace);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { sim(); drawScatter(); });
+})();
+</script>
+</body>
+</html>

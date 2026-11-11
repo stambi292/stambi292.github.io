@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fix It Before It Fails</title>
+<meta name="description" content="Predictive maintenance with machine learning on 100 NASA turbofan engines: predict remaining useful life from 15 sensors and price service policies against fixed schedules.">
+<meta name="author" content="Stephen tAMBI">
+<meta property="og:title" content="Fix it before it fails: predictive maintenance">
+<meta property="og:description" content="Machine learning on 100 engines run to failure. Zero failures and 37% lower maintenance cost than the best fixed schedule.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://stambi292.github.io/predictive-maintenance/">
+<meta property="og:image" content="https://stambi292.github.io/predictive-maintenance/images/preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: dark slate masthead like an instrument panel with an amber warning accent, headline numbers, one engine's life traced by the model, accuracy on unseen engines, the policy simulator, recommendations, method. */
+:root {
+  --bg: #f3f4f5; --panel: #ffffff; --ink: #161a1e; --ink-2: #4a5159; --muted: #7b828a; --line: #dfe2e5; --grid: #eceef0;
+  --mast: #1c2228; --on-mast: #f3f4f5; --on-mast-2: #aab2ba; --amber: #f2a900; --amber-ink: #9a6a00; --amber-soft: #fdf3d9;
+  --blue: #2c6db5; --blue-soft: #e3edf8; --red: #c8402f; --red-soft: #fbe6e2; --good: #1e7d55; --good-soft: #e1f2ea; --gray: #a0a7ae;
+  --font-display: "Archivo", "Segoe UI", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1215; --panel: #181c21; --ink: #eef0f2; --ink-2: #b9c0c7; --muted: #868e96; --line: #2a3037; --grid: #222830;
+  --mast: #0a0c0e; --amber: #ffbf33; --amber-ink: #ffcf66; --amber-soft: #33290f; --blue: #6fa7e6; --blue-soft: #18263a;
+  --red: #f0705e; --red-soft: #3a1c18; --good: #4ad296; --good-soft: #12301f; --gray: #5d656d; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1215; --panel: #181c21; --ink: #eef0f2; --ink-2: #b9c0c7; --muted: #868e96; --line: #2a3037; --grid: #222830;
+  --mast: #0a0c0e; --amber: #ffbf33; --amber-ink: #ffcf66; --amber-soft: #33290f; --blue: #6fa7e6; --blue-soft: #18263a;
+  --red: #f0705e; --red-soft: #3a1c18; --good: #4ad296; --good-soft: #12301f; --gray: #5d656d; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 var(--font-body); }
+.inner { max-width: 1000px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+.mast { background: var(--mast); color: var(--on-mast); position: relative; overflow: hidden; }
+.mast::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: repeating-linear-gradient(135deg, var(--amber) 0 18px, #1c2228 18px 36px); }
+.mast .inner { padding-block: 22px 64px; display: grid; gap: 14px; }
+.back { color: var(--on-mast-2); text-decoration: none; font-weight: 600; font-size: 15px; }
+.eyebrow { font: 600 13px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--amber); margin-top: 18px; }
+h1 { font: 800 clamp(42px, 7.4vw, 74px)/1 var(--font-display); margin: 0; letter-spacing: -.02em; max-width: 14ch; text-wrap: balance; }
+h1 em { font-style: normal; color: var(--amber); }
+.lede { margin: 4px 0 0; max-width: 64ch; color: var(--on-mast-2); font-size: 19px; }
+.byline { font-size: 14px; color: var(--on-mast-2); }
+.readout { font: 500 13px var(--font-mono); color: var(--on-mast-2); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.readout b { color: var(--amber); font-weight: 600; }
+h2 { font: 700 28px/1.15 var(--font-display); margin: 0 0 8px; letter-spacing: -.01em; text-wrap: balance; }
+.intro { margin: 0 0 18px; color: var(--ink-2); max-width: 68ch; }
+section { padding-block: 44px 4px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: -32px; position: relative; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+.kpi b { display: block; font: 800 32px/1.05 var(--font-display); font-variant-numeric: tabular-nums; }
+.kpi span { color: var(--ink-2); font-size: 15px; line-height: 1.4; display: block; margin-top: 4px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 22px; display: grid; gap: 16px; min-width: 0; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: 600 14.5px var(--font-body); border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.chart svg { display: block; width: 100%; height: auto; }
+.chart text { fill: var(--muted); font: 500 12px var(--font-body); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 18px; height: 3px; margin-right: 6px; vertical-align: 4px; border-radius: 2px; }
+.two { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 7px 6px; border-bottom: 1px solid var(--line); }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--muted); font-weight: 600; }
+.sim { display: grid; grid-template-columns: minmax(0, 330px) minmax(0, 1fr); gap: 26px; }
+.ctrl { display: grid; gap: 6px; }
+.ctrl label { font-weight: 600; display: flex; justify-content: space-between; gap: 10px; }
+.ctrl label span { font: 600 14px var(--font-mono); color: var(--amber-ink); white-space: nowrap; }
+.ctrl small { color: var(--muted); font-size: 14px; line-height: 1.4; }
+input[type=range] { width: 100%; accent-color: var(--amber); }
+.pol { display: grid; gap: 12px; align-content: start; }
+.prow { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; }
+.prow.win { border-color: var(--good); background: var(--good-soft); }
+.prow .top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.prow h3 { margin: 0; font: 700 18px var(--font-display); }
+.prow .cost { font: 800 26px var(--font-display); font-variant-numeric: tabular-nums; }
+.prow .bar { height: 10px; background: var(--grid); border-radius: 5px; overflow: hidden; }
+.prow .bar div { height: 100%; border-radius: 5px; }
+.prow .facts { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 14.5px; color: var(--ink-2); }
+.prow .facts b { color: var(--ink); }
+.note { font-size: 14.5px; color: var(--muted); margin: 0; max-width: 74ch; }
+.recs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.rec { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 6px; align-content: start; }
+.rec h3 { margin: 0; font: 700 19px/1.25 var(--font-display); }
+.rec p { margin: 0; color: var(--ink-2); font-size: 15.5px; }
+.rec .tag { font: 600 12px var(--font-mono); color: var(--amber-ink); text-transform: uppercase; letter-spacing: .06em; }
+footer { padding-block: 40px 56px; color: var(--muted); font-size: 14.5px; display: grid; gap: 6px; }
+footer a { color: var(--ink-2); }
+@media (max-width: 820px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .two, .recs, .sim { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="inner">
+    <a class="back" href="../">← Stephen tAMBI · Projects</a>
+    <div class="eyebrow">Predictive maintenance · machine learning · sensor data</div>
+    <h1>Fix it before it <em>fails</em></h1>
+    <p class="lede">Service a machine too early and you throw away good life; too late and it breaks in the field. I trained a machine learning model on 100 jet engines that were run until they failed, taught it to read 15 sensors and predict how many cycles each engine has left, and priced what that is worth against a fixed service schedule.</p>
+    <div class="readout" id="readout"></div>
+    <div class="byline">Independent analysis by Stephen tAMBI on the public NASA C-MAPSS dataset. Not affiliated with NASA or any manufacturer.</div>
+  </div>
+</header>
+
+<main class="inner">
+  <div class="kpis" id="kpis"></div>
+
+  <section aria-labelledby="h-trace">
+    <h2 id="h-trace">Watching an engine wear out</h2>
+    <p class="intro">For engines it never saw while learning, the model predicts the remaining life at every cycle. Early on it only knows the engine is healthy; as the sensors drift, the prediction locks on to the real countdown.</p>
+    <div class="card">
+      <div class="seg" role="group" aria-label="Engine" id="engSeg"></div>
+      <div class="chart"><svg id="trace" viewBox="0 0 900 300" role="img" aria-label="True and predicted remaining life of one engine"></svg></div>
+      <div class="legend"><span><i style="background:var(--gray)"></i>True remaining life</span><span><i style="background:var(--blue)"></i>Model's prediction</span><span><i style="background:var(--amber)"></i>Service trigger (safety margin)</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-acc">
+    <h2 id="h-acc">How accurate is it?</h2>
+    <p class="intro" id="accIntro"></p>
+    <div class="two">
+      <div class="card"><div class="chart"><svg id="scatter" viewBox="0 0 520 380" role="img" aria-label="Predicted against true remaining life for 100 test engines"></svg></div></div>
+      <div class="card">
+        <table id="models"><thead><tr><th>Model</th><th>Error (RMSE, cycles)</th></tr></thead><tbody></tbody></table>
+        <p class="note">Root-mean-square error on 100 test engines, remaining life capped at 125 cycles (the standard for this dataset). Lower is better.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-sim">
+    <h2 id="h-sim">What it is worth</h2>
+    <p class="intro">Three ways to look after the same 100 engines. The costs are assumptions; move them and the best policy is recalculated.</p>
+    <div class="card">
+      <div class="sim">
+        <div style="display:grid;gap:18px;align-content:start">
+          <div class="ctrl"><label for="cf">Cost of a failure in the field <span id="cfv"></span></label><input id="cf" type="range" min="20" max="500" step="10" value="100"><small>Repair, downtime, recovery, lost missions or orders (thousand €).</small></div>
+          <div class="ctrl"><label for="cp">Cost of a planned service <span id="cpv"></span></label><input id="cp" type="range" min="2" max="50" step="1" value="10"><small>Parts and labour when the engine is brought in on time (thousand €).</small></div>
+          <div class="ctrl"><label for="th">Safety margin for the model <span id="thv"></span></label><input id="th" type="range" min="0" max="60" step="2" value="20"><small>Service when the predicted remaining life drops to this many cycles.</small></div>
+        </div>
+        <div class="pol" id="pol"></div>
+      </div>
+      <p class="note">Cost per 1,000 operating cycles, so that running engines longer counts as a benefit. The fixed schedule uses the service interval that is cheapest for your costs. Simulated on the 100 training engines with predictions made by models that had not seen them (5-fold cross-validation).</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-recs">
+    <h2 id="h-recs">How a manufacturer should use this</h2>
+    <div class="recs" id="recs"></div>
+  </section>
+
+  <section aria-labelledby="h-method">
+    <h2 id="h-method">How it was built</h2>
+    <div class="card">
+      <ul style="margin:0;padding-left:20px;display:grid;gap:6px;color:var(--ink-2)">
+        <li><b>Data:</b> <span id="mData"></span></li>
+        <li><b>Features:</b> each sensor's value, its 10-cycle average and its 20-cycle trend (slope), so the model sees both the level and the direction of wear.</li>
+        <li><b>Models:</b> linear regression, random forest and gradient boosting in Python with scikit-learn, trained on the 100 run-to-failure engines and tested on 100 separate engines whose true remaining life is published.</li>
+        <li><b>Policies:</b> run-to-failure; a fixed service interval; and predictive service when the predicted remaining life falls to the safety margin (from cycle 30 on). Each service or failure resets the engine.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>Data: NASA Prognostics Center of Excellence, Turbofan Engine Degradation Simulation Data Set (C-MAPSS), sub-dataset FD001: A. Saxena, K. Goebel, D. Simon and N. Eklund, 2008. Simulated engines, one operating condition, one failure mode.</span>
+    <span>Independent analysis by Stephen tAMBI. Not affiliated with NASA or any manufacturer.</span>
+  </footer>
+</main>
+
+<script>
+const D = {"data":{"trainEngines":100,"testEngines":100,"rows":33727,"sensors":15,"lifeMin":128,"lifeMax":362,"lifeMedian":199},"scores":{"Average engine (no model)":{"rmse":40.1},"Linear regression":{"rmse":19.0,"mae":14.8},"Random forest":{"rmse":14.8,"mae":10.7},"Gradient boosting":{"rmse":14.4,"mae":10.6}},"best":"Gradient boosting","cap":125,"test":[{"unit":1,"true":112,"pred":122.9},{"unit":2,"true":98,"pred":122.0},{"unit":3,"true":69,"pred":44.4},{"unit":4,"true":82,"pred":78.1},{"unit":5,"true":91,"pred":88.3},{"unit":6,"true":93,"pred":100.9},{"unit":7,"true":91,"pred":119.6},{"unit":8,"true":95,"pred":76.3},{"unit":9,"true":111,"pred":121.3},{"unit":10,"true":96,"pred":110.8},{"unit":11,"true":97,"pred":79.5},{"unit":12,"true":124,"pred":102.4},{"unit":13,"true":95,"pred":85.4},{"unit":14,"true":107,"pred":117.5},{"unit":15,"true":83,"pred":116.7},{"unit":16,"true":84,"pred":96.3},{"unit":17,"true":50,"pred":50.7},{"unit":18,"true":28,"pred":39.3},{"unit":19,"true":87,"pred":83.2},{"unit":20,"true":16,"pred":11.0},{"unit":21,"true":57,"pred":63.4},{"unit":22,"true":111,"pred":123.5},{"unit":23,"true":113,"pred":123.2},{"unit":24,"true":20,"pred":24.9},{"unit":25,"true":145,"pred":119.5},{"unit":26,"true":119,"pred":111.6},{"unit":27,"true":66,"pred":96.2},{"unit":28,"true":97,"pred":112.1},{"unit":29,"true":90,"pred":98.4},{"unit":30,"true":115,"pred":98.8},{"unit":31,"true":8,"pred":11.2},{"unit":32,"true":48,"pred":49.4},{"unit":33,"true":106,"pred":121.9},{"unit":34,"true":7,"pred":6.4},{"unit":35,"true":11,"pred":13.2},{"unit":36,"true":19,"pred":23.3},{"unit":37,"true":21,"pred":39.6},{"unit":38,"true":50,"pred":39.3},{"unit":39,"true":142,"pred":123.5},{"unit":40,"true":28,"pred":31.0},{"unit":41,"true":18,"pred":30.0},{"unit":42,"true":10,"pred":13.2},{"unit":43,"true":59,"pred":76.1},{"unit":44,"true":109,"pred":121.1},{"unit":45,"true":114,"pred":53.9},{"unit":46,"true":47,"pred":45.3},{"unit":47,"true":135,"pred":113.8},{"unit":48,"true":92,"pred":101.9},{"unit":49,"true":21,"pred":17.0},{"unit":50,"true":79,"pred":91.5},{"unit":51,"true":114,"pred":100.6},{"unit":52,"true":29,"pred":35.1},{"unit":53,"true":26,"pred":29.8},{"unit":54,"true":97,"pred":116.8},{"unit":55,"true":137,"pred":100.8},{"unit":56,"true":15,"pred":13.8},{"unit":57,"true":103,"pred":106.8},{"unit":58,"true":37,"pred":39.4},{"unit":59,"true":114,"pred":99.1},{"unit":60,"true":100,"pred":101.1},{"unit":61,"true":21,"pred":27.2},{"unit":62,"true":54,"pred":51.1},{"unit":63,"true":72,"pred":95.5},{"unit":64,"true":28,"pred":32.2},{"unit":65,"true":128,"pred":124.0},{"unit":66,"true":14,"pred":14.5},{"unit":67,"true":77,"pred":115.9},{"unit":68,"true":8,"pred":9.5},{"unit":69,"true":121,"pred":121.3},{"unit":70,"true":94,"pred":106.2},{"unit":71,"true":118,"pred":115.9},{"unit":72,"true":50,"pred":59.3},{"unit":73,"true":131,"pred":112.5},{"unit":74,"true":126,"pred":108.4},{"unit":75,"true":113,"pred":98.2},{"unit":76,"true":10,"pred":7.5},{"unit":77,"true":34,"pred":40.3},{"unit":78,"true":107,"pred":124.9},{"unit":79,"true":63,"pred":87.5},{"unit":80,"true":90,"pred":98.0},{"unit":81,"true":8,"pred":6.0},{"unit":82,"true":9,"pred":6.3},{"unit":83,"true":137,"pred":112.8},{"unit":84,"true":58,"pred":58.3},{"unit":85,"true":118,"pred":124.9},{"unit":86,"true":89,"pred":95.5},{"unit":87,"true":116,"pred":107.0},{"unit":88,"true":115,"pred":125.4},{"unit":89,"true":136,"pred":108.5},{"unit":90,"true":28,"pred":31.7},{"unit":91,"true":38,"pred":23.1},{"unit":92,"true":20,"pred":21.0},{"unit":93,"true":85,"pred":58.9},{"unit":94,"true":55,"pred":53.0},{"unit":95,"true":128,"pred":96.0},{"unit":96,"true":137,"pred":117.0},{"unit":97,"true":82,"pred":86.6},{"unit":98,"true":59,"pred":71.1},{"unit":99,"true":117,"pred":116.9},{"unit":100,"true":20,"pred":15.9}],"traces":{"17":[{"c":1,"rul":275,"pred":124.4},{"c":2,"rul":274,"pred":124.5},{"c":3,"rul":273,"pred":124.7},{"c":4,"rul":272,"pred":125.1},{"c":5,"rul":271,"pred":125.1},{"c":6,"rul":270,"pred":125.2},{"c":7,"rul":269,"pred":125.0},{"c":8,"rul":268,"pred":124.7},{"c":9,"rul":267,"pred":124.7},{"c":10,"rul":266,"pred":124.9},{"c":11,"rul":265,"pred":124.8},{"c":12,"rul":264,"pred":124.2},{"c":13,"rul":263,"pred":125.6},{"c":14,"rul":262,"pred":125.4},{"c":15,"rul":261,"pred":125.6},{"c":16,"rul":260,"pred":125.2},{"c":17,"rul":259,"pred":124.7},{"c":18,"rul":258,"pred":124.8},{"c":19,"rul":257,"pred":124.9},{"c":20,"rul":256,"pred":124.0},{"c":21,"rul":255,"pred":124.2},{"c":22,"rul":254,"pred":124.5},{"c":23,"rul":253,"pred":123.4},{"c":24,"rul":252,"pred":124.1},{"c":25,"rul":251,"pred":124.3},{"c":26,"rul":250,"pred":124.1},{"c":27,"rul":249,"pred":124.5},{"c":28,"rul":248,"pred":123.7},{"c":29,"rul":247,"pred":123.5},{"c":30,"rul":246,"pred":124.1},{"c":31,"rul":245,"pred":124.0},{"c":32,"rul":244,"pred":123.9},{"c":33,"rul":243,"pred":123.9},{"c":34,"rul":242,"pred":123.9},{"c":35,"rul":241,"pred":124.2},{"c":36,"rul":240,"pred":124.0},{"c":37,"rul":239,"pred":124.4},{"c":38,"rul":238,"pred":124.6},{"c":39,"rul":237,"pred":123.7},{"c":40,"rul":236,"pred":122.8},{"c":41,"rul":235,"pred":123.7},{"c":42,"rul":234,"pred":123.5},{"c":43,"rul":233,"pred":123.8},{"c":44,"rul":232,"pred":123.9},{"c":45,"rul":231,"pred":123.5},{"c":46,"rul":230,"pred":123.5},{"c":47,"rul":229,"pred":124.0},{"c":48,"rul":228,"pred":123.5},{"c":49,"rul":227,"pred":124.2},{"c":50,"rul":226,"pred":123.5},{"c":51,"rul":225,"pred":123.7},{"c":52,"rul":224,"pred":123.0},{"c":53,"rul":223,"pred":124.1},{"c":54,"rul":222,"pred":122.3},{"c":55,"rul":221,"pred":120.5},{"c":56,"rul":220,"pred":118.5},{"c":57,"rul":219,"pred":119.9},{"c":58,"rul":218,"pred":119.6},{"c":59,"rul":217,"pred":121.4},{"c":60,"rul":216,"pred":122.0},{"c":61,"rul":215,"pred":118.5},{"c":62,"rul":214,"pred":117.8},{"c":63,"rul":213,"pred":117.8},{"c":64,"rul":212,"pred":120.3},{"c":65,"rul":211,"pred":118.0},{"c":66,"rul":210,"pred":118.7},{"c":67,"rul":209,"pred":116.6},{"c":68,"rul":208,"pred":117.5},{"c":69,"rul":207,"pred":118.7},{"c":70,"rul":206,"pred":119.3},{"c":71,"rul":205,"pred":122.0},{"c":72,"rul":204,"pred":118.6},{"c":73,"rul":203,"pred":118.0},{"c":74,"rul":202,"pred":117.8},{"c":75,"rul":201,"pred":118.0},{"c":76,"rul":200,"pred":117.6},{"c":77,"rul":199,"pred":121.4},{"c":78,"rul":198,"pred":119.9},{"c":79,"rul":197,"pred":122.3},{"c":80,"rul":196,"pred":118.0},{"c":81,"rul":195,"pred":118.3},{"c":82,"rul":194,"pred":116.2},{"c":83,"rul":193,"pred":115.3},{"c":84,"rul":192,"pred":117.4},{"c":85,"rul":191,"pred":118.6},{"c":86,"rul":190,"pred":115.4},{"c":87,"rul":189,"pred":120.9},{"c":88,"rul":188,"pred":117.5},{"c":89,"rul":187,"pred":118.7},{"c":90,"rul":186,"pred":118.1},{"c":91,"rul":185,"pred":118.2},{"c":92,"rul":184,"pred":117.9},{"c":93,"rul":183,"pred":117.8},{"c":94,"rul":182,"pred":117.6},{"c":95,"rul":181,"pred":114.6},{"c":96,"rul":180,"pred":114.9},{"c":97,"rul":179,"pred":117.7},{"c":98,"rul":178,"pred":116.8},{"c":99,"rul":177,"pred":117.6},{"c":100,"rul":176,"pred":117.4},{"c":101,"rul":175,"pred":116.8},{"c":102,"rul":174,"pred":123.0},{"c":103,"rul":173,"pred":122.9},{"c":104,"rul":172,"pred":122.9},{"c":105,"rul":171,"pred":118.8},{"c":106,"rul":170,"pred":119.8},{"c":107,"rul":169,"pred":119.7},{"c":108,"rul":168,"pred":114.4},{"c":109,"rul":167,"pred":117.4},{"c":110,"rul":166,"pred":120.5},{"c":111,"rul":165,"pred":121.9},{"c":112,"rul":164,"pred":118.0},{"c":113,"rul":163,"pred":115.4},{"c":114,"rul":162,"pred":117.0},{"c":115,"rul":161,"pred":112.8},{"c":116,"rul":160,"pred":111.9},{"c":117,"rul":159,"pred":112.6},{"c":118,"rul":158,"pred":112.2},{"c":119,"rul":157,"pred":112.3},{"c":120,"rul":156,"pred":113.9},{"c":121,"rul":155,"pred":104.6},{"c":122,"rul":154,"pred":108.3},{"c":123,"rul":153,"pred":102.3},{"c":124,"rul":152,"pred":107.9},{"c":125,"rul":151,"pred":113.0},{"c":126,"rul":150,"pred":113.6},{"c":127,"rul":149,"pred":104.2},{"c":128,"rul":148,"pred":105.9},{"c":129,"rul":147,"pred":108.3},{"c":130,"rul":146,"pred":102.2},{"c":131,"rul":145,"pred":110.1},{"c":132,"rul":144,"pred":108.4},{"c":133,"rul":143,"pred":114.2},{"c":134,"rul":142,"pred":114.5},{"c":135,"rul":141,"pred":113.6},{"c":136,"rul":140,"pred":116.5},{"c":137,"rul":139,"pred":108.4},{"c":138,"rul":138,"pred":113.9},{"c":139,"rul":137,"pred":114.2},{"c":140,"rul":136,"pred":112.4},{"c":141,"rul":135,"pred":106.8},{"c":142,"rul":134,"pred":113.7},{"c":143,"rul":133,"pred":108.7},{"c":144,"rul":132,"pred":118.6},{"c":145,"rul":131,"pred":116.1},{"c":146,"rul":130,"pred":107.1},{"c":147,"rul":129,"pred":111.9},{"c":148,"rul":128,"pred":96.1},{"c":149,"rul":127,"pred":92.5},{"c":150,"rul":126,"pred":104.4},{"c":151,"rul":125,"pred":107.2},{"c":152,"rul":124,"pred":108.7},{"c":153,"rul":123,"pred":109.4},{"c":154,"rul":122,"pred":108.3},{"c":155,"rul":121,"pred":111.5},{"c":156,"rul":120,"pred":108.9},{"c":157,"rul":119,"pred":102.0},{"c":158,"rul":118,"pred":103.2},{"c":159,"rul":117,"pred":101.4},{"c":160,"rul":116,"pred":103.1},{"c":161,"rul":115,"pred":92.8},{"c":162,"rul":114,"pred":90.0},{"c":163,"rul":113,"pred":92.9},{"c":164,"rul":112,"pred":108.9},{"c":165,"rul":111,"pred":110.1},{"c":166,"rul":110,"pred":111.3},{"c":167,"rul":109,"pred":112.3},{"c":168,"rul":108,"pred":118.7},{"c":169,"rul":107,"pred":112.2},{"c":170,"rul":106,"pred":122.2},{"c":171,"rul":105,"pred":116.6},{"c":172,"rul":104,"pred":112.1},{"c":173,"rul":103,"pred":105.3},{"c":174,"rul":102,"pred":97.6},{"c":175,"rul":101,"pred":94.6},{"c":176,"rul":100,"pred":99.6},{"c":177,"rul":99,"pred":96.8},{"c":178,"rul":98,"pred":85.4},{"c":179,"rul":97,"pred":91.9},{"c":180,"rul":96,"pred":90.2},{"c":181,"rul":95,"pred":84.4},{"c":182,"rul":94,"pred":76.5},{"c":183,"rul":93,"pred":77.6},{"c":184,"rul":92,"pred":79.2},{"c":185,"rul":91,"pred":77.4},{"c":186,"rul":90,"pred":73.6},{"c":187,"rul":89,"pred":71.2},{"c":188,"rul":88,"pred":76.8},{"c":189,"rul":87,"pred":64.7},{"c":190,"rul":86,"pred":62.4},{"c":191,"rul":85,"pred":60.2},{"c":192,"rul":84,"pred":57.5},{"c":193,"rul":83,"pred":64.2},{"c":194,"rul":82,"pred":66.0},{"c":195,"rul":81,"pred":66.7},{"c":196,"rul":80,"pred":67.6},{"c":197,"rul":79,"pred":72.2},{"c":198,"rul":78,"pred":69.3},{"c":199,"rul":77,"pred":72.1},{"c":200,"rul":76,"pred":80.7},{"c":201,"rul":75,"pred":70.6},{"c":202,"rul":74,"pred":71.8},{"c":203,"rul":73,"pred":67.9},{"c":204,"rul":72,"pred":67.1},{"c":205,"rul":71,"pred":61.0},{"c":206,"rul":70,"pred":65.0},{"c":207,"rul":69,"pred":66.5},{"c":208,"rul":68,"pred":66.0},{"c":209,"rul":67,"pred":63.8},{"c":210,"rul":66,"pred":63.6},{"c":211,"rul":65,"pred":57.6},{"c":212,"rul":64,"pred":55.9},{"c":213,"rul":63,"pred":60.3},{"c":214,"rul":62,"pred":60.6},{"c":215,"rul":61,"pred":63.4},{"c":216,"rul":60,"pred":63.5},{"c":217,"rul":59,"pred":53.8},{"c":218,"rul":58,"pred":58.2},{"c":219,"rul":57,"pred":54.5},{"c":220,"rul":56,"pred":54.4},{"c":221,"rul":55,"pred":52.6},{"c":222,"rul":54,"pred":51.5},{"c":223,"rul":53,"pred":51.2},{"c":224,"rul":52,"pred":54.2},{"c":225,"rul":51,"pred":41.7},{"c":226,"rul":50,"pred":47.9},{"c":227,"rul":49,"pred":50.4},{"c":228,"rul":48,"pred":49.2},{"c":229,"rul":47,"pred":49.8},{"c":230,"rul":46,"pred":51.4},{"c":231,"rul":45,"pred":44.0},{"c":232,"rul":44,"pred":42.9},{"c":233,"rul":43,"pred":46.7},{"c":234,"rul":42,"pred":46.6},{"c":235,"rul":41,"pred":44.3},{"c":236,"rul":40,"pred":39.1},{"c":237,"rul":39,"pred":38.7},{"c":238,"rul":38,"pred":35.4},{"c":239,"rul":37,"pred":34.4},{"c":240,"rul":36,"pred":33.8},{"c":241,"rul":35,"pred":34.5},{"c":242,"rul":34,"pred":29.2},{"c":243,"rul":33,"pred":31.1},{"c":244,"rul":32,"pred":26.0},{"c":245,"rul":31,"pred":24.2},{"c":246,"rul":30,"pred":24.1},{"c":247,"rul":29,"pred":23.7},{"c":248,"rul":28,"pred":24.2},{"c":249,"rul":27,"pred":23.9},{"c":250,"rul":26,"pred":23.1},{"c":251,"rul":25,"pred":21.5},{"c":252,"rul":24,"pred":22.1},{"c":253,"rul":23,"pred":23.3},{"c":254,"rul":22,"pred":21.9},{"c":255,"rul":21,"pred":22.2},{"c":256,"rul":20,"pred":17.9},{"c":257,"rul":19,"pred":16.3},{"c":258,"rul":18,"pred":16.2},{"c":259,"rul":17,"pred":13.4},{"c":260,"rul":16,"pred":12.5},{"c":261,"rul":15,"pred":13.2},{"c":262,"rul":14,"pred":13.4},{"c":263,"rul":13,"pred":11.3},{"c":264,"rul":12,"pred":9.4},{"c":265,"rul":11,"pred":8.6},{"c":266,"rul":10,"pred":7.6},{"c":267,"rul":9,"pred":7.9},{"c":268,"rul":8,"pred":5.7},{"c":269,"rul":7,"pred":5.0},{"c":270,"rul":6,"pred":5.1},{"c":271,"rul":5,"pred":4.5},{"c":272,"rul":4,"pred":2.1},{"c":273,"rul":3,"pred":1.3},{"c":274,"rul":2,"pred":1.3},{"c":275,"rul":1,"pred":1.6},{"c":276,"rul":0,"pred":1.8}],"79":[{"c":1,"rul":198,"pred":125.3},{"c":2,"rul":197,"pred":125.6},{"c":3,"rul":196,"pred":125.9},{"c":4,"rul":195,"pred":126.7},{"c":5,"rul":194,"pred":126.8},{"c":6,"rul":193,"pred":126.0},{"c":7,"rul":192,"pred":126.0},{"c":8,"rul":191,"pred":125.9},{"c":9,"rul":190,"pred":126.0},{"c":10,"rul":189,"pred":126.2},{"c":11,"rul":188,"pred":126.3},{"c":12,"rul":187,"pred":125.5},{"c":13,"rul":186,"pred":124.8},{"c":14,"rul":185,"pred":125.8},{"c":15,"rul":184,"pred":125.1},{"c":16,"rul":183,"pred":125.3},{"c":17,"rul":182,"pred":125.4},{"c":18,"rul":181,"pred":125.4},{"c":19,"rul":180,"pred":125.5},{"c":20,"rul":179,"pred":125.7},{"c":21,"rul":178,"pred":125.4},{"c":22,"rul":177,"pred":125.5},{"c":23,"rul":176,"pred":125.2},{"c":24,"rul":175,"pred":125.3},{"c":25,"rul":174,"pred":125.3},{"c":26,"rul":173,"pred":125.5},{"c":27,"rul":172,"pred":125.3},{"c":28,"rul":171,"pred":124.5},{"c":29,"rul":170,"pred":125.4},{"c":30,"rul":169,"pred":124.8},{"c":31,"rul":168,"pred":125.3},{"c":32,"rul":167,"pred":125.4},{"c":33,"rul":166,"pred":125.3},{"c":34,"rul":165,"pred":125.5},{"c":35,"rul":164,"pred":125.1},{"c":36,"rul":163,"pred":124.9},{"c":37,"rul":162,"pred":124.6},{"c":38,"rul":161,"pred":124.8},{"c":39,"rul":160,"pred":125.5},{"c":40,"rul":159,"pred":125.6},{"c":41,"rul":158,"pred":125.8},{"c":42,"rul":157,"pred":125.4},{"c":43,"rul":156,"pred":124.4},{"c":44,"rul":155,"pred":125.2},{"c":45,"rul":154,"pred":124.9},{"c":46,"rul":153,"pred":123.9},{"c":47,"rul":152,"pred":123.8},{"c":48,"rul":151,"pred":123.7},{"c":49,"rul":150,"pred":123.9},{"c":50,"rul":149,"pred":124.0},{"c":51,"rul":148,"pred":122.9},{"c":52,"rul":147,"pred":124.8},{"c":53,"rul":146,"pred":124.2},{"c":54,"rul":145,"pred":123.3},{"c":55,"rul":144,"pred":123.5},{"c":56,"rul":143,"pred":124.6},{"c":57,"rul":142,"pred":124.6},{"c":58,"rul":141,"pred":124.7},{"c":59,"rul":140,"pred":123.1},{"c":60,"rul":139,"pred":124.0},{"c":61,"rul":138,"pred":123.2},{"c":62,"rul":137,"pred":123.9},{"c":63,"rul":136,"pred":122.1},{"c":64,"rul":135,"pred":123.4},{"c":65,"rul":134,"pred":122.4},{"c":66,"rul":133,"pred":120.4},{"c":67,"rul":132,"pred":120.3},{"c":68,"rul":131,"pred":121.7},{"c":69,"rul":130,"pred":122.7},{"c":70,"rul":129,"pred":121.2},{"c":71,"rul":128,"pred":121.4},{"c":72,"rul":127,"pred":121.1},{"c":73,"rul":126,"pred":122.3},{"c":74,"rul":125,"pred":122.8},{"c":75,"rul":124,"pred":114.5},{"c":76,"rul":123,"pred":118.4},{"c":77,"rul":122,"pred":116.7},{"c":78,"rul":121,"pred":117.8},{"c":79,"rul":120,"pred":118.1},{"c":80,"rul":119,"pred":118.8},{"c":81,"rul":118,"pred":121.9},{"c":82,"rul":117,"pred":124.2},{"c":83,"rul":116,"pred":120.8},{"c":84,"rul":115,"pred":118.3},{"c":85,"rul":114,"pred":119.5},{"c":86,"rul":113,"pred":119.1},{"c":87,"rul":112,"pred":119.9},{"c":88,"rul":111,"pred":120.2},{"c":89,"rul":110,"pred":115.8},{"c":90,"rul":109,"pred":116.3},{"c":91,"rul":108,"pred":114.5},{"c":92,"rul":107,"pred":116.4},{"c":93,"rul":106,"pred":113.2},{"c":94,"rul":105,"pred":109.8},{"c":95,"rul":104,"pred":116.1},{"c":96,"rul":103,"pred":117.0},{"c":97,"rul":102,"pred":110.8},{"c":98,"rul":101,"pred":112.8},{"c":99,"rul":100,"pred":105.3},{"c":100,"rul":99,"pred":96.8},{"c":101,"rul":98,"pred":92.4},{"c":102,"rul":97,"pred":94.5},{"c":103,"rul":96,"pred":98.7},{"c":104,"rul":95,"pred":99.7},{"c":105,"rul":94,"pred":103.5},{"c":106,"rul":93,"pred":105.9},{"c":107,"rul":92,"pred":97.3},{"c":108,"rul":91,"pred":103.2},{"c":109,"rul":90,"pred":94.4},{"c":110,"rul":89,"pred":91.2},{"c":111,"rul":88,"pred":103.6},{"c":112,"rul":87,"pred":100.7},{"c":113,"rul":86,"pred":94.5},{"c":114,"rul":85,"pred":95.5},{"c":115,"rul":84,"pred":103.6},{"c":116,"rul":83,"pred":99.0},{"c":117,"rul":82,"pred":98.5},{"c":118,"rul":81,"pred":98.7},{"c":119,"rul":80,"pred":97.0},{"c":120,"rul":79,"pred":90.6},{"c":121,"rul":78,"pred":92.7},{"c":122,"rul":77,"pred":80.2},{"c":123,"rul":76,"pred":85.6},{"c":124,"rul":75,"pred":79.0},{"c":125,"rul":74,"pred":79.4},{"c":126,"rul":73,"pred":92.2},{"c":127,"rul":72,"pred":88.5},{"c":128,"rul":71,"pred":84.4},{"c":129,"rul":70,"pred":81.5},{"c":130,"rul":69,"pred":85.5},{"c":131,"rul":68,"pred":86.2},{"c":132,"rul":67,"pred":90.0},{"c":133,"rul":66,"pred":89.8},{"c":134,"rul":65,"pred":91.5},{"c":135,"rul":64,"pred":88.0},{"c":136,"rul":63,"pred":74.2},{"c":137,"rul":62,"pred":65.1},{"c":138,"rul":61,"pred":72.5},{"c":139,"rul":60,"pred":76.8},{"c":140,"rul":59,"pred":62.6},{"c":141,"rul":58,"pred":62.6},{"c":142,"rul":57,"pred":49.6},{"c":143,"rul":56,"pred":53.5},{"c":144,"rul":55,"pred":72.7},{"c":145,"rul":54,"pred":56.9},{"c":146,"rul":53,"pred":68.8},{"c":147,"rul":52,"pred":75.1},{"c":148,"rul":51,"pred":69.4},{"c":149,"rul":50,"pred":80.4},{"c":150,"rul":49,"pred":84.4},{"c":151,"rul":48,"pred":100.3},{"c":152,"rul":47,"pred":94.4},{"c":153,"rul":46,"pred":88.8},{"c":154,"rul":45,"pred":90.7},{"c":155,"rul":44,"pred":92.0},{"c":156,"rul":43,"pred":76.5},{"c":157,"rul":42,"pred":60.9},{"c":158,"rul":41,"pred":60.6},{"c":159,"rul":40,"pred":61.7},{"c":160,"rul":39,"pred":68.7},{"c":161,"rul":38,"pred":56.0},{"c":162,"rul":37,"pred":48.2},{"c":163,"rul":36,"pred":43.4},{"c":164,"rul":35,"pred":51.1},{"c":165,"rul":34,"pred":42.2},{"c":166,"rul":33,"pred":40.1},{"c":167,"rul":32,"pred":39.7},{"c":168,"rul":31,"pred":34.4},{"c":169,"rul":30,"pred":33.6},{"c":170,"rul":29,"pred":33.4},{"c":171,"rul":28,"pred":32.0},{"c":172,"rul":27,"pred":31.4},{"c":173,"rul":26,"pred":30.6},{"c":174,"rul":25,"pred":31.0},{"c":175,"rul":24,"pred":31.1},{"c":176,"rul":23,"pred":33.8},{"c":177,"rul":22,"pred":31.5},{"c":178,"rul":21,"pred":32.5},{"c":179,"rul":20,"pred":32.1},{"c":180,"rul":19,"pred":29.5},{"c":181,"rul":18,"pred":29.9},{"c":182,"rul":17,"pred":24.5},{"c":183,"rul":16,"pred":19.4},{"c":184,"rul":15,"pred":17.6},{"c":185,"rul":14,"pred":12.9},{"c":186,"rul":13,"pred":11.3},{"c":187,"rul":12,"pred":11.2},{"c":188,"rul":11,"pred":9.8},{"c":189,"rul":10,"pred":7.9},{"c":190,"rul":9,"pred":8.1},{"c":191,"rul":8,"pred":7.7},{"c":192,"rul":7,"pred":7.8},{"c":193,"rul":6,"pred":6.5},{"c":194,"rul":5,"pred":6.6},{"c":195,"rul":4,"pred":5.1},{"c":196,"rul":3,"pred":4.4},{"c":197,"rul":2,"pred":4.2},{"c":198,"rul":1,"pred":4.0},{"c":199,"rul":0,"pred":2.0}],"93":[{"c":1,"rul":154,"pred":126.1},{"c":2,"rul":153,"pred":124.4},{"c":3,"rul":152,"pred":124.2},{"c":4,"rul":151,"pred":125.1},{"c":5,"rul":150,"pred":122.8},{"c":6,"rul":149,"pred":124.6},{"c":7,"rul":148,"pred":123.7},{"c":8,"rul":147,"pred":125.3},{"c":9,"rul":146,"pred":124.2},{"c":10,"rul":145,"pred":123.2},{"c":11,"rul":144,"pred":123.9},{"c":12,"rul":143,"pred":123.2},{"c":13,"rul":142,"pred":123.4},{"c":14,"rul":141,"pred":124.7},{"c":15,"rul":140,"pred":122.7},{"c":16,"rul":139,"pred":124.0},{"c":17,"rul":138,"pred":124.2},{"c":18,"rul":137,"pred":123.3},{"c":19,"rul":136,"pred":122.6},{"c":20,"rul":135,"pred":123.1},{"c":21,"rul":134,"pred":122.2},{"c":22,"rul":133,"pred":122.1},{"c":23,"rul":132,"pred":121.9},{"c":24,"rul":131,"pred":122.9},{"c":25,"rul":130,"pred":123.1},{"c":26,"rul":129,"pred":119.5},{"c":27,"rul":128,"pred":121.2},{"c":28,"rul":127,"pred":122.9},{"c":29,"rul":126,"pred":119.7},{"c":30,"rul":125,"pred":120.8},{"c":31,"rul":124,"pred":121.6},{"c":32,"rul":123,"pred":121.4},{"c":33,"rul":122,"pred":121.1},{"c":34,"rul":121,"pred":119.7},{"c":35,"rul":120,"pred":121.5},{"c":36,"rul":119,"pred":121.5},{"c":37,"rul":118,"pred":122.9},{"c":38,"rul":117,"pred":121.3},{"c":39,"rul":116,"pred":122.0},{"c":40,"rul":115,"pred":121.9},{"c":41,"rul":114,"pred":121.2},{"c":42,"rul":113,"pred":121.5},{"c":43,"rul":112,"pred":117.2},{"c":44,"rul":111,"pred":114.7},{"c":45,"rul":110,"pred":117.1},{"c":46,"rul":109,"pred":111.8},{"c":47,"rul":108,"pred":113.8},{"c":48,"rul":107,"pred":111.3},{"c":49,"rul":106,"pred":113.6},{"c":50,"rul":105,"pred":115.3},{"c":51,"rul":104,"pred":117.5},{"c":52,"rul":103,"pred":113.3},{"c":53,"rul":102,"pred":113.6},{"c":54,"rul":101,"pred":113.4},{"c":55,"rul":100,"pred":111.4},{"c":56,"rul":99,"pred":111.4},{"c":57,"rul":98,"pred":111.3},{"c":58,"rul":97,"pred":113.6},{"c":59,"rul":96,"pred":110.3},{"c":60,"rul":95,"pred":115.5},{"c":61,"rul":94,"pred":115.1},{"c":62,"rul":93,"pred":114.3},{"c":63,"rul":92,"pred":108.0},{"c":64,"rul":91,"pred":105.6},{"c":65,"rul":90,"pred":101.2},{"c":66,"rul":89,"pred":101.7},{"c":67,"rul":88,"pred":101.0},{"c":68,"rul":87,"pred":97.4},{"c":69,"rul":86,"pred":98.5},{"c":70,"rul":85,"pred":90.4},{"c":71,"rul":84,"pred":96.5},{"c":72,"rul":83,"pred":94.7},{"c":73,"rul":82,"pred":79.6},{"c":74,"rul":81,"pred":87.7},{"c":75,"rul":80,"pred":80.5},{"c":76,"rul":79,"pred":91.2},{"c":77,"rul":78,"pred":89.3},{"c":78,"rul":77,"pred":94.4},{"c":79,"rul":76,"pred":94.5},{"c":80,"rul":75,"pred":84.0},{"c":81,"rul":74,"pred":89.7},{"c":82,"rul":73,"pred":84.4},{"c":83,"rul":72,"pred":86.8},{"c":84,"rul":71,"pred":81.4},{"c":85,"rul":70,"pred":89.1},{"c":86,"rul":69,"pred":82.0},{"c":87,"rul":68,"pred":78.3},{"c":88,"rul":67,"pred":89.6},{"c":89,"rul":66,"pred":88.4},{"c":90,"rul":65,"pred":81.1},{"c":91,"rul":64,"pred":94.2},{"c":92,"rul":63,"pred":97.4},{"c":93,"rul":62,"pred":93.7},{"c":94,"rul":61,"pred":96.1},{"c":95,"rul":60,"pred":92.6},{"c":96,"rul":59,"pred":98.4},{"c":97,"rul":58,"pred":98.2},{"c":98,"rul":57,"pred":94.8},{"c":99,"rul":56,"pred":107.1},{"c":100,"rul":55,"pred":107.9},{"c":101,"rul":54,"pred":105.4},{"c":102,"rul":53,"pred":99.7},{"c":103,"rul":52,"pred":89.5},{"c":104,"rul":51,"pred":76.8},{"c":105,"rul":50,"pred":76.6},{"c":106,"rul":49,"pred":64.1},{"c":107,"rul":48,"pred":63.8},{"c":108,"rul":47,"pred":53.8},{"c":109,"rul":46,"pred":48.2},{"c":110,"rul":45,"pred":47.5},{"c":111,"rul":44,"pred":56.4},{"c":112,"rul":43,"pred":53.1},{"c":113,"rul":42,"pred":53.5},{"c":114,"rul":41,"pred":58.4},{"c":115,"rul":40,"pred":57.6},{"c":116,"rul":39,"pred":48.3},{"c":117,"rul":38,"pred":60.8},{"c":118,"rul":37,"pred":53.9},{"c":119,"rul":36,"pred":51.7},{"c":120,"rul":35,"pred":50.5},{"c":121,"rul":34,"pred":48.0},{"c":122,"rul":33,"pred":47.2},{"c":123,"rul":32,"pred":49.6},{"c":124,"rul":31,"pred":41.4},{"c":125,"rul":30,"pred":36.6},{"c":126,"rul":29,"pred":33.3},{"c":127,"rul":28,"pred":35.1},{"c":128,"rul":27,"pred":34.2},{"c":129,"rul":26,"pred":39.8},{"c":130,"rul":25,"pred":35.7},{"c":131,"rul":24,"pred":35.8},{"c":132,"rul":23,"pred":27.3},{"c":133,"rul":22,"pred":32.2},{"c":134,"rul":21,"pred":28.0},{"c":135,"rul":20,"pred":25.6},{"c":136,"rul":19,"pred":26.2},{"c":137,"rul":18,"pred":25.8},{"c":138,"rul":17,"pred":18.0},{"c":139,"rul":16,"pred":18.6},{"c":140,"rul":15,"pred":16.2},{"c":141,"rul":14,"pred":19.6},{"c":142,"rul":13,"pred":18.9},{"c":143,"rul":12,"pred":14.3},{"c":144,"rul":11,"pred":14.9},{"c":145,"rul":10,"pred":9.9},{"c":146,"rul":9,"pred":10.5},{"c":147,"rul":8,"pred":10.2},{"c":148,"rul":7,"pred":9.2},{"c":149,"rul":6,"pred":5.5},{"c":150,"rul":5,"pred":4.9},{"c":151,"rul":4,"pred":2.8},{"c":152,"rul":3,"pred":2.0},{"c":153,"rul":2,"pred":0.7},{"c":154,"rul":1,"pred":0.0},{"c":155,"rul":0,"pred":0.0}]},"predictive":[{"th":0,"cycles":20606,"failures":79,"services":21,"wasted":25},{"th":2,"cycles":20526,"failures":33,"services":67,"wasted":105},{"th":4,"cycles":20316,"failures":9,"services":91,"wasted":315},{"th":6,"cycles":20074,"failures":1,"services":99,"wasted":557},{"th":8,"cycles":19826,"failures":0,"services":100,"wasted":805},{"th":10,"cycles":19613,"failures":0,"services":100,"wasted":1018},{"th":12,"cycles":19395,"failures":0,"services":100,"wasted":1236},{"th":14,"cycles":19230,"failures":0,"services":100,"wasted":1401},{"th":16,"cycles":19050,"failures":0,"services":100,"wasted":1581},{"th":18,"cycles":18833,"failures":0,"services":100,"wasted":1798},{"th":20,"cycles":18634,"failures":0,"services":100,"wasted":1997},{"th":22,"cycles":18410,"failures":0,"services":100,"wasted":2221},{"th":24,"cycles":18237,"failures":0,"services":100,"wasted":2394},{"th":26,"cycles":18017,"failures":0,"services":100,"wasted":2614},{"th":28,"cycles":17790,"failures":0,"services":100,"wasted":2841},{"th":30,"cycles":17616,"failures":0,"services":100,"wasted":3015},{"th":32,"cycles":17405,"failures":0,"services":100,"wasted":3226},{"th":34,"cycles":17207,"failures":0,"services":100,"wasted":3424},{"th":36,"cycles":17030,"failures":0,"services":100,"wasted":3601},{"th":38,"cycles":16679,"failures":0,"services":100,"wasted":3952},{"th":40,"cycles":16471,"failures":0,"services":100,"wasted":4160},{"th":42,"cycles":16219,"failures":0,"services":100,"wasted":4412},{"th":44,"cycles":15892,"failures":0,"services":100,"wasted":4739},{"th":46,"cycles":15689,"failures":0,"services":100,"wasted":4942},{"th":48,"cycles":15412,"failures":0,"services":100,"wasted":5219},{"th":50,"cycles":15118,"failures":0,"services":100,"wasted":5513},{"th":52,"cycles":14976,"failures":0,"services":100,"wasted":5655},{"th":54,"cycles":14778,"failures":0,"services":100,"wasted":5853},{"th":56,"cycles":14632,"failures":0,"services":100,"wasted":5999},{"th":58,"cycles":14389,"failures":0,"services":100,"wasted":6242},{"th":60,"cycles":14137,"failures":0,"services":100,"wasted":6494}],"fixed":[{"n":100,"cycles":10000,"failures":0,"services":100,"wasted":10631},{"n":105,"cycles":10500,"failures":0,"services":100,"wasted":10131},{"n":110,"cycles":11000,"failures":0,"services":100,"wasted":9631},{"n":115,"cycles":11500,"failures":0,"services":100,"wasted":9131},{"n":120,"cycles":12000,"failures":0,"services":100,"wasted":8631},{"n":125,"cycles":12500,"failures":0,"services":100,"wasted":8131},{"n":130,"cycles":12998,"failures":1,"services":99,"wasted":7633},{"n":135,"cycles":13493,"failures":2,"services":98,"wasted":7138},{"n":140,"cycles":13977,"failures":4,"services":96,"wasted":6654},{"n":145,"cycles":14457,"failures":4,"services":96,"wasted":6174},{"n":150,"cycles":14931,"failures":7,"services":93,"wasted":5700},{"n":155,"cycles":15392,"failures":11,"services":89,"wasted":5239},{"n":160,"cycles":15823,"failures":16,"services":84,"wasted":4808},{"n":165,"cycles":16239,"failures":19,"services":81,"wasted":4392},{"n":170,"cycles":16638,"failures":23,"services":77,"wasted":3993},{"n":175,"cycles":17019,"failures":25,"services":75,"wasted":3612},{"n":180,"cycles":17391,"failures":29,"services":71,"wasted":3240},{"n":185,"cycles":17742,"failures":33,"services":67,"wasted":2889},{"n":190,"cycles":18070,"failures":37,"services":63,"wasted":2561},{"n":195,"cycles":18371,"failures":47,"services":53,"wasted":2260},{"n":200,"cycles":18627,"failures":54,"services":46,"wasted":2004},{"n":205,"cycles":18844,"failures":58,"services":42,"wasted":1787},{"n":210,"cycles":19045,"failures":63,"services":37,"wasted":1586},{"n":215,"cycles":19218,"failures":71,"services":29,"wasted":1413},{"n":220,"cycles":19356,"failures":73,"services":27,"wasted":1275},{"n":225,"cycles":19488,"failures":74,"services":26,"wasted":1143},{"n":230,"cycles":19617,"failures":76,"services":24,"wasted":1014},{"n":235,"cycles":19723,"failures":81,"services":19,"wasted":908},{"n":240,"cycles":19818,"failures":83,"services":17,"wasted":813},{"n":245,"cycles":19903,"failures":83,"services":17,"wasted":728},{"n":250,"cycles":19988,"failures":83,"services":17,"wasted":643},{"n":255,"cycles":20073,"failures":83,"services":17,"wasted":558},{"n":260,"cycles":20148,"failures":87,"services":13,"wasted":483},{"n":265,"cycles":20213,"failures":87,"services":13,"wasted":418},{"n":270,"cycles":20274,"failures":89,"services":11,"wasted":357},{"n":275,"cycles":20329,"failures":90,"services":10,"wasted":302},{"n":280,"cycles":20373,"failures":92,"services":8,"wasted":258},{"n":285,"cycles":20409,"failures":94,"services":6,"wasted":222},{"n":290,"cycles":20436,"failures":95,"services":5,"wasted":195},{"n":295,"cycles":20459,"failures":96,"services":4,"wasted":172},{"n":300,"cycles":20479,"failures":96,"services":4,"wasted":152}],"recs":[{"tag":"Start safe","h":"Begin with a wide safety margin","p":"With a margin of 20 cycles the model caused no failures and left about 20 cycles of life unused per engine; with 6 cycles, one engine failed. Start wide, then narrow the margin as the model proves itself on your own fleet."},{"tag":"Fleet","h":"Rank the fleet by risk every day","p":"The same score that triggers a service can sort every vehicle or system by remaining life. Planners see which units need parts and workshop slots next week, instead of finding out when something breaks."},{"tag":"Data","h":"Label real failures from maintenance logs","p":"Real fleets rarely run to failure, so labels are scarce. Workshop reports and maintenance logs hold that history as free text; a language model can turn them into structured failure records that train the next model."},{"tag":"Trust","h":"Show engineers why the model alarms","p":"Pair every alert with the sensors that moved: for these engines, temperature and pressure trends carried the signal. Engineers act faster on an alert they can check than on a number they cannot."}]};
+(() => {
+  const NS = 'http://www.w3.org/2000/svg';
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const n0 = v => Math.round(v).toLocaleString('en-US');
+  const S = D.scores, best = D.best, G = D.data;
+  const el = (svg, t, a, txt) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; };
+  document.getElementById('readout').innerHTML = `<span>ENGINES <b>${G.trainEngines}+${G.testEngines}</b></span><span>SENSORS <b>${G.sensors}</b></span><span>READINGS <b>${n0(G.rows)}</b></span><span>LIFE <b>${G.lifeMin}–${G.lifeMax} cycles</b></span>`;
+
+  const cs = () => [+document.getElementById('cf').value * 1000, +document.getElementById('cp').value * 1000];
+  const rate = (p, cf, cp) => (p.services * cp + p.failures * cf) / p.cycles * 1000;
+
+  // KPIs at default costs
+  const [cf0, cp0] = [100000, 10000];
+  const p20 = D.predictive.find(p => p.th === 20), bf0 = D.fixed.reduce((b, p) => rate(p, cf0, cp0) < rate(b, cf0, cp0) ? p : b);
+  const save = 1 - rate(p20, cf0, cp0) / rate(bf0, cf0, cp0), more = p20.cycles / bf0.cycles - 1;
+  document.getElementById('kpis').innerHTML = [
+    ['±' + S[best].rmse, 'cycles: typical error predicting remaining life on unseen engines'],
+    [p20.failures, 'failures in the field with predictive service (safety margin 20)'],
+    [Math.round(save * 100) + '%', 'lower maintenance cost than the best fixed schedule'],
+    ['+' + Math.round(more * 100) + '%', 'more operating cycles from the same engines'],
+  ].map(([a, b]) => `<div class="kpi"><b>${a}</b><span>${b}</span></div>`).join('');
+
+  // Trace
+  const units = Object.keys(D.traces); let unit = units[1];
+  const seg = document.getElementById('engSeg');
+  seg.innerHTML = units.map(u => `<button type="button" data-u="${u}" aria-pressed="${u === unit}">Engine ${u} · ${D.traces[u].length} cycles</button>`).join('');
+  seg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; unit = b.dataset.u; seg.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); drawTrace(); });
+  function drawTrace() {
+    const svg = document.getElementById('trace'); svg.innerHTML = '';
+    const W = Math.max(320, svg.clientWidth || 900), H = W < 600 ? 250 : 300, L = 44, R = 14, T = 16, B = 40;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const t = D.traces[unit], maxC = t[t.length - 1].c, maxY = Math.max(...t.map(p => Math.max(p.rul, p.pred)));
+    const x = c => L + (c / maxC) * (W - L - R), y = v => T + (H - T - B) * (1 - v / maxY);
+    const ticks = maxY > 250 ? [0, 100, 200, 300] : [0, 50, 100, 150, 200, 250].filter(v => v <= maxY);
+    ticks.forEach(v => { el(svg, 'line', { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: css('--grid') }); el(svg, 'text', { x: L - 6, y: y(v) + 4, 'text-anchor': 'end' }, v); });
+    const th = +document.getElementById('th').value;
+    el(svg, 'line', { x1: L, x2: W - R, y1: y(th), y2: y(th), stroke: css('--amber'), 'stroke-width': 2, 'stroke-dasharray': '6 4' });
+    el(svg, 'polyline', { points: t.map(p => x(p.c) + ',' + y(p.rul)).join(' '), fill: 'none', stroke: css('--gray'), 'stroke-width': 2.5 });
+    el(svg, 'polyline', { points: t.map(p => x(p.c) + ',' + y(p.pred)).join(' '), fill: 'none', stroke: css('--blue'), 'stroke-width': 2.5, 'stroke-linejoin': 'round' });
+    const hit = t.find(p => p.c >= 30 && p.pred <= th);
+    if (hit) {
+      el(svg, 'circle', { cx: x(hit.c), cy: y(hit.pred), r: 6, fill: css('--amber'), stroke: css('--panel'), 'stroke-width': 2 });
+      const left = x(hit.c) > W * 0.7;
+      el(svg, 'text', { x: x(hit.c) + (left ? -10 : 10), y: y(hit.pred) - 12, 'text-anchor': left ? 'end' : 'start', style: 'font-weight:700;fill:' + css('--ink') }, `service at cycle ${hit.c}, ${hit.rul} cycles before failure`);
+    }
+    [0, Math.round(maxC / 2), maxC].forEach(c => el(svg, 'text', { x: x(c), y: H - B + 18, 'text-anchor': 'middle' }, c));
+    el(svg, 'text', { x: (W + L) / 2, y: H - 4, 'text-anchor': 'middle' }, 'Operating cycle');
+  }
+
+  // Accuracy
+  document.getElementById('accIntro').innerHTML = `On 100 engines it had never seen, the ${best.toLowerCase()} model's remaining-life predictions were off by <b>${S[best].rmse}</b> cycles on average (RMSE), against <b>${S['Average engine (no model)'].rmse}</b> for simply assuming an average engine. Each dot is one test engine; on the diagonal the prediction is exact.`;
+  document.querySelector('#models tbody').innerHTML = Object.entries(S).map(([n, s]) => `<tr><td>${n}${n === best ? ' <b>(used)</b>' : ''}</td><td>${s.rmse}</td></tr>`).join('');
+  function drawScatter() {
+    const svg = document.getElementById('scatter'); svg.innerHTML = '';
+    const W = 520, H = 380, L = 48, R = 14, T = 14, B = 44, M = 150;
+    const x = v => L + v / M * (W - L - R), y = v => T + (H - T - B) * (1 - v / M);
+    [0, 50, 100, 150].forEach(v => { el(svg, 'line', { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: css('--grid') }); el(svg, 'text', { x: L - 6, y: y(v) + 4, 'text-anchor': 'end' }, v); el(svg, 'text', { x: x(v), y: H - B + 18, 'text-anchor': 'middle' }, v); });
+    el(svg, 'line', { x1: x(0), y1: y(0), x2: x(M), y2: y(M), stroke: css('--muted'), 'stroke-dasharray': '4 4' });
+    D.test.forEach(p => el(svg, 'circle', { cx: x(Math.min(p.true, D.cap)), cy: y(Math.min(p.pred, M)), r: 5, fill: css('--blue'), 'fill-opacity': .7, stroke: css('--panel'), 'stroke-width': 1 }));
+    el(svg, 'text', { x: (W + L) / 2, y: H - 6, 'text-anchor': 'middle' }, 'True remaining life (cycles, capped at 125)');
+    el(svg, 'text', { x: 12, y: (H - B) / 2, 'text-anchor': 'middle', transform: `rotate(-90 12 ${(H - B) / 2})` }, 'Predicted');
+  }
+
+  // Simulator
+  function sim() {
+    const [cf, cp] = cs(), th = +document.getElementById('th').value;
+    document.getElementById('cfv').textContent = '€' + (cf / 1000) + 'k'; document.getElementById('cpv').textContent = '€' + (cp / 1000) + 'k'; document.getElementById('thv').textContent = th + ' cycles';
+    const p0 = D.predictive.find(p => p.th === 0), runToFail = { cycles: p0.cycles + p0.wasted, failures: 100, services: 0 };
+    const bf = D.fixed.reduce((b, p) => rate(p, cf, cp) < rate(b, cf, cp) ? p : b);
+    const pp = D.predictive.find(p => p.th === th);
+    const rows = [
+      { name: 'Run to failure', p: runToFail, sub: 'repair only after a breakdown', wasted: 0 },
+      { name: `Fixed schedule, every ${bf.n} cycles`, p: bf, sub: 'the cheapest interval for these costs', wasted: bf.wasted },
+      { name: `Predictive, margin ${th}`, p: pp, sub: 'service when the model says it is due', wasted: pp.wasted },
+    ].map(r => ({ ...r, cost: rate(r.p, cf, cp) }));
+    const min = Math.min(...rows.map(r => r.cost)), max = Math.max(...rows.map(r => r.cost));
+    document.getElementById('pol').innerHTML = rows.map(r => `<div class="prow${r.cost === min ? ' win' : ''}"><div class="top"><h3>${r.name}${r.cost === min ? ' · cheapest' : ''}</h3><span class="cost">€${n0(r.cost)}</span></div><div class="bar"><div style="width:${r.cost / max * 100}%;background:${r.cost === min ? css('--good') : r.name.startsWith('Run') ? css('--red') : css('--blue')}"></div></div><div class="facts"><span><b>${r.p.failures}</b> failures</span><span><b>${r.p.services}</b> planned services</span><span><b>${r.wasted ? Math.round(r.wasted / Math.max(1, r.p.services)) : 0}</b> cycles of life left unused per service</span><span>${r.sub}</span></div></div>`).join('');
+    drawTrace();
+  }
+  ['cf', 'cp', 'th'].forEach(id => document.getElementById(id).addEventListener('input', sim));
+
+  document.getElementById('recs').innerHTML = D.recs.map(r => `<div class="rec"><span class="tag">${r.tag}</span><h3>${r.h}</h3><p>${r.p}</p></div>`).join('');
+  document.getElementById('mData').textContent = `NASA C-MAPSS FD001: ${G.trainEngines} simulated turbofan engines run until failure (${G.lifeMin} to ${G.lifeMax} cycles, median ${G.lifeMedian}) and ${G.testEngines} test engines stopped before failure, ${n0(G.rows)} sensor readings in total. ${G.sensors} sensors that change over an engine's life were used.`;
+
+  sim(); drawScatter();
+  addEventListener('resize', drawTrace);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { sim(); drawScatter(); });
+})();
+</script>
+</body>
+</html>
