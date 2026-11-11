@@ -16,33 +16,33 @@
 <style>
 /* Layout: kraft-parcel masthead with a return-label stamp, headline numbers, what drives returns (tabbed bars), who returns, the prediction model (deciles), the savings calculator, recommendations, method. */
 :root {
-  --bg: #f7f4ef; --panel: #ffffff; --ink: #1b1d24; --ink-2: #4d505a; --muted: #81848d; --line: #e4ded4; --grid: #eee9e1;
-  --kraft: #c98a3d; --kraft-deep: #8a5a1f; --kraft-soft: #f6e9d6; --mast: #22252e; --on-mast: #ffffff; --on-mast-2: #b9bcc6;
-  --bar: #c98a3d; --bar-2: #c9c4bb; --good: #1e7d55; --good-soft: #e1f2ea;
+  --bg: #f5f5f5; --panel: #ffffff; --ink: #1a1a1a; --ink-2: #4b4b4b; --muted: #7f7f7f; --line: #e2e2e2; --grid: #eeeeee;
+  --kraft: #ff6900; --kraft-deep: #c44f00; --kraft-soft: #fff0e5; --mast: #ff6900; --on-mast: #1a1a1a; --on-mast-2: #3d1f08; --mast-hi: #ffffff;
+  --bar: #ff6900; --bar-2: #cfcfcf; --good: #1e7d55; --good-soft: #e1f2ea;
   --font-display: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
   --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #111216; --panel: #1a1c22; --ink: #eeeef1; --ink-2: #b9bbc3; --muted: #878a93; --line: #2b2e36; --grid: #23262d;
-  --kraft: #e2a85c; --kraft-deep: #f0c287; --kraft-soft: #3a2b18; --mast: #0b0c0f; --bar: #e2a85c; --bar-2: #4a4d56; --good: #4ad296; --good-soft: #12301f; color-scheme: dark; } }
+  --bg: #121212; --panel: #1c1c1c; --ink: #f0f0f0; --ink-2: #bdbdbd; --muted: #8a8a8a; --line: #2e2e2e; --grid: #262626;
+  --kraft: #ff7a1f; --kraft-deep: #ff9a52; --kraft-soft: #3a2010; --bar: #ff7a1f; --bar-2: #4a4a4a; --good: #4ad296; --good-soft: #12301f; color-scheme: dark; } }
 :root[data-theme="dark"] {
-  --bg: #111216; --panel: #1a1c22; --ink: #eeeef1; --ink-2: #b9bbc3; --muted: #878a93; --line: #2b2e36; --grid: #23262d;
-  --kraft: #e2a85c; --kraft-deep: #f0c287; --kraft-soft: #3a2b18; --mast: #0b0c0f; --bar: #e2a85c; --bar-2: #4a4d56; --good: #4ad296; --good-soft: #12301f; color-scheme: dark; }
+  --bg: #121212; --panel: #1c1c1c; --ink: #f0f0f0; --ink-2: #bdbdbd; --muted: #8a8a8a; --line: #2e2e2e; --grid: #262626;
+  --kraft: #ff7a1f; --kraft-deep: #ff9a52; --kraft-soft: #3a2010; --bar: #ff7a1f; --bar-2: #4a4a4a; --good: #4ad296; --good-soft: #12301f; color-scheme: dark; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 var(--font-body); }
 .inner { max-width: 1000px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
 .mast { background: var(--mast); color: var(--on-mast); position: relative; overflow: hidden; }
-.mast::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: repeating-linear-gradient(90deg, var(--kraft) 0 28px, transparent 28px 40px); }
+.mast::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: repeating-linear-gradient(90deg, var(--on-mast) 0 28px, transparent 28px 40px); }
 .mast .inner { padding-block: 22px 60px; display: grid; gap: 14px; position: relative; }
-.back { color: var(--on-mast-2); text-decoration: none; font-weight: 600; font-size: 15px; }
-.eyebrow { font: 500 13px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--kraft); margin-top: 18px; }
+.back { color: var(--on-mast); text-decoration: none; font-weight: 600; font-size: 15px; }
+.eyebrow { font: 700 13px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--on-mast); margin-top: 18px; }
 h1 { font: 800 clamp(42px, 7.5vw, 74px)/1 var(--font-display); margin: 0; letter-spacing: -.02em; max-width: 13ch; text-wrap: balance; }
-h1 em { font-style: normal; color: var(--kraft); }
-.stamp { position: absolute; right: 18px; top: 58px; transform: rotate(-8deg); border: 3px solid var(--kraft); color: var(--kraft); border-radius: 8px; padding: 8px 14px; font: 700 15px/1.25 var(--font-mono); letter-spacing: .1em; text-align: center; opacity: .9; }
+h1 em { font-style: normal; color: var(--mast-hi); }
+.stamp { position: absolute; right: 18px; top: 58px; transform: rotate(-8deg); border: 3px solid var(--on-mast); color: var(--on-mast); border-radius: 8px; padding: 8px 14px; font: 700 15px/1.25 var(--font-mono); letter-spacing: .1em; text-align: center; opacity: .9; }
 .stamp b { display: block; font-size: 30px; letter-spacing: .02em; }
-.lede { margin: 4px 0 0; max-width: 62ch; color: var(--on-mast-2); font-size: 19px; }
-.byline { font-size: 14px; color: var(--on-mast-2); }
+.lede { margin: 4px 0 0; max-width: 62ch; color: var(--on-mast); font-size: 19px; }
+.byline { font-size: 14px; color: var(--on-mast-2); font-weight: 500; }
 h2 { font: 700 28px/1.15 var(--font-display); margin: 0 0 8px; letter-spacing: -.01em; text-wrap: balance; }
 .intro { margin: 0 0 18px; color: var(--ink-2); max-width: 66ch; }
 section { padding-block: 44px 4px; }
@@ -116,7 +116,7 @@ footer a { color: var(--ink-2); }
 
   <section aria-labelledby="h-drivers">
     <h2 id="h-drivers">What makes people send it back</h2>
-    <p class="intro">Return rate by the things a shop knows the moment an order is placed. The black line is the average.</p>
+    <p class="intro">Return rate by the things a shop knows the moment an order is placed. The line marks the average.</p>
     <div class="card">
       <div class="tabs" role="group" aria-label="Driver" id="tabs"></div>
       <div class="bars" id="bars"></div>
