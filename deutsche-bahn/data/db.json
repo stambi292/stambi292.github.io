@@ -1,20 +1,192 @@
 {
  "_note": "All figures from Deutsche Bahn press releases and reports, and press coverage of them. See sources on the page.",
  "net": [
-  {"y":"2020","v":-5.7,"src":"DB press release, Mar 2022"},
-  {"y":"2021","v":-0.9,"src":"DB press release, Mar 2022"},
-  {"y":"2022","v":-0.227,"src":"DB press release, Mar 2024"},
-  {"y":"2023","v":-2.4,"src":"DB press release, Mar 2024"},
-  {"y":"2024","v":-1.8,"src":"DB results, Mar 2025"},
-  {"y":"2025","v":-2.3,"src":"DB results 2025, continuing operations","note":"+5.3 with the Schenker sale"},
-  {"y":"H1 2026","v":0.147,"src":"DB interim report, Jul 2026","half":true}
+  {
+   "y": "2020",
+   "v": -5.7,
+   "src": "DB press release, Mar 2022"
+  },
+  {
+   "y": "2021",
+   "v": -0.9,
+   "src": "DB press release, Mar 2022"
+  },
+  {
+   "y": "2022",
+   "v": -0.227,
+   "src": "DB press release, Mar 2024"
+  },
+  {
+   "y": "2023",
+   "v": -2.4,
+   "src": "DB press release, Mar 2024"
+  },
+  {
+   "y": "2024",
+   "v": -1.8,
+   "src": "DB results, Mar 2025"
+  },
+  {
+   "y": "2025",
+   "v": -2.3,
+   "src": "DB results 2025, continuing operations",
+   "note": "+5.3 with the Schenker sale"
+  },
+  {
+   "y": "H1 2026",
+   "v": 0.147,
+   "src": "DB interim report, Jul 2026",
+   "half": true
+  }
  ],
  "punct": [
-  {"y":"2017","v":78.5},{"y":"2020","v":81.8},{"y":"2021","v":75.2},{"y":"2022","v":65.2},{"y":"2023","v":64.0},{"y":"2024","v":62.5},{"y":"2025","v":60.1},{"y":"H1 2026","v":59.0}
+  {
+   "y": "2017",
+   "v": 78.5
+  },
+  {
+   "y": "2020",
+   "v": 81.8
+  },
+  {
+   "y": "2021",
+   "v": 75.2
+  },
+  {
+   "y": "2022",
+   "v": 65.2
+  },
+  {
+   "y": "2023",
+   "v": 64.0
+  },
+  {
+   "y": "2024",
+   "v": 62.5
+  },
+  {
+   "y": "2025",
+   "v": 60.1
+  },
+  {
+   "y": "H1 2026",
+   "v": 59.0
+  }
  ],
- "regional": {"2024": 89.4, "H1 2026": 87.5},
- "passengers": [{"y":"2023","v":1.8},{"y":"2024","v":1.9},{"y":"2025","v":1.93}],
- "h1_2026": {"revenue":13.6,"ebit":0.415,"net":0.147,"net_prev":-0.76,"ld_profit":0.148,"ld_prev":-0.059,"capex":8.7,"debt":21.6,"passengers_m":960,"ld_15min":76,"outlook_ebit":0.6},
- "check": {"month":"April 2026","db":64.4,"independent":62.4,"with_failures":58.0,"arrivals":180000},
- "whole_journey": {"2024":67.4,"H1 2025":68.7}
+ "regional": {
+  "2024": 89.4,
+  "H1 2026": 87.5
+ },
+ "passengers": [
+  {
+   "y": "2023",
+   "v": 1.8
+  },
+  {
+   "y": "2024",
+   "v": 1.9
+  },
+  {
+   "y": "2025",
+   "v": 1.93
+  }
+ ],
+ "h1_2026": {
+  "revenue": 13.6,
+  "ebit": 0.415,
+  "net": 0.147,
+  "net_prev": -0.76,
+  "ld_profit": 0.148,
+  "ld_prev": -0.059,
+  "capex": 8.7,
+  "debt": 21.6,
+  "passengers_m": 960,
+  "ld_15min": 76,
+  "outlook_ebit": 0.6
+ },
+ "check": {
+  "month": "April 2026",
+  "db": 64.4,
+  "independent": 62.4,
+  "with_failures": 58.0,
+  "arrivals": 180000
+ },
+ "whole_journey": {
+  "2024": 67.4,
+  "H1 2025": 68.7
+ },
+ "monthly_2026": {
+  "months": [
+   "Jan",
+   "Feb",
+   "Mar",
+   "Apr",
+   "May",
+   "Jun",
+   "Jul",
+   "Aug",
+   "Sep",
+   "Oct"
+  ],
+  "ld_operational": [
+   52.1,
+   59.4,
+   62.1,
+   64.4,
+   61.1,
+   52.6,
+   52.6,
+   54.2,
+   52.4,
+   56.2
+  ],
+  "ld_passenger": [
+   54.7,
+   65.3,
+   68.1,
+   69.7,
+   65.9,
+   54.5,
+   54.6,
+   56.6,
+   58.7,
+   62.1
+  ],
+  "regional": [
+   87.2,
+   88.7,
+   88.8,
+   89.1,
+   88.7,
+   86.4,
+   87.9,
+   88.5,
+   88.2,
+   87.1
+  ]
+ },
+ "independent": {
+  "period": "September–October 2026",
+  "source": "piebro/deutsche-bahn-data (DB Timetables API, every station, every stop)",
+  "ice": {
+   "stops": 370522,
+   "punct": 51,
+   "cancel": 3,
+   "avg_delay": "13:13"
+  },
+  "ic": {
+   "stops": 100680,
+   "punct": 56,
+   "cancel": 3,
+   "avg_delay": "10:55"
+  },
+  "all": {
+   "stops": 28880266,
+   "punct": 84,
+   "cancel": 2
+  },
+  "ld_combined": 52.1,
+  "db_same_period": 54.3
+ },
+ "h1_cancel_trains": 8
 }
