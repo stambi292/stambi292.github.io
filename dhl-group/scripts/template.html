@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>From Post Office to DHL</title>
+<meta name="description" content="How Germany's state post office became DHL Group, a €83 billion global logistics company: the bets that worked, the US failure, the pandemic boom, where the profit comes from today, and why letters are disappearing while complaints hit a record.">
+<meta name="author" content="Stephen tAMBI">
+<meta property="og:title" content="From post office to DHL: how Deutsche Post became a global giant">
+<meta property="og:description" content="€82.9bn revenue, €6.1bn EBIT. Express is 29% of sales but half the profit. Letters −7%, parcels +12%, complaints at a record.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://stambi292.github.io/dhl-group/">
+<meta property="og:image" content="https://stambi292.github.io/dhl-group/images/preview.png?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: DHL-yellow masthead with red rule like a parcel label, KPIs, the timeline, revenue and profit, where the profit comes from, letters vs parcels, tracking and trust, reading, stack, method. */
+:root {
+  --bg: #f7f5ef; --panel: #ffffff; --ink: #1b1709; --ink-2: #4a432c; --muted: #776f57; --line: #e6e0cf; --grid: #f0ebdd;
+  --yellow: #ffcc00; --red: #d40511; --red-ink: #b0040e; --good: #2a7a3b; --gray: #b9b19b;
+  --font-display: "Archivo", "Segoe UI", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #13110a; --panel: #1c1a12; --ink: #f4f0e2; --ink-2: #cfc7ae; --muted: #9c937a; --line: #353021; --grid: #26231a;
+  --red: #ff4651; --red-ink: #ff7a82; --good: #59c46e; --gray: #5f5a48; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #13110a; --panel: #1c1a12; --ink: #f4f0e2; --ink-2: #cfc7ae; --muted: #9c937a; --line: #353021; --grid: #26231a;
+  --red: #ff4651; --red-ink: #ff7a82; --good: #59c46e; --gray: #5f5a48; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 var(--font-body); }
+.inner { max-width: 1000px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+.mast { background: #ffcc00; color: #1b1709; border-bottom: 10px solid #d40511; }
+.mast .inner { padding-block: 22px 64px; display: grid; gap: 14px; }
+.back { color: #4a3d00; text-decoration: none; font-weight: 600; font-size: 15px; }
+.eyebrow { font: 600 13px var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: #8a0309; margin-top: 18px; }
+h1 { font: 800 clamp(50px, 10vw, 104px)/.92 var(--font-display); margin: 0; letter-spacing: -.02em; font-style: italic; }
+h1 em { color: #d40511; font-style: italic; }
+h1 span { display: block; font-size: .3em; line-height: 1.2; margin-top: 14px; font-weight: 700; color: #3b3100; font-style: normal; letter-spacing: 0; text-wrap: balance; }
+.lede { margin: 4px 0 0; max-width: 64ch; color: #3b3100; font-size: 19px; }
+.byline { font-size: 14px; color: #4a3d00; }
+h2 { font: 800 32px/1.1 var(--font-display); margin: 0 0 8px; text-wrap: balance; }
+.intro { margin: 0 0 18px; color: var(--ink-2); max-width: 68ch; }
+section { padding-block: 44px 4px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: -34px; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-top: 5px solid var(--red); border-radius: 8px; padding: 14px 16px; min-width: 0; }
+.kpi:nth-child(even) { border-top-color: var(--yellow); }
+.kpi b { display: block; font: 800 36px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.kpi span { color: var(--ink-2); font-size: 15px; line-height: 1.4; display: block; margin-top: 6px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 22px; display: grid; gap: 16px; min-width: 0; }
+.note { font-size: 14px; color: var(--muted); margin: 0; }
+.tl { display: grid; gap: 0; position: relative; }
+.ev { display: grid; grid-template-columns: 5.5em 18px minmax(0, 1fr); gap: 12px; align-items: start; padding: 8px 0; }
+.ev .y { font: 700 18px var(--font-mono); text-align: right; }
+.ev .dot { width: 18px; height: 18px; border-radius: 50%; background: var(--yellow); border: 3px solid var(--ink); margin-top: 4px; }
+.ev.fail .dot { background: var(--red); } .ev.peak .dot { background: var(--good); }
+.ev .t { font-size: 16px; }
+.ev.fail .t { color: var(--red-ink); font-weight: 600; }
+.chart { width: 100%; height: auto; display: block; min-width: 620px; }
+.chart text { font-family: var(--font-body); font-size: 13px; fill: var(--muted); }
+.wrap { overflow-x: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; }
+.div { display: grid; gap: 10px; }
+.dv { display: grid; grid-template-columns: minmax(0, 13em) minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: center; font-size: 15px; }
+.dv .h { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+.dv .bar { height: 22px; border-radius: 0 4px 4px 0; display: flex; align-items: center; padding-left: 8px; font: 700 14px var(--font-mono); white-space: nowrap; color: var(--ink); }
+.dv .r { background: var(--yellow); } .dv .e { background: var(--red); color: #fff; }
+.cmp { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cm { border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.cm h3 { margin: 0 0 8px; font-size: 15px; font-weight: 600; color: var(--ink-2); }
+.cm .big { font: 800 40px/1 var(--font-display); }
+.cm .big.up { color: var(--good); } .cm .big.down { color: var(--red-ink); }
+.cm p { margin: 6px 0 0; font-size: 14px; color: var(--muted); }
+.label { border: 2px dashed var(--ink); border-radius: 8px; padding: 16px 18px; font-family: var(--font-mono); font-size: 14px; background: var(--panel); display: grid; gap: 8px; min-width: 0; }
+.label .st { display: grid; grid-template-columns: 1.6em minmax(0, 1fr); gap: 10px; align-items: start; }
+.label .st b { display: inline-grid; place-items: center; width: 1.6em; height: 1.6em; border-radius: 50%; background: var(--yellow); color: #1b1709; font-size: 13px; }
+.reading { display: grid; gap: 14px; }
+.reading > div { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+.reading b.h { display: block; font: 800 22px/1.15 var(--font-display); margin-bottom: 6px; }
+.reading p { margin: 0; color: var(--ink-2); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 6px 12px; font-size: 14px; font-weight: 600; }
+.method { padding-left: 20px; color: var(--ink-2); font-size: 15px; display: grid; gap: 8px; }
+.method a { color: var(--red-ink); }
+footer { padding-block: 40px 56px; font-size: 14px; color: var(--muted); }
+@media (max-width: 760px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kpi b { font-size: 30px; }
+  .cmp { grid-template-columns: 1fr; }
+  .dv { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .dv > span:first-child { grid-column: 1 / -1; font-weight: 700; }
+  .ev { grid-template-columns: 4.2em 18px minmax(0, 1fr); }
+}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="inner">
+    <a class="back" href="../">← Stephen tAMBI · Projects</a>
+    <div class="eyebrow">DHL Group (Deutsche Post) · 1995–2026</div>
+    <h1>From post office to <em>DHL</em><span>How Germany's state mail service became an €83 billion global logistics company, and what still goes wrong at home</span></h1>
+    <p class="lede">Deutsche Post was a government department. Today it is DHL Group, with five divisions on every continent, and letters in Germany are its smallest growth story. The bets, the failure, the boom and the numbers behind the brand.</p>
+    <div class="byline">Stephen tAMBI · data to April 2026</div>
+  </div>
+</header>
+<main class="inner">
+  <div class="kpis" id="kpis"></div>
+
+  <section>
+    <h2>The story: bets, a failure, a boom</h2>
+    <p class="intro">Three big acquisitions turned a national post office into a global logistics company. One of them failed badly.</p>
+    <div class="card"><div class="tl" id="tl"></div>
+      <div class="legend"><span><i style="background:var(--yellow)"></i>Turning point</span><span><i style="background:var(--red)"></i>Failure</span><span><i style="background:var(--good)"></i>Record</span></div></div>
+  </section>
+
+  <section>
+    <h2>Revenue and profit since 2019</h2>
+    <p class="intro" id="moneyIntro"></p>
+    <div class="card"><div class="wrap"><svg class="chart" id="money" viewBox="0 0 900 330" role="img" aria-label="DHL Group revenue and EBIT 2019 to 2025"></svg></div>
+      <div class="legend"><span><i style="background:var(--yellow)"></i>Revenue (€bn, left)</span><span><i style="background:var(--red)"></i>EBIT, operating profit (€bn, same scale)</span></div>
+      <p class="note">Group figures as reported in each year's results release. EBIT = earnings before interest and taxes.</p></div>
+  </section>
+
+  <section>
+    <h2>Where the profit comes from</h2>
+    <p class="intro" id="divIntro"></p>
+    <div class="card"><div class="div" id="div"></div>
+      <p class="note">2025, € billion. Division EBIT before group costs (−€0.4bn).</p></div>
+  </section>
+
+  <section>
+    <h2>Letters are disappearing, parcels are growing</h2>
+    <p class="intro" id="mailIntro"></p>
+    <div class="card"><div class="cmp" id="mail"></div></div>
+  </section>
+
+  <section>
+    <h2>How DHL keeps track, and where trust breaks</h2>
+    <p class="intro">Every parcel carries a barcode that is scanned at each handover, so the tracking page shows where it was last seen. Letters have no tracking at all, and the law now gives the Post more time for them.</p>
+    <div class="card">
+      <div class="label" aria-label="Typical parcel journey">
+        <div class="st"><b>1</b><span>Handed in or picked up · scanned</span></div>
+        <div class="st"><b>2</b><span>Sorting centre · scanned on arrival and departure</span></div>
+        <div class="st"><b>3</b><span>Delivery base · loaded onto the van, scanned</span></div>
+        <div class="st"><b>4</b><span>Delivered, to a neighbour, a Packstation or a shop · scanned</span></div>
+      </div>
+      <div class="cmp" id="trust"></div>
+      <p class="note">Simplified journey. Complaints: Bundesnetzagentur, all postal companies; about 90% concern DHL/Deutsche Post as the market leader. Delivery rule: German Postal Act, from 2025.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>What the numbers say</h2>
+    <div class="reading" id="reading"></div>
+  </section>
+
+  <section class="build" id="how-it-was-built">
+    <h2>Tech stack</h2>
+    <div class="chips"><span class="chip">Python</span><span class="chip">JSON</span><span class="chip">Annual reports</span><span class="chip">JavaScript</span><span class="chip">SVG</span><span class="chip">HTML/CSS</span><span class="chip">Playwright</span><span class="chip">GitHub Pages</span></div>
+  </section>
+
+  <section>
+    <h2>Method and sources</h2>
+    <ul class="method">
+      <li><b>2025 and 2024:</b> <a href="https://group.dhl.com/en/media-relations/press-releases/2026/dhl-group-annual-earnings-2025.html">DHL Group annual results, 5 March 2026</a> and <a href="https://group.dhl.com/content/dam/deutschepostdhl/en/media-relations/events/2026/annual-earnings-2025/financial-year-2025-financial-highlights.pdf">financial highlights</a>; division shares: <a href="https://reporting-hub.group.dhl.com/2025-fy/en/combined-management-report/general-information/business-model/">2025 annual report</a>.</li>
+      <li><b>2019–2023:</b> results releases for <a href="https://www.group.dhl.com/content/dam/deutschepostdhl/en/media-relations/press-releases/2024/dhl-group-pr-fy-2023-20240306.pdf">2023</a>, <a href="https://group.dhl.com/content/dam/deutschepostdhl/de/media-relations/press-releases/2022/pm-fy-2021-2022-03-09.pdf">2021</a> (with 2020 parcels and letters) and <a href="https://itln.in/deutsche-post-dhl-group-revenue-up-29-to-eur-633-billion-in-2019-logistics">2019</a>.</li>
+      <li><b>Volumes 2025–26:</b> <a href="https://www.verkehrsrundschau.de/nachrichten/lager-umschlag/dhl-konzern-waechst-deutsches-briefgeschaeft-schwaechelt-3799152">VerkehrsRundschau, April 2026</a>. <b>Complaints, letter total and delivery rule:</b> <a href="https://www.zdfheute.de/wirtschaft/post-briefe-beschwerden-dhl-deutsche-post-dpd-100.html">ZDFheute</a>.</li>
+      <li><b>History:</b> company milestones as widely reported (privatisation 1995, listing 2000, DHL 2002, Airborne 2003, Exel 2005, US exit 2008, renaming 2023).</li>
+    </ul>
+  </section>
+</main>
+<footer class="inner">Stephen tAMBI · Data analysis · Not affiliated with DHL Group.</footer>
+
+<script>
+const D = /*__DATA__*/null;
+const $ = id => document.getElementById(id);
+const Y = D.years, F = D.fy25, M = D.mail, T = D.trust, V = D.divisions_2025;
+const divE = V.reduce((a, d) => a + d.ebit, 0), ex = V.find(d => d.d === 'Express');
+$('kpis').innerHTML = [
+  ['€82.9bn', 'revenue in 2025, from a national post office'],
+  [`€${Y[Y.length - 1].ebit}bn`, `operating profit in 2025, a ${F.margin}% margin`],
+  [`${M.letters_chg_2025}%`, `letters in Germany in 2025, while parcels grew +${M.parcels_chg_2025}%`],
+  [T.complaints_2025.toLocaleString('en'), 'postal complaints to the regulator in 2025, a record'],
+].map(([b, s]) => `<div class="kpi"><b>${b}</b><span>${s}</span></div>`).join('');
+
+$('tl').innerHTML = D.timeline.map(e => `<div class="ev ${e.k}"><div class="y">${e.y}</div><div class="dot"></div><div class="t">${e.t}</div></div>`).join('');
+
+$('moneyIntro').textContent = `The pandemic turned online shopping and global freight into a gold rush: revenue jumped from €${Y[0].rev}bn in 2019 to €${Y[3].rev}bn in 2022, and operating profit doubled to €${Y[3].ebit}bn. Since then freight rates fell back and so did profit, which has settled around €6bn, still half as much again as before the pandemic.`;
+(() => {
+  const W = 900, H = 330, L = 50, R = 16, T0 = 30, B = 34, hi = 100, n = Y.length, bw = (W - L - R) / n;
+  const Yp = v => T0 + (hi - v) / hi * (H - T0 - B);
+  let s = '';
+  for (let g = 0; g <= hi; g += 20) s += `<line x1="${L}" x2="${W - R}" y1="${Yp(g)}" y2="${Yp(g)}" stroke="var(--grid)"/><text x="${L - 8}" y="${Yp(g) + 4}" text-anchor="end">${g}</text>`;
+  Y.forEach((d, i) => { const x = L + i * bw + bw * .18, w = bw * .64;
+    s += `<rect x="${x}" y="${Yp(d.rev)}" width="${w}" height="${Yp(0) - Yp(d.rev)}" fill="var(--yellow)" rx="3"><title>${d.y}: revenue €${d.rev}bn, EBIT €${d.ebit}bn</title></rect>`;
+    s += `<text x="${x + w / 2}" y="${Yp(d.rev) + 18}" text-anchor="middle" style="fill:#1b1709;font-weight:700">${d.rev}</text>`;
+    const eh = Yp(0) - Yp(d.ebit);
+    s += `<rect x="${x + w * .2}" y="${Yp(0) - eh}" width="${w * .6}" height="${eh}" fill="var(--red)" rx="2"/><text x="${x + w / 2}" y="${Yp(0) - eh - 8}" text-anchor="middle" style="fill:#b0040e;font-weight:800;font-size:15px">${d.ebit.toFixed(1)}</text>`;
+    s += `<text x="${x + w / 2}" y="${H - 10}" text-anchor="middle">${d.y}</text>`; });
+  $('money').innerHTML = s;
+})();
+
+$('divIntro').textContent = `Express, the yellow planes and couriers, makes ${Math.round(ex.rev / 82.855 * 100)}% of revenue but about ${Math.round(ex.ebit / divE * 100)}% of division profit. The German post and parcel business, the original company, is a fifth of revenue and a sixth of profit.`;
+const mr = Math.max(...V.map(d => d.rev)), me = Math.max(...V.map(d => d.ebit));
+$('div').innerHTML = `<div class="dv"><span></span><span class="h">Revenue</span><span class="h">EBIT</span></div>` + V.map(d => `<div class="dv"><span>${d.d}</span>
+  <div class="bar r" style="width:${d.rev / mr * 100}%">€${d.rev.toFixed(1)}bn</div><div class="bar e" style="width:${Math.max(d.ebit / me * 100, 30)}%">€${d.ebit.toFixed(2)}bn</div></div>`).join('');
+
+$('mailIntro').textContent = `In 2021 Deutsche Post delivered ${M.letters_2021} billion letters and ${M.parcels_2021} billion parcels in Germany. By 2025 the company put letters at about ${M.letters_2025} billion. Fewer letters on the same rounds means a higher cost per letter, which is why the parcel boom matters so much.`;
+$('mail').innerHTML = [['Letters, 2025', `${M.letters_chg_2025}%`, 'down', 'structural decline, plus fewer adverts'], ['Parcels, 2025', `+${M.parcels_chg_2025}%`, 'up', 'e-commerce keeps growing'], ['Q1 2026', `${M.letters_chg_q1_26}% / +${M.parcels_chg_q1_26}%`, '', 'letters / parcels; the election mail of early 2025 flatters the comparison']].map(([h, b, c, p]) =>
+  `<div class="cm"><h3>${h}</h3><div class="big ${c}">${b}</div><p>${p}</p></div>`).join('');
+
+$('trust').innerHTML = [['Complaints 2025', T.complaints_2025.toLocaleString('en'), `up from ${T.complaints_2024.toLocaleString('en')}; ~${T.share_post}% about DHL/Post`], ['Per million items', `~${T.per_million}`, "the Post's own figure: few, but felt"], ['New letter rule', '3 days', `${T.rule_new}; before: ${T.rule_old}`]].map(([h, b, p]) =>
+  `<div class="cm"><h3>${h}</h3><div class="big">${b}</div><p>${p}</p></div>`).join('');
+
+$('reading').innerHTML = [
+  ['The post office is now the small part', `Post & Parcel Germany is about a fifth of revenue. The money is made moving goods across borders: Express alone earns about half of division profit.`],
+  ['Bold bets paid, one did not', `Buying DHL and Exel built the global business. The attempt to beat FedEx and UPS at home in the US, via Airborne Express, ended with a retreat in 2008. The lesson: win where you can be number one.`],
+  ['The boom is over, the base is higher', `Profit peaked at €${Y[3].ebit}bn in 2022 with pandemic freight prices. At €${Y[6].ebit}bn it is lower, but still far above 2019's €${Y[0].ebit}bn, and the 2026 target is above €${F.outlook_ebit}bn.`],
+  ['At home, trust is the weak spot', `Letters fall about 7% a year, the law now allows three days instead of one, and complaints hit a record. Parcels, tracked at every scan, are where the Post earns trust and growth.`],
+].map(([h, p]) => `<div><b class="h">${h}</b><p>${p}</p></div>`).join('');
+</script>
+</body>
+</html>

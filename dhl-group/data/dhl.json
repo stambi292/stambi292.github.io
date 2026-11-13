@@ -1,0 +1,24 @@
+{
+ "_note": "DHL Group / Deutsche Post DHL press releases and annual reports; trade press for volumes and complaints. Sources listed on the page.",
+ "years": [
+  {"y":2019,"rev":63.3,"ebit":4.1},{"y":2020,"rev":66.7,"ebit":4.8},{"y":2021,"rev":81.7,"ebit":8.0},{"y":2022,"rev":94.4,"ebit":8.4},
+  {"y":2023,"rev":81.8,"ebit":6.3},{"y":2024,"rev":84.2,"ebit":5.9},{"y":2025,"rev":82.9,"ebit":6.1}
+ ],
+ "divisions_2025": [
+  {"d":"Express","rev":24.43,"ebit":3.162},{"d":"Supply Chain","rev":17.778,"ebit":1.161},{"d":"Post & Parcel Germany","rev":17.874,"ebit":1.032},
+  {"d":"Global Forwarding, Freight","rev":18.643,"ebit":0.756},{"d":"eCommerce","rev":6.884,"ebit":0.379}
+ ],
+ "fy25": {"margin":7.4,"net":3.5,"dividend":1.90,"fcf":3.2,"ev_vehicles":45400,"outlook_ebit":6.2},
+ "timeline": [
+  {"y":"1995","t":"Deutsche Bundespost's postal arm becomes Deutsche Post AG","k":"start"},
+  {"y":"2000","t":"Stock market listing (IPO)","k":"start"},
+  {"y":"2002","t":"Full control of DHL, the express company","k":"bet"},
+  {"y":"2003","t":"Buys Airborne Express to attack the US domestic market","k":"bet"},
+  {"y":"2005","t":"Buys Exel: becomes the world's biggest contract logistics firm","k":"bet"},
+  {"y":"2008","t":"Pulls out of US domestic express: the Airborne bet failed","k":"fail"},
+  {"y":"2021–22","t":"Pandemic boom: revenue €94bn, EBIT €8.4bn, records","k":"peak"},
+  {"y":"2023","t":"Renamed DHL Group; the post becomes one division of five","k":"start"}
+ ],
+ "mail": {"letters_2021":14.2,"parcels_2021":1.8,"letters_2025":9.4,"letters_chg_2025":-7.2,"parcels_chg_2025":11.7,"letters_chg_q1_26":-13.2,"parcels_chg_q1_26":6.2},
+ "trust": {"complaints_2024":44406,"complaints_2025":55395,"share_post":90,"per_million":4,"rule_new":"95% of letters by the third working day","rule_old":"80% by the next working day"}
+}
