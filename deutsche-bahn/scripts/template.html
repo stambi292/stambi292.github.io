@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>On Track?</title>
+<meta name="description" content="Deutsche Bahn made its first profit since 2019 in the first half of 2026 and carries a record 1.93 billion passengers a year. But only 59% of long-distance trains are on time. How DB counts time, how it got back into profit, and why people still ride.">
+<meta name="author" content="Stephen tAMBI">
+<meta property="og:title" content="On track? Deutsche Bahn's turnaround in numbers">
+<meta property="og:description" content="First profit since 2019. A record 1.93 billion passengers. And only 59% of long-distance trains on time.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://stambi292.github.io/deutsche-bahn/">
+<meta property="og:image" content="https://stambi292.github.io/deutsche-bahn/images/preview.png?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: white masthead with DB red bar like a departure board header, KPIs, money line, punctuality line, how DB counts time (board), the independent check, why people ride, reading, stack, method. */
+:root {
+  --bg: #f5f5f6; --panel: #ffffff; --ink: #131821; --ink-2: #3c4250; --muted: #646973; --line: #dfe1e5; --grid: #eceef1;
+  --red: #ec0016; --red-ink: #c50014; --red-soft: #fde6e8; --good: #2a7a3b; --good-soft: #e3f2e6; --gray: #a6abb3; --board: #10151d; --board-ink: #f2f4f7; --amber: #ffd800;
+  --font-display: "Archivo", "Segoe UI", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0e1116; --panel: #171b22; --ink: #eef0f3; --ink-2: #bcc1ca; --muted: #8b919b; --line: #2a3039; --grid: #20252d;
+  --red: #ff3347; --red-ink: #ff6b78; --red-soft: #3a161b; --good: #59c46e; --good-soft: #14301b; --gray: #5d636c; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0e1116; --panel: #171b22; --ink: #eef0f3; --ink-2: #bcc1ca; --muted: #8b919b; --line: #2a3039; --grid: #20252d;
+  --red: #ff3347; --red-ink: #ff6b78; --red-soft: #3a161b; --good: #59c46e; --good-soft: #14301b; --gray: #5d636c; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 var(--font-body); }
+.inner { max-width: 1000px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+.mast { background: var(--panel); border-top: 12px solid #ec0016; border-bottom: 1px solid var(--line); }
+.mast .inner { padding-block: 22px 64px; display: grid; gap: 14px; }
+.back { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 15px; }
+.eyebrow { font: 600 13px var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--red-ink); margin-top: 18px; }
+h1 { font: 800 clamp(54px, 11vw, 112px)/.92 var(--font-display); margin: 0; letter-spacing: -.02em; }
+h1 span { display: block; font-size: .3em; line-height: 1.2; margin-top: 14px; font-weight: 700; color: var(--ink-2); letter-spacing: 0; text-wrap: balance; }
+.lede { margin: 4px 0 0; max-width: 64ch; color: var(--ink-2); font-size: 19px; }
+.byline { font-size: 14px; color: var(--muted); }
+h2 { font: 800 32px/1.1 var(--font-display); margin: 0 0 8px; text-wrap: balance; }
+.intro { margin: 0 0 18px; color: var(--ink-2); max-width: 68ch; }
+section { padding-block: 44px 4px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: -34px; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-left: 5px solid var(--red); border-radius: 8px; padding: 14px 16px; min-width: 0; }
+.kpi.good { border-left-color: var(--good); }
+.kpi b { display: block; font: 800 36px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.kpi span { color: var(--ink-2); font-size: 15px; line-height: 1.4; display: block; margin-top: 6px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 22px; display: grid; gap: 16px; min-width: 0; }
+.note { font-size: 14px; color: var(--muted); margin: 0; }
+.chart { width: 100%; height: auto; display: block; min-width: 620px; }
+.chart text { font-family: var(--font-body); font-size: 13px; fill: var(--muted); }
+.wrap { overflow-x: auto; }
+.board { background: var(--board); color: var(--board-ink); border-radius: 10px; padding: 18px 20px; font-family: var(--font-mono); min-width: 0; }
+.board .hd { display: grid; grid-template-columns: 5em 1fr 6em 7em; gap: 10px; font-size: 12px; color: #8b95a5; text-transform: uppercase; letter-spacing: .08em; border-bottom: 1px solid #2a3442; padding-bottom: 8px; }
+.board .row { display: grid; grid-template-columns: 5em 1fr 6em 7em; gap: 10px; padding: 9px 0; border-bottom: 1px dashed #2a3442; font-size: 15px; align-items: center; }
+.board .row:last-child { border-bottom: none; }
+.board .ok { color: #59c46e; } .board .late { color: var(--amber); } .board .x { color: #ff6b78; }
+.board .st { font-weight: 600; }
+.rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.rule { border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.rule b { display: block; font: 800 34px/1 var(--font-display); color: var(--red-ink); margin-bottom: 6px; }
+.rule p { margin: 0; font-size: 15px; color: var(--ink-2); }
+.cmp { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cm { border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.cm h3 { margin: 0 0 8px; font-size: 15px; font-weight: 600; color: var(--ink-2); }
+.cm .big { font: 800 40px/1 var(--font-display); }
+.cm p { margin: 6px 0 0; font-size: 14px; color: var(--muted); }
+.reading { display: grid; gap: 14px; }
+.reading > div { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+.reading b.h { display: block; font: 800 22px/1.15 var(--font-display); margin-bottom: 6px; }
+.reading p { margin: 0; color: var(--ink-2); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 6px 12px; font-size: 14px; font-weight: 600; }
+.method { padding-left: 20px; color: var(--ink-2); font-size: 15px; display: grid; gap: 8px; }
+.method a { color: var(--red-ink); }
+footer { padding-block: 40px 56px; font-size: 14px; color: var(--muted); }
+@media (max-width: 760px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kpi b { font-size: 30px; }
+  .rules, .cmp { grid-template-columns: 1fr; }
+  .board .hd, .board .row { grid-template-columns: 4em 1fr 5.5em; } .board .hd span:nth-child(3), .board .row span:nth-child(3) { display: none; }
+}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="inner">
+    <a class="back" href="../">← Stephen tAMBI · Projects</a>
+    <div class="eyebrow">Deutsche Bahn · money, time and trust · 2017–2026</div>
+    <h1>On track?<span>How Deutsche Bahn got back into profit, how it counts time, and why people still ride</span></h1>
+    <p class="lede">In the first half of 2026 Deutsche Bahn made a profit for the first time in seven years, and it carries more passengers than ever. But its long-distance trains are less punctual than in any recent year. The numbers behind the turnaround, and behind the trust problem.</p>
+    <div class="byline">Stephen tAMBI · data to July 2026</div>
+  </div>
+</header>
+<main class="inner">
+  <div class="kpis" id="kpis"></div>
+
+  <section>
+    <h2>Back in the black, just</h2>
+    <p class="intro" id="moneyIntro"></p>
+    <div class="card"><div class="wrap"><svg class="chart" id="money" viewBox="0 0 900 320" role="img" aria-label="Deutsche Bahn net result by year, 2020 to first half of 2026"></svg></div>
+      <p class="note">Net result in € billion. 2025 is continuing operations; including the sale of the logistics arm DB Schenker the group made +€5.3bn. H1 2026 is six months only.</p></div>
+  </section>
+
+  <section>
+    <h2>The trust problem: time</h2>
+    <p class="intro" id="timeIntro"></p>
+    <div class="card"><div class="wrap"><svg class="chart" id="punct" viewBox="0 0 900 320" role="img" aria-label="Share of DB long-distance trains on time, 2017 to first half of 2026"></svg></div>
+      <p class="note">Long-distance (ICE and IC) trains arriving less than six minutes late. 2020 was high because the pandemic emptied the network. No published annual figure is shown here for 2018–2019.</p></div>
+  </section>
+
+  <section>
+    <h2>How Deutsche Bahn keeps track of time</h2>
+    <p class="intro">Every train run is logged twice: the timetable says when it should arrive, the network's operating systems record when it did. DB compares the two for every run, and the same live data feeds the departure boards, the DB Navigator app and outside developers.</p>
+    <div class="card">
+      <div class="board" aria-label="Example departure board showing how DB classifies arrivals">
+        <div class="hd"><span>Train</span><span>To</span><span>Planned</span><span>Status</span></div>
+        <div class="row"><span class="st">ICE 597</span><span>München Hbf</span><span>14:28</span><span class="ok">+3 · on time</span></div>
+        <div class="row"><span class="st">ICE 1005</span><span>Berlin Hbf</span><span>14:41</span><span class="ok">+5:59 · on time</span></div>
+        <div class="row"><span class="st">IC 2215</span><span>Stuttgart Hbf</span><span>14:52</span><span class="late">+6 · late</span></div>
+        <div class="row"><span class="st">ICE 1234</span><span>Hamburg-Altona</span><span>15:03</span><span class="x">cancelled · not counted</span></div>
+      </div>
+      <p class="note">Illustration with made-up trains; the rules are DB's.</p>
+      <div class="rules">
+        <div class="rule"><b>&lt; 6 min</b><p>A train is "on time" if it arrives less than six minutes late. Five minutes and 59 seconds counts as punctual.</p></div>
+        <div class="rule"><b>Cancelled = invisible</b><p>Cancelled trains are not in the punctuality figure. In 2025 Der Spiegel reported delayed trains being cancelled to protect the statistic; DB denied it.</p></div>
+        <div class="rule"><b id="wj"></b><p>DB also publishes "whole-journey" punctuality, which counts passengers arriving on time even if they changed trains. It is always higher.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Checked from outside</h2>
+    <p class="intro" id="checkIntro"></p>
+    <div class="card"><div class="cmp" id="check"></div>
+      <p class="note">Railwise analysed over 180,000 long-distance arrivals for Handelsblatt using DB's own licensed timetable interface. DB said the gap was "not traceable" and that its figures meet its quality checks.</p></div>
+  </section>
+
+  <section>
+    <h2>So why do people still ride?</h2>
+    <p class="intro" id="rideIntro"></p>
+    <div class="card"><div class="cmp" id="ride"></div></div>
+  </section>
+
+  <section>
+    <h2>What the numbers say</h2>
+    <div class="reading" id="reading"></div>
+  </section>
+
+  <section class="build" id="how-it-was-built">
+    <h2>Tech stack</h2>
+    <div class="chips"><span class="chip">Python</span><span class="chip">JSON</span><span class="chip">Annual reports</span><span class="chip">JavaScript</span><span class="chip">SVG</span><span class="chip">HTML/CSS</span><span class="chip">Playwright</span><span class="chip">GitHub Pages</span></div>
+  </section>
+
+  <section>
+    <h2>Method and sources</h2>
+    <ul class="method">
+      <li><b>H1 2026:</b> <a href="https://ir.deutschebahn.com/en/news-presentations/news/detail/deutsche-bahn-net-profit-of-eur-147-million-marks-return-to-profitability-for-first-time-since-2019/">DB investor relations, 30 July 2026</a>.</li>
+      <li><b>2025:</b> <a href="https://www.railwaypro.com/wp/dbs-2025-growth-in-revenue-and-operating-profit-but-a-significant-loss/">Railway PRO</a> on DB's 2025 results. <b>2024:</b> <a href="https://airfreight.news/articles/full/on-a-turnaround-course-deutsche-bahn-significantly-reduced-losses-in-2024">Air Freight News</a>. <b>2022–2023:</b> <a href="https://www.deutschebahn.com/resource/blob/12718958/7697d5b0aa864cf33f092fd18012088e/PI_Download-data.pdf">DB press release, March 2024</a>. <b>2020–2021:</b> <a href="https://deutschebahn.com/resource/blob/7343736/30fe2e24bf54f457523df0ff77ddaac0/PI-Bilanz-PK-2022_download-data.pdf">DB press release, March 2022</a>. Results are as first reported; later restatements differ slightly.</li>
+      <li><b>Punctuality method and whole-journey figures:</b> <a href="https://zbir.deutschebahn.com/2025/en/punctuality/">DB interim report 2025</a>; 2017 figure and the cancellation report: <a href="https://www.iamexpat.de/expat-info/germany-news/db-accused-cancelling-delayed-trains-improve-punctuality-stats">IamExpat</a>; independent check: <a href="https://news.osna.fm/?p=45838">Handelsblatt/Railwise via osna.fm</a>.</li>
+    </ul>
+  </section>
+</main>
+<footer class="inner">Stephen tAMBI · Data analysis · Not affiliated with Deutsche Bahn.</footer>
+
+<script>
+const D = /*__DATA__*/null;
+const $ = id => document.getElementById(id);
+const H = D.h1_2026, P = D.punct;
+$('kpis').innerHTML = [
+  ['+€147m', 'net profit in H1 2026, the first since 2019', 'good'],
+  [`${P[P.length - 1].v}%`, 'of long-distance trains on time in H1 2026, the lowest in years', ''],
+  ['1.93bn', 'passengers in 2025, a record', 'good'],
+  ['–€2.3bn', 'net loss in 2025 before the Schenker sale', ''],
+].map(([b, s, c]) => `<div class="kpi ${c}"><b>${b}</b><span>${s}</span></div>`).join('');
+
+$('moneyIntro').textContent = `Six straight years of losses, peaking at €5.7bn in the pandemic. In the first half of 2026 the group earned €${(H.net * 1000).toFixed(0)}m, a swing of more than €900m. Long-distance trains alone made €${(H.ld_profit * 1000).toFixed(0)}m, after losing €${(-H.ld_prev * 1000).toFixed(0)}m a year earlier. DB credits cost cuts and fewer management jobs; selling DB Schenker cut debt to €${H.debt}bn.`;
+(() => {
+  const N = D.net, W = 900, Hh = 320, L = 50, R = 16, T = 20, B = 34, lo = -6, hi = 1;
+  const bw = (W - L - R) / N.length, Y = v => T + (hi - v) / (hi - lo) * (Hh - T - B);
+  let s = '';
+  for (let g = lo; g <= hi; g += 1) s += `<line x1="${L}" x2="${W - R}" y1="${Y(g)}" y2="${Y(g)}" stroke="${g === 0 ? 'var(--ink)' : 'var(--grid)'}"/><text x="${L - 8}" y="${Y(g) + 4}" text-anchor="end">${g > 0 ? '+' : ''}${g}</text>`;
+  N.forEach((d, i) => { const x = L + i * bw + bw * .2, w = bw * .6, y0 = Y(0), y1 = Y(d.v);
+    s += `<rect x="${x}" y="${Math.min(y0, y1)}" width="${w}" height="${Math.max(Math.abs(y1 - y0), 2)}" fill="${d.v >= 0 ? 'var(--good)' : 'var(--red)'}" rx="3"><title>${d.y}: €${d.v}bn</title></rect>`;
+    s += `<text x="${x + w / 2}" y="${d.v >= 0 ? y1 - 8 : y1 + 18}" text-anchor="middle" style="fill:var(--ink);font-weight:700">${d.v > 0 ? '+' : ''}${d.v.toFixed(d.v > -1 && d.v < 1 ? 2 : 1)}</text>`;
+    s += `<text x="${x + w / 2}" y="${Hh - 10}" text-anchor="middle">${d.y}</text>`; });
+  $('money').innerHTML = s;
+})();
+
+$('timeIntro').textContent = `Profit came back; punctuality did not. In 2017, ${P[0].v}% of long-distance trains were on time. In the first half of 2026 it was ${P[P.length - 1].v}%: four in ten ICE and IC trains arrive six minutes late or more. Regional trains are far better (${D.regional['H1 2026']}%), but long-distance is what people remember.`;
+(() => {
+  const W = 900, Hh = 320, L = 50, R = 44, T = 20, B = 34, lo = 50, hi = 85, n = P.length;
+  const X = i => L + i / (n - 1) * (W - L - R), Y = v => T + (hi - v) / (hi - lo) * (Hh - T - B);
+  let s = '';
+  for (let g = lo; g <= hi; g += 5) s += `<line x1="${L}" x2="${W - R}" y1="${Y(g)}" y2="${Y(g)}" stroke="var(--grid)"/><text x="${L - 8}" y="${Y(g) + 4}" text-anchor="end">${g}%</text>`;
+  s += `<polyline points="${P.map((d, i) => `${X(i)},${Y(d.v)}`).join(' ')}" fill="none" stroke="var(--red)" stroke-width="4" stroke-linejoin="round"/>`;
+  P.forEach((d, i) => { s += `<circle cx="${X(i)}" cy="${Y(d.v)}" r="5" fill="var(--panel)" stroke="var(--red)" stroke-width="3"/><text x="${X(i)}" y="${Y(d.v) - 12}" text-anchor="middle" style="fill:var(--ink);font-weight:700">${d.v}</text><text x="${X(i)}" y="${Hh - 10}" text-anchor="middle">${d.y}</text>`; });
+  $('punct').innerHTML = s;
+})();
+$('wj').textContent = `${D.whole_journey['2024']}%`;
+
+const C = D.check;
+$('checkIntro').textContent = `Can you trust DB's own clock? In ${C.month} an independent start-up measured ${C.independent}% on time against DB's ${C.db}%. Counting trains that did not run at all, it fell to ${C.with_failures}%.`;
+$('check').innerHTML = [['DB official', C.db, 'ICE and IC on time'], ['Independent count', C.independent, 'same threshold, own analysis'], ['Including cancellations', C.with_failures, 'trains that never arrived count as late']].map(([h, v, p]) =>
+  `<div class="cm"><h3>${h}</h3><div class="big">${v}%</div><p>${p}</p></div>`).join('');
+
+$('rideIntro').textContent = `Late trains, yet more passengers every year. Trust in timing is low, but the network is dense, the Deutschlandticket made regional travel cheap, and for many trips there is no faster alternative.`;
+$('ride').innerHTML = [['Passengers 2025', '1.93bn', 'up from 1.8bn in 2023'], ['Passengers H1 2026', `${H.passengers_m}m`, 'up about 1.8% on a year earlier'], ['Long-distance within 15 min', `${H.ld_15min}%`, 'H1 2026: most delays are short']].map(([h, b, p]) =>
+  `<div class="cm"><h3>${h}</h3><div class="big">${b}</div><p>${p}</p></div>`).join('');
+
+$('reading').innerHTML = [
+  ['Profitable: only just, and only recently', `Six months of profit after five years of losses. The 2025 group profit of €5.3bn came from selling Schenker, not from running trains; without it DB lost €2.3bn. The 2026 target is about €${(H.outlook_ebit * 1000).toFixed(0)}m operating profit on €28bn of revenue: a thin margin.`],
+  ['Trusted: not yet', `Long-distance punctuality fell every year from 2021 to 2026. A railway that keeps people in its trains but not on time is profitable on volume, not on reliability.`],
+  ['The clock has blind spots', `Cancelled trains do not count, the threshold is six minutes, and the official figure ran about two points above an independent count in April 2026. A fair dashboard would show cancellations next to punctuality.`],
+  ['Where the turnaround has to come from', `Gross investment rose 18% to €${H.capex}bn in H1 2026, much of it in the network. Better tracks and signals are the fix for punctuality, and it takes years: building sites cause delays before they remove them.`],
+].map(([h, p]) => `<div><b class="h">${h}</b><p>${p}</p></div>`).join('');
+</script>
+</body>
+</html>
