@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BMW Group Market Dashboard</title>
+<meta name="description" content="An interactive dashboard of BMW Group's public figures 2019–2026: deliveries by brand, region and market, electrification, revenue and margins, plus a blueprint for an aftersales B2B dashboard.">
+<meta name="author" content="Stephen tAMBI">
+<meta property="og:title" content="BMW Group Market Dashboard">
+<meta property="og:description" content="2.46m cars in 2025: Europe up 7%, China down 12.5%, 18% fully electric, automotive margin down from 10.3% to 5.3%. Filter by year, brand and region.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://stambi292.github.io/bmw-group/">
+<meta property="og:image" content="https://stambi292.github.io/bmw-group/images/preview.png?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: dark BMW-blue masthead with an M-stripe rule, a sticky filter bar, KPI tiles, a dashboard grid
+   (brands, regions, market table, electrification, revenue, margin), the 2026 panel, an aftersales KPI blueprint, data checks, method. */
+:root {
+  --bg: #f3f5f8; --panel: #ffffff; --ink: #0e1a2b; --ink-2: #3f4c5e; --muted: #6a7686; --line: #dde3ea; --grid: #edf1f5;
+  --blue: #1c69d4; --navy: #0b2340; --c1: #1c69d4; --c2: #e7222e; --c3: #5fb0f5; --c4: #9aa6b4; --good: #16824a; --bad: #c8102e;
+  --font-display: "Archivo", "Segoe UI", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0a111b; --panel: #121c29; --ink: #eef3f9; --ink-2: #c3cedb; --muted: #8e9bab; --line: #243246; --grid: #1a2636;
+  --blue: #5c9dff; --c1: #5c9dff; --c2: #ff5a62; --c3: #a8d6ff; --c4: #6b7888; --good: #4ccf87; --bad: #ff6b7a; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0a111b; --panel: #121c29; --ink: #eef3f9; --ink-2: #c3cedb; --muted: #8e9bab; --line: #243246; --grid: #1a2636;
+  --blue: #5c9dff; --c1: #5c9dff; --c2: #ff5a62; --c3: #a8d6ff; --c4: #6b7888; --good: #4ccf87; --bad: #ff6b7a; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--font-body); }
+.inner { max-width: 1120px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+.mast { background: #0b2340; color: #fff; border-bottom: 8px solid; border-image: linear-gradient(90deg, #81c4ff 0 33.3%, #16588e 33.3% 66.6%, #e7222e 66.6%) 1; }
+.mast .inner { padding-block: 22px 40px; display: grid; gap: 12px; }
+.back { color: #a9c6ea; text-decoration: none; font-weight: 600; font-size: 15px; }
+.eyebrow { font: 600 13px var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: #81c4ff; margin-top: 14px; }
+h1 { font: 800 clamp(40px, 7vw, 76px)/.95 var(--font-display); margin: 0; letter-spacing: -.02em; }
+h1 span { display: block; font-size: .36em; line-height: 1.25; margin-top: 12px; font-weight: 700; color: #cfe2fb; letter-spacing: 0; text-wrap: balance; }
+.lede { margin: 0; max-width: 70ch; color: #dbe7f6; font-size: 17px; }
+.byline { font-size: 14px; color: #a9c6ea; }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
+.bar .inner { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; padding-block: 10px; }
+.fl { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+.fl > b { font: 600 12px var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-right: 4px; }
+.seg button, .chk { font: 600 14px var(--font-body); border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 5px 11px; border-radius: 6px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: #fff; }
+.chk[aria-pressed="false"] { opacity: .45; text-decoration: line-through; }
+.chk i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
+h2 { font: 800 26px/1.15 var(--font-display); margin: 0 0 6px; text-wrap: balance; }
+h3 { font: 700 17px/1.25 var(--font-display); margin: 0; }
+.intro { margin: 0 0 16px; color: var(--ink-2); max-width: 72ch; }
+section { padding-block: 34px 4px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; display: grid; gap: 4px; }
+.kpi small { font: 600 12px var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.kpi b { font: 800 32px/1.05 var(--font-display); font-variant-numeric: tabular-nums; }
+.kpi span { font-size: 14px; color: var(--ink-2); }
+.up { color: var(--good); } .dn { color: var(--bad); }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 12px; min-width: 0; align-content: start; }
+.card .sub { font-size: 14px; color: var(--muted); margin: -6px 0 0; }
+.note { font-size: 13.5px; color: var(--muted); margin: 0; }
+.chart { width: 100%; height: auto; display: block; }
+.chart text { font-family: var(--font-body); font-size: 12px; fill: var(--muted); }
+.chart .lab { fill: var(--ink); font-weight: 600; }
+.chart .hit:hover { opacity: .8; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13.5px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.tw { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font: 600 12px var(--font-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+td.sub-row:first-child { padding-left: 24px; color: var(--ink-2); }
+.y26 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.y26 div { border-left: 4px solid var(--blue); padding: 4px 0 4px 12px; }
+.y26 b { display: block; font: 800 24px var(--font-display); }
+.y26 span { font-size: 14px; color: var(--ink-2); }
+.bp { width: 100%; }
+.bp td { white-space: normal; vertical-align: top; text-align: left; font-variant-numeric: normal; }
+.bp td:first-child { font-weight: 700; white-space: nowrap; }
+.bp th { text-align: left; }
+.tag { font: 600 11.5px var(--font-mono); background: var(--grid); border-radius: 4px; padding: 1px 6px; color: var(--ink-2); white-space: nowrap; }
+.checks { display: grid; gap: 8px; }
+.ck { display: grid; grid-template-columns: 1.6em minmax(0, 1fr); gap: 8px; font-size: 15px; }
+.ck i { font-style: normal; font-weight: 700; color: var(--good); }
+.ck.w i { color: var(--muted); }
+.reading { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.reading > div { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+.reading b.h { display: block; font: 700 19px/1.2 var(--font-display); margin-bottom: 6px; }
+.reading p { margin: 0; color: var(--ink-2); font-size: 15px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 6px 12px; font-size: 14px; font-weight: 600; }
+.method { padding-left: 20px; color: var(--ink-2); font-size: 15px; display: grid; gap: 8px; }
+.method a { color: var(--blue); }
+footer { padding-block: 36px 56px; font-size: 14px; color: var(--muted); }
+@media (max-width: 860px) {
+  .kpis, .y26 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid2, .reading { grid-template-columns: 1fr; }
+  .kpi b { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="inner">
+    <a class="back" href="../">← All projects</a>
+    <div class="eyebrow">BMW Group · public reports 2019–2026 · dashboard prototype</div>
+    <h1>BMW Group Market Dashboard<span>Where BMW sells, what it earns, and how fast it is going electric. One view, filtered by year, brand and region.</span></h1>
+    <p class="lede">Built from BMW Group's own sales releases and annual reports, every number checked against the reported totals. It ends with a blueprint for the dashboard I would build next with internal aftersales data.</p>
+    <div class="byline">Stephen tAMBI · data to 30 September 2026</div>
+  </div>
+</header>
+
+<div class="bar"><div class="inner">
+  <div class="fl"><b>Year</b><div class="seg" id="years"></div></div>
+  <div class="fl"><b>Brand</b><span id="brandF"></span></div>
+  <div class="fl"><b>Region</b><span id="regionF"></span></div>
+</div></div>
+
+<main class="inner">
+  <div class="kpis" id="kpis"></div>
+
+  <section>
+    <h2>Deliveries</h2>
+    <p class="intro" id="delIntro"></p>
+    <div class="grid2">
+      <div class="card"><h3>Cars delivered by brand</h3><p class="sub" id="brandSub"></p>
+        <svg class="chart" id="brandChart" viewBox="0 0 520 300" role="img" aria-label="BMW Group deliveries by brand per year"></svg>
+        <div class="legend" id="brandLeg"></div></div>
+      <div class="card"><h3>Cars delivered by region</h3><p class="sub">Thousand cars · Other = rest of the Group, incl. Rolls-Royce</p>
+        <svg class="chart" id="regionChart" viewBox="0 0 520 300" role="img" aria-label="BMW and MINI deliveries by region per year"></svg>
+        <div class="legend" id="regionLeg"></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Markets in <span id="mYear"></span></h2>
+    <p class="intro" id="mktIntro"></p>
+    <div class="card"><div class="tw"><table id="mkt"></table></div>
+      <p class="note">BMW and MINI. Germany is part of Europe, China of Asia, the USA of the Americas. "Other" is the gap to the Group total: Rolls-Royce and markets BMW does not list separately.</p></div>
+  </section>
+
+  <section>
+    <h2>Electrification</h2>
+    <p class="intro" id="evIntro"></p>
+    <div class="grid2">
+      <div class="card"><h3>Fully electric cars (BEV) delivered</h3><p class="sub">Thousand cars</p>
+        <svg class="chart" id="bevChart" viewBox="0 0 520 260" role="img" aria-label="BEV deliveries per year"></svg></div>
+      <div class="card"><h3>Share of all deliveries</h3><p class="sub">Fully electric and all electrified (BEV + plug-in hybrid)</p>
+        <svg class="chart" id="shareChart" viewBox="0 0 520 260" role="img" aria-label="BEV and electrified share of deliveries"></svg>
+        <div class="legend"><span><i style="background:var(--c1)"></i>Fully electric</span><span><i style="background:var(--c3)"></i>All electrified</span></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Revenue and margin</h2>
+    <p class="intro" id="finIntro"></p>
+    <div class="grid2">
+      <div class="card"><h3>Group revenue</h3><p class="sub">€ billion</p>
+        <svg class="chart" id="revChart" viewBox="0 0 520 260" role="img" aria-label="BMW Group revenue per year"></svg></div>
+      <div class="card"><h3>Automotive EBIT margin</h3><p class="sub">Operating profit per €100 of car sales</p>
+        <svg class="chart" id="marChart" viewBox="0 0 520 260" role="img" aria-label="Automotive EBIT margin per year"></svg></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>2026 so far</h2>
+    <p class="intro" id="y26Intro"></p>
+    <div class="card"><div class="y26" id="y26"></div>
+      <p class="note">Nine months to 30 September 2026 and the outlook BMW gave on 4 November 2026.</p></div>
+  </section>
+
+  <section>
+    <h2>Next step: the aftersales B2B dashboard</h2>
+    <p class="intro">Public reports stop at cars sold. An aftersales distribution team steers parts. With internal data from a central data platform, this is the first version I would build: few KPIs, each with one clear definition, one owner and one chart.</p>
+    <div class="card"><div class="tw"><table class="bp">
+      <tr><th>KPI</th><th>Definition</th><th>Data needed</th><th>View</th></tr>
+      <tr><td>Parts fill rate</td><td>Order lines delivered complete and on the first attempt ÷ all order lines</td><td><span class="tag">orders</span> <span class="tag">shipments</span></td><td>By market and warehouse, weekly trend</td></tr>
+      <tr><td>Backorders</td><td>Open order lines past the promised date, and their value</td><td><span class="tag">orders</span> <span class="tag">stock</span></td><td>Top 20 parts and markets, ageing buckets</td></tr>
+      <tr><td>Order-to-delivery time</td><td>Median days from dealer order to delivery at the dealer</td><td><span class="tag">orders</span> <span class="tag">transport</span></td><td>By market and transport mode</td></tr>
+      <tr><td>Stock coverage</td><td>Days of demand the current stock covers</td><td><span class="tag">stock</span> <span class="tag">demand</span></td><td>Over- and under-stock alerts</td></tr>
+      <tr><td>B2B parts revenue and margin</td><td>Revenue and gross margin of parts sold to dealers and fleet customers</td><td><span class="tag">invoices</span> <span class="tag">finance</span></td><td>By market and product group, vs plan</td></tr>
+      <tr><td>Data quality</td><td>Share of records passing automated checks: valid part numbers, no duplicates, totals reconcile with finance</td><td><span class="tag">all sources</span></td><td>One status line on every page</td></tr>
+    </table></div>
+      <p class="note">A plan, not data: no internal BMW figures are used or shown on this page.</p></div>
+  </section>
+
+  <section>
+    <h2>Data checks</h2>
+    <div class="card"><div class="checks" id="checks"></div></div>
+  </section>
+
+  <section>
+    <h2>What the numbers say</h2>
+    <div class="reading" id="reading"></div>
+  </section>
+
+  <section>
+    <h2>Tech stack</h2>
+    <div class="chips"><span class="chip">Python</span><span class="chip">JSON</span><span class="chip">Annual reports</span><span class="chip">Data validation</span><span class="chip">JavaScript</span><span class="chip">SVG</span><span class="chip">HTML/CSS</span><span class="chip">Playwright</span><span class="chip">GitHub Pages</span></div>
+  </section>
+
+  <section>
+    <h2>Method and sources</h2>
+    <ul class="method">
+      <li><b>Deliveries 2021–2025:</b> BMW Group full-year sales releases (provisional figures, published each January): <a href="https://www.automotiveworld.com/news/electro-offensive-and-number-one-in-premium-segment-bmw-group-posts-strong-sales-for-2021/">2021</a>, <a href="https://www.press.bmwgroup.com/global/article/detail/T0407340EN/bmw-group-stays-on-track-for-success-in-2022-maintains-no-1-position-in-global-premium-segment">2022</a>, <a href="https://www.press.bmwgroup.com/global/article/detail/T0438999EN/a-successful-2023:-bmw-group-posts-record-sales-meets-ambitious-e-mobility-growth-targets">2023</a>, <a href="https://www.automotiveworld.com/news/bmw-group-maintains-bev-growth-path-in-challenging-market-situation-in-2024/">2024</a>, <a href="https://www.best-selling-cars.com/brands/2025-full-year-global-bmw-and-mini-worldwide-car-sales/">2025</a>. Annual reports later give slightly different final totals (2025: 2,463,681).</li>
+      <li><b>2019–2020 and financials:</b> <a href="https://bericht2020.bmwgroup.com/data/pdf/en/BMW-Group-Bericht-2020-EN_BMW_Group_in_Figures.pdf">BMW Group in figures 2020</a>; results releases for <a href="https://www.automotiveworld.com/news/bmw-group-significantly-increases-group-earnings-and-net-profit/">2021</a>, <a href="https://www.press.bmwgroup.com/global/article/detail/T0440321EN/bmw-group-continues-on-profitable-growth-course">2023 (with 2022)</a> and <a href="https://www.press.bmwgroup.com/canada/article/attachment/T0456230EN/645288">2025 (with 2024)</a>.</li>
+      <li><b>2026:</b> <a href="https://www.bmwgroup.com/content/dam/grpw/websites/bmwgroup_com/ir/downloads/en/2026/q3/BMW_Q3-2026-EN.pdf">quarterly statement to 30 September 2026</a>, as reported by <a href="https://www.investing.com/news/company-news/bmw-q3-2026-slides-margin-beats-guidance-amid-china-slump-restructuring-93CH-4998124">Investing.com</a> and <a href="https://www.bmwblog.com/2026/11/04/bmw-q3-2026-sales-by-brand-china-mini/">BMWBLOG</a>.</li>
+      <li>Independent analysis by Stephen tAMBI from public sources. Not affiliated with or endorsed by BMW AG.</li>
+    </ul>
+  </section>
+</main>
+<footer class="inner">Stephen tAMBI · Data analysis · Not affiliated with BMW AG.</footer>
+
+<script>
+const D = /*__DATA__*/null;
+const $ = id => document.getElementById(id);
+const Y = D.years, RY = D.regions_years, F = D.fin;
+const BR = Object.keys(D.brands), RG = ['Europe', 'Asia', 'Americas', 'Other'];
+const BC = { 'BMW': 'var(--c1)', 'MINI': 'var(--c2)', 'Rolls-Royce': 'var(--c4)' };
+const RC = { Europe: 'var(--c1)', Asia: 'var(--c2)', Americas: 'var(--c3)', Other: 'var(--c4)' };
+const other = RY.map((y, i) => D.total[Y.indexOf(y)] - D.regions.Europe[i] - D.regions.Asia[i] - D.regions.Americas[i]);
+const reg = k => k === 'Other' ? other : D.regions[k];
+const st = { year: 2025, brands: new Set(BR), regions: new Set(RG) };
+try { const s = JSON.parse(localStorage.getItem('bmwdash') || 'null'); if (s && RY.includes(s.year)) st.year = s.year; } catch (e) {}
+const save = () => { try { localStorage.setItem('bmwdash', JSON.stringify({ year: st.year })); } catch (e) {} };
+const fmt = n => Math.round(n).toLocaleString('en');
+const k = n => (n / 1000).toFixed(0) + 'k';
+const pc = (a, b) => (a / b - 1) * 100;
+const sg = v => `<span class="${v >= 0 ? 'up' : 'dn'}">${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(1)}%</span>`;
+const sgp = v => `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(1)} pts`;
+
+$('years').innerHTML = RY.map(y => `<button data-y="${y}" aria-pressed="${y === st.year}">${y}</button>`).join('');
+$('brandF').innerHTML = BR.map(b => `<button class="chk" data-b="${b}" aria-pressed="true"><i style="background:${BC[b]}"></i>${b}</button>`).join(' ');
+$('regionF').innerHTML = RG.map(r => `<button class="chk" data-r="${r}" aria-pressed="true"><i style="background:${RC[r]}"></i>${r}</button>`).join(' ');
+document.querySelectorAll('[data-y]').forEach(b => b.onclick = () => { st.year = +b.dataset.y; save(); render(); });
+document.querySelectorAll('[data-b]').forEach(b => b.onclick = () => { if (st.brands.has(b.dataset.b) && st.brands.size > 1) st.brands.delete(b.dataset.b); else st.brands.add(b.dataset.b); render(); });
+document.querySelectorAll('[data-r]').forEach(b => b.onclick = () => { if (st.regions.has(b.dataset.r) && st.regions.size > 1) st.regions.delete(b.dataset.r); else st.regions.add(b.dataset.r); render(); });
+
+function bars(id, labels, series, opt) {
+  // series: [{name, color, values}] stacked; opt: {max, fmt, sel, step, unit}
+  const W = 520, H = +$(id).getAttribute('viewBox').split(' ')[3], L = 44, R = 8, T = 22, B = 26, n = labels.length;
+  const bw = (W - L - R) / n * .62, X = i => L + (i + .5) * (W - L - R) / n, Yv = v => T + (opt.max - v) / opt.max * (H - T - B);
+  let s = '';
+  for (let g = 0; g <= opt.max + 1e-9; g += opt.step) s += `<line x1="${L}" x2="${W - R}" y1="${Yv(g)}" y2="${Yv(g)}" stroke="var(--grid)"/><text x="${L - 6}" y="${Yv(g) + 4}" text-anchor="end">${opt.axis(g)}</text>`;
+  labels.forEach((lb, i) => {
+    let base = 0; const on = lb === opt.sel;
+    series.forEach((se, j) => { const v = se.values[i]; if (v == null) return;
+      const top = Yv(base + v), h = Math.max(Yv(base) - top - (j ? 2 : 0), 0);
+      s += `<rect class="hit" x="${X(i) - bw / 2}" y="${top}" width="${bw}" height="${h}" rx="${j === series.length - 1 ? 3 : 0}" fill="${se.color}" opacity="${on ? 1 : .55}"><title>${lb} · ${se.name}: ${opt.tip(v)}</title></rect>`;
+      base += v; });
+    if (base > 0) s += `<text class="${on ? 'lab' : ''}" x="${X(i)}" y="${Yv(base) - 6}" text-anchor="middle">${opt.fmt(base)}</text>`;
+    s += `<text x="${X(i)}" y="${H - 8}" text-anchor="middle" style="${on ? 'fill:var(--ink);font-weight:700' : ''}">${lb}</text>`;
+  });
+  $(id).innerHTML = s;
+}
+function lines(id, labels, series, opt) {
+  const W = 520, H = 260, L = 44, R = 46, T = 18, B = 26, n = labels.length;
+  const X = i => L + i * (W - L - R) / (n - 1), Yv = v => T + (opt.max - v) / opt.max * (H - T - B);
+  let s = '';
+  for (let g = 0; g <= opt.max; g += opt.step) s += `<line x1="${L}" x2="${W - R}" y1="${Yv(g)}" y2="${Yv(g)}" stroke="var(--grid)"/><text x="${L - 6}" y="${Yv(g) + 4}" text-anchor="end">${g}%</text>`;
+  const si = labels.indexOf(opt.sel);
+  if (si >= 0) s += `<line x1="${X(si)}" x2="${X(si)}" y1="${T}" y2="${H - B}" stroke="var(--line)" stroke-width="2"/>`;
+  series.forEach(se => {
+    s += `<polyline fill="none" stroke="${se.color}" stroke-width="2.5" points="${se.values.map((v, i) => X(i) + ',' + Yv(v)).join(' ')}"/>`;
+    se.values.forEach((v, i) => s += `<circle cx="${X(i)}" cy="${Yv(v)}" r="${i === si ? 6 : 4}" fill="${se.color}" stroke="var(--panel)" stroke-width="2"><title>${labels[i]} · ${se.name}: ${v.toFixed(1)}%</title></circle>`);
+    s += `<text class="lab" x="${X(n - 1) + 9}" y="${Yv(se.values[n - 1]) + 4}">${se.values[n - 1].toFixed(0)}%</text>`;
+  });
+  labels.forEach((lb, i) => s += `<text x="${X(i)}" y="${H - 8}" text-anchor="middle" style="${lb === opt.sel ? 'fill:var(--ink);font-weight:700' : ''}">${lb}</text>`);
+  $(id).innerHTML = s;
+}
+
+function render() {
+  document.querySelectorAll('[data-y]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.y === st.year));
+  document.querySelectorAll('[data-b]').forEach(b => b.setAttribute('aria-pressed', st.brands.has(b.dataset.b)));
+  document.querySelectorAll('[data-r]').forEach(b => b.setAttribute('aria-pressed', st.regions.has(b.dataset.r)));
+  const yi = Y.indexOf(st.year), ri = RY.indexOf(st.year), py = yi - 1, pri = ri - 1;
+  const bsel = [...st.brands], rsel = RG.filter(r => st.regions.has(r));
+  const bsum = i => bsel.reduce((a, b) => a + D.brands[b][i], 0);
+  const allB = bsel.length === BR.length;
+  const bevI = D.bev.years.indexOf(st.year), share = D.bev.units[bevI] / D.total[yi] * 100, shareP = bevI > 0 ? D.bev.units[bevI - 1] / D.total[yi - 1] * 100 : null;
+
+  $('kpis').innerHTML = [
+    [allB ? 'Cars delivered' : 'Cars delivered · ' + bsel.join(' + '), fmt(bsum(yi)), `${sg(pc(bsum(yi), bsum(py)))} vs ${st.year - 1}`],
+    ['Fully electric share', share.toFixed(1) + '%', shareP != null ? `${sgp(share - shareP)} vs ${st.year - 1}` : 'first year reported'],
+    ['Group revenue', '€' + (F.revenue[yi] / 1000).toFixed(1) + 'bn', `${sg(pc(F.revenue[yi], F.revenue[py]))} vs ${st.year - 1}`],
+    ['Automotive EBIT margin', F.auto_margin[yi].toFixed(1) + '%', `${sgp(F.auto_margin[yi] - F.auto_margin[py])} vs ${st.year - 1}`],
+  ].map(([a, b, c]) => `<div class="kpi"><small>${a} · ${st.year}</small><b>${b}</b><span>${c}</span></div>`).join('');
+
+  const t0 = D.total[0], tm = Math.max(...D.total), tmY = Y[D.total.indexOf(tm)];
+  $('delIntro').innerHTML = `BMW Group delivered ${fmt(D.total[yi])} cars in ${st.year}. The peak in this period was ${fmt(tm)} in ${tmY}. Since then the mix has shifted: Europe and the Americas are growing while Asia, driven by China, is shrinking.`;
+  $('brandSub').textContent = 'Thousand cars' + (allB ? '' : ' · showing ' + bsel.join(', '));
+  bars('brandChart', Y, BR.filter(b => st.brands.has(b)).map(b => ({ name: b, color: BC[b], values: D.brands[b].map(v => v / 1000) })),
+    { max: 2800, step: 700, sel: st.year, fmt: v => v.toFixed(0), axis: g => g.toLocaleString('en'), tip: v => fmt(v * 1000) });
+  $('brandLeg').innerHTML = BR.filter(b => st.brands.has(b)).map(b => `<span><i style="background:${BC[b]}"></i>${b}</span>`).join('');
+  bars('regionChart', RY, rsel.map(r => ({ name: r, color: RC[r], values: reg(r).map(v => v / 1000) })),
+    { max: 2800, step: 700, sel: st.year, fmt: v => v.toFixed(0), axis: g => g.toLocaleString('en'), tip: v => fmt(v * 1000) });
+  $('regionLeg').innerHTML = rsel.map(r => `<span><i style="background:${RC[r]}"></i>${r}</span>`).join('');
+
+  $('mYear').textContent = st.year;
+  const rows = [['Europe', D.regions.Europe, 0], ['Germany', D.markets.Germany, 1], ['Asia', D.regions.Asia, 0], ['China', D.markets.China, 1], ['Americas', D.regions.Americas, 0], ['USA', D.markets.USA, 1], ['Other', other, 0]];
+  const tot = D.total[yi];
+  const spark = v => { const mx = Math.max(...v), mn = Math.min(...v), w = 80, h = 22; const pts = v.map((x, i) => (i * w / (v.length - 1)).toFixed(1) + ',' + (h - 2 - (x - mn) / ((mx - mn) || 1) * (h - 4)).toFixed(1)).join(' ');
+    return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline fill="none" stroke="var(--blue)" stroke-width="2" points="${pts}"/></svg>`; };
+  $('mkt').innerHTML = `<tr><th>Region / market</th><th>Cars</th><th>Share of Group</th><th>vs ${st.year - 1}</th><th>${RY[0]}–${RY[RY.length - 1]}</th></tr>` + rows.map(([n, v, s]) => {
+    const parent = s ? null : n; const vis = st.regions.has(s ? (n === 'Germany' ? 'Europe' : n === 'China' ? 'Asia' : 'Americas') : n);
+    if (!vis) return '';
+    return `<tr><td class="${s ? 'sub-row' : ''}">${s ? '↳ ' : ''}${n}</td><td>${fmt(v[ri])}</td><td>${(v[ri] / tot * 100).toFixed(1)}%</td><td>${pri >= 0 ? sg(pc(v[ri], v[pri])) : '–'}</td><td>${spark(v)}</td></tr>`; }).join('');
+  const ch = D.markets.China, eu = D.regions.Europe;
+  $('mktIntro').innerHTML = `China was BMW's biggest single market at ${fmt(ch[0])} cars in ${RY[0]}; by ${RY[RY.length - 1]} it was down to ${fmt(ch[ch.length - 1])} (${sg(pc(ch[ch.length - 1], ch[0]))}). Europe passed one million cars in 2025 and is now the largest region. Click a year above to compare.`;
+
+  const bv = D.bev.units, bs = D.bev.years.map((y, i) => bv[i] / D.total[Y.indexOf(y)] * 100), xs = D.xev.years.map((y, i) => D.xev.units[i] / D.total[Y.indexOf(y)] * 100);
+  $('evIntro').innerHTML = `Fully electric deliveries quadrupled from ${k(bv[0])} in ${D.bev.years[0]} to ${k(bv[bv.length - 1])} in ${D.bev.years[bv.length - 1]}, but growth slowed to ${sg(pc(bv[bv.length - 1], bv[bv.length - 2]))} last year. In Q3 2026 one car in five was fully electric (${D.y2026.q3_bev_share}%).`;
+  bars('bevChart', D.bev.years, [{ name: 'Fully electric', color: 'var(--c1)', values: bv.map(v => v / 1000) }],
+    { max: 500, step: 100, sel: st.year, fmt: v => v.toFixed(0), axis: g => g, tip: v => fmt(v * 1000) });
+  lines('shareChart', D.bev.years, [{ name: 'All electrified', color: 'var(--c3)', values: xs }, { name: 'Fully electric', color: 'var(--c1)', values: bs }], { max: 30, step: 10, sel: st.year });
+
+  const peak = Math.max(...F.revenue), pkY = Y[F.revenue.indexOf(peak)];
+  $('finIntro').innerHTML = `Revenue peaked at €${(peak / 1000).toFixed(1)}bn in ${pkY} and has fallen two years in a row. Margins fell faster: the car business earned €${F.auto_margin[2]} per €100 of sales in 2021 and €${F.auto_margin[6]} in 2025, as China weakened, prices came under pressure and US tariffs arrived.`;
+  bars('revChart', Y, [{ name: 'Revenue', color: 'var(--c1)', values: F.revenue.map(v => v / 1000) }],
+    { max: 160, step: 40, sel: st.year, fmt: v => v.toFixed(0), axis: g => g, tip: v => '€' + v.toFixed(1) + 'bn' });
+  bars('marChart', Y, [{ name: 'Automotive EBIT margin', color: 'var(--c3)', values: F.auto_margin }],
+    { max: 12, step: 3, sel: st.year, fmt: v => v.toFixed(1) + '%', axis: g => g + '%', tip: v => v.toFixed(1) + '%' });
+}
+
+const Z = D.y2026;
+$('y26Intro').innerHTML = `The pressure continued in 2026. Deliveries fell ${Math.abs(Z.q3_change)}% in the third quarter, China dropped by a quarter, and BMW cut its automotive margin forecast for the year to ${Z.guidance_auto_margin}.`;
+$('y26').innerHTML = [
+  [fmt(Z.m9_deliveries), 'cars delivered, January–September'],
+  [`${Z.q3_china_change}%`, 'China in Q3, while Europe grew +' + Z.q3_europe_change + '%'],
+  [`€${Z.m9_revenue}bn`, 'Group revenue, nine months'],
+  [Z.guidance_auto_margin, 'automotive EBIT margin forecast for 2026'],
+].map(([b, s]) => `<div><b>${b}</b><span>${s}</span></div>`).join('');
+
+const chk = [];
+const okB = Y.every((y, i) => BR.reduce((a, b) => a + D.brands[b][i], 0) === D.total[i]);
+chk.push([okB, `BMW + MINI + Rolls-Royce equal the reported Group total in all ${Y.length} years.`]);
+const okM = RY.every((y, i) => D.markets.Germany[i] < D.regions.Europe[i] && D.markets.China[i] < D.regions.Asia[i] && D.markets.USA[i] < D.regions.Americas[i]);
+chk.push([okM, 'Every market is smaller than its region (Germany < Europe, China < Asia, USA < Americas).']);
+const gap = other.map((v, i) => v / D.total[Y.indexOf(RY[i])] * 100);
+chk.push([gap.every(g => g > 0 && g < 4), `Regions cover ${(100 - Math.max(...gap)).toFixed(1)}–${(100 - Math.min(...gap)).toFixed(1)}% of Group deliveries; the rest is shown as "Other", not hidden.`]);
+chk.push([D.bev.units.every((v, i) => v < D.xev.units[i]), 'Fully electric cars are always a subset of all electrified cars.']);
+chk.push([null, 'Sales releases are provisional; annual reports later revise totals slightly (2025: 2,463,715 in the release, 2,463,681 in the report).']);
+$('checks').innerHTML = chk.map(([ok, t]) => `<div class="ck ${ok === null ? 'w' : ''}"><i>${ok === null ? 'i' : ok ? '✓' : '✗'}</i><span>${t}</span></div>`).join('');
+
+$('reading').innerHTML = [
+  ['The map has turned', `China fell from ${fmt(D.markets.China[0])} to ${fmt(D.markets.China[4])} cars in four years, and another quarter in Q3 2026. Europe and the USA grew. BMW's sales are moving back towards home.`],
+  ['Electric is growing, but slower', `One in five BMW Group cars is now fully electric, up from one in twenty-five in 2021. Growth slowed from +108% in 2022 to +3.6% in 2025.`],
+  ['Volume held, profit did not', `Deliveries in 2025 were within 4% of 2023's record, but the car business margin halved from 10.3% (2021) to 5.3%. Every euro of cost and every part delivered on time now matters more.`],
+].map(([h, p]) => `<div><b class="h">${h}</b><p>${p}</p></div>`).join('');
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+{
+ "_note": "BMW Group public figures. Deliveries: BMW Group sales press releases for 2021-2025 (provisional, January of the following year) and BMW Group Report 2020 for 2019-2020. Regional figures are BMW and MINI. Financials: BMW Group full-year results releases and reports, EUR million. 2026: quarterly statement to 30 September 2026 and press coverage.",
+ "years": [2019, 2020, 2021, 2022, 2023, 2024, 2025],
+ "brands": {
+  "BMW":         [2184939, 2028841, 2213795, 2100692, 2253835, 2200177, 2169761],
+  "MINI":        [347465, 292582, 302144, 292923, 295474, 244915, 288290],
+  "Rolls-Royce": [5100, 3756, 5586, 6021, 6032, 5712, 5664]
+ },
+ "total": [2537504, 2325179, 2521525, 2399636, 2555341, 2450804, 2463715],
+ "regions_years": [2021, 2022, 2023, 2024, 2025],
+ "regions": {
+  "Europe":   [948087, 877369, 942805, 947235, 1016360],
+  "Asia":     [1065141, 1028105, 1070142, 960951, 871550],
+  "Americas": [450062, 439585, 480380, 480994, 508221]
+ },
+ "markets": {
+  "Germany": [267917, 252087, 281986, 267285, 290742],
+  "China":   [846237, 791985, 824932, 714530, 625527],
+  "USA":     [366574, 361892, 395741, 397652, 417638]
+ },
+ "bev":   {"years": [2021, 2022, 2023, 2024, 2025], "units": [103855, 215755, 376183, 426594, 442072]},
+ "xev":   {"years": [2021, 2022, 2023, 2024, 2025], "units": [328316, 433795, 566486, 593215, 642087]},
+ "fin": {
+  "revenue":  [104210, 98990, 111239, 142610, 155498, 142380, 133453],
+  "ebt":      [7118, 5222, 16060, 23509, 17096, 10971, 10236],
+  "net":      [5022, 3857, 12463, 18582, 12165, 7678, 7451],
+  "auto_rev": [91682, 80853, 95476, 123602, 132277, 124917, 117557],
+  "auto_margin": [4.9, 2.7, 10.3, 8.6, 9.8, 6.3, 5.3]
+ },
+ "fin_notes": {"2022": "Group EBT and net profit include a one-off EUR 7.7bn revaluation of BMW Brilliance Automotive (China joint venture)."},
+ "y2026": {"q3_deliveries": 551075, "q3_change": -6.3, "q3_bev_share": 20.0, "q3_china_change": -24.8, "q3_europe_change": 2.6, "q3_us_change": 2.5,
+           "m9_deliveries": 1707802, "m9_revenue": 92.7, "m9_ebt": 6.1, "q3_auto_margin": 3.4,
+           "guidance_auto_margin": "-0.5% to 0.5%", "guidance_deliveries": "moderate decrease", "target_2028": "3% to 5%"}
+}
