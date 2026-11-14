@@ -22,7 +22,7 @@ End-to-end analytics project on ~100,000 real orders from **Olist**, a Brazilian
 
 ![Monthly revenue](docs/images/revenue_trend.png)
 
-**2. Late deliveries drive bad reviews.** Orders that arrive on time get a 1–2 star review 9–12% of the time. Orders 8+ days late get one 79% of the time. Late orders are 6.8% of deliveries but 32% of all bad reviews.
+**2. Late deliveries drive bad reviews.** Orders that arrive on time get a 1–2 star review 9–12% of the time. Orders 8+ days late get one 79% of the time. Late orders are 6.8% of deliveries but 32% of all bad reviews. The gap is not chance: 62.4% of late orders get a bad review against 9.3% of on-time orders (chi-squared test, χ² ≈ 15,000, p < 0.001).
 
 ![Delivery timing vs bad reviews](docs/images/delivery_vs_reviews.png)
 
