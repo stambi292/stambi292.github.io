@@ -272,7 +272,7 @@ function drawGroup() {
   const g = D.emp.filter(e => (o === 'all' || e.ot === (o === 'yes')) && inRange(e.ten, t) && inRange(e.lvl, l));
   const left = g.filter(e => e.left).length, rate = g.length ? left / g.length * 100 : 0;
   $('gRate').textContent = g.length ? pct(rate) : '–';
-  $('gText').textContent = g.length ? `left: ${left} of ${fmt(g.length)} people in this group (company: ${pct(D.rate)})` : 'No employees match these filters.';
+  $('gText').textContent = g.length ? `left: ${left} of ${fmt(g.length)} people in this group (company: ${pct(D.rate)})` + (g.length < 30 ? ' · small group, read with care' : '') : 'No employees match these filters.';
   hbars($('gChart'), [{k: 'This group', rate, n: g.length, fill: rate > D.leavers / D.n * 100 + 0.05 ? 'var(--c2)' : 'var(--c1)'}, {k: 'Company', rate: D.rate, n: D.n, fill: 'var(--c3)'}], null, Math.max(40, Math.ceil(rate / 10) * 10), 150);
 }
 ['fOt', 'fTen', 'fLvl'].forEach(id => $(id).onchange = drawGroup);
