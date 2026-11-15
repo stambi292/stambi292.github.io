@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Workforce Analytics Prototype</title>
+<meta name="description" content="A workforce analytics prototype: who leaves and why, a retention-risk model used only at group level, a shift staffing calculator and an applicant-flow KPI blueprint.">
+<meta name="author" content="Stephen tAMBI">
+<meta property="og:title" content="Workforce Analytics Prototype">
+<meta property="og:description" content="16.1% of staff leave. 36% of first-year staff leave, overtime triples the risk, and a simple model finds 61% of leavers in the riskiest 20%. Plus a shift staffing calculator.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://stambi292.github.io/flaschenpost-workforce/">
+<meta property="og:image" content="https://stambi292.github.io/flaschenpost-workforce/images/preview.png?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+:root {
+  --bg: #f2f5f7; --panel: #ffffff; --ink: #10202e; --ink-2: #3c4b58; --muted: #66737f; --line: #dbe2e8; --grid: #ecf0f3;
+  --blue: #0090d0; --navy: #12304f; --green: #5f9e2f; --c1: #0090d0; --c2: #d9472b; --c3: #9fb3c2; --good: #3d8a1f; --bad: #c43a20;
+  --font-display: "Archivo", "Segoe UI", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0b131a; --panel: #121e28; --ink: #eef3f7; --ink-2: #c3ced8; --muted: #8b99a6; --line: #24323f; --grid: #1a2733;
+  --blue: #3db6f0; --green: #8cc760; --c1: #3db6f0; --c2: #ff7a5c; --c3: #5d6f7e; --good: #8cc760; --bad: #ff7a5c; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0b131a; --panel: #121e28; --ink: #eef3f7; --ink-2: #c3ced8; --muted: #8b99a6; --line: #24323f; --grid: #1a2733;
+  --blue: #3db6f0; --green: #8cc760; --c1: #3db6f0; --c2: #ff7a5c; --c3: #5d6f7e; --good: #8cc760; --bad: #ff7a5c; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--font-body); }
+.inner { max-width: 1120px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+.mast { background: #12304f; color: #fff; border-bottom: 8px solid #7ab648; }
+.mast .inner { padding-block: 22px 40px; display: grid; gap: 12px; }
+.back { color: #a8c8e2; text-decoration: none; font-weight: 600; font-size: 15px; }
+.eyebrow { font: 600 13px var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: #8fd0f5; margin-top: 14px; }
+h1 { font: 800 clamp(38px, 6.6vw, 72px)/.95 var(--font-display); margin: 0; letter-spacing: -.02em; }
+h1 span { display: block; font-size: .38em; line-height: 1.25; margin-top: 12px; font-weight: 700; color: #d3e6f5; letter-spacing: 0; text-wrap: balance; }
+.lede { margin: 0; max-width: 72ch; color: #dbe8f3; font-size: 17px; }
+.byline { font-size: 14px; color: #a8c8e2; }
+h2 { font: 800 26px/1.15 var(--font-display); margin: 0 0 6px; text-wrap: balance; }
+h3 { font: 700 17px/1.25 var(--font-display); margin: 0; }
+.intro { margin: 0 0 16px; color: var(--ink-2); max-width: 72ch; }
+section { padding-block: 34px 4px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; display: grid; gap: 4px; }
+.kpi small { font: 600 12px var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.kpi b { font: 800 32px/1.05 var(--font-display); font-variant-numeric: tabular-nums; }
+.kpi span { font-size: 14px; color: var(--ink-2); }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 12px; min-width: 0; align-content: start; }
+.card .sub { font-size: 14px; color: var(--muted); margin: -6px 0 0; }
+.note { font-size: 13.5px; color: var(--muted); margin: 0; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: 600 14px var(--font-body); border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 5px 11px; border-radius: 6px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: #fff; }
+.chart { width: 100%; height: auto; display: block; }
+.chart text { font-family: var(--font-body); font-size: 12px; fill: var(--muted); }
+.chart .lab { fill: var(--ink); font-weight: 600; }
+.chart .val { fill: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13.5px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.legend i.ln { height: 0; border-top: 2px dashed var(--ink); width: 14px; vertical-align: 3px; border-radius: 0; }
+.tw { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 12px var(--font-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+td code { font: 500 12px var(--font-mono); background: var(--grid); border-radius: 4px; padding: 1px 5px; white-space: nowrap; }
+.ctrls { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 16px; }
+.ctrl { display: grid; gap: 4px; font-size: 14px; color: var(--ink-2); min-width: 0; }
+.ctrl b { font: 700 18px var(--font-display); color: var(--ink); font-variant-numeric: tabular-nums; }
+.ctrl input { width: 100%; accent-color: var(--blue); }
+.res { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.res div { border-left: 4px solid var(--blue); padding: 4px 0 4px 12px; min-width: 0; }
+.res div.warn { border-color: var(--c2); }
+.res b { display: block; font: 800 24px var(--font-display); font-variant-numeric: tabular-nums; }
+.res span { font-size: 13.5px; color: var(--ink-2); }
+.pick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 16px; }
+.pick label { display: grid; gap: 4px; font-size: 14px; color: var(--ink-2); min-width: 0; }
+.pick select { font: 15px var(--font-body); padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); width: 100%; }
+.big { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; }
+.big b { font: 800 44px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.checks li { display: flex; gap: 10px; align-items: baseline; }
+.checks .ok { color: var(--good); font-weight: 700; } .checks .no { color: var(--bad); font-weight: 700; }
+.say { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.say .card p { margin: 0; color: var(--ink-2); font-size: 15px; }
+.stack { display: flex; flex-wrap: wrap; gap: 8px; }
+.stack span { font: 600 13px var(--font-body); border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 5px 10px; }
+.src { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 15px; display: grid; gap: 6px; }
+.src a, .intro a { color: var(--blue); }
+footer { padding-block: 40px 30px; color: var(--muted); font-size: 13.5px; }
+.tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 13px; padding: 6px 9px; border-radius: 6px; opacity: 0; transition: opacity .1s; z-index: 20; max-width: 260px; }
+@media (max-width: 860px) {
+  .kpis, .res, .ctrls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid2, .say, .pick { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) { .kpi b { font-size: 26px; } .res b { font-size: 20px; } }
+</style>
+</head>
+<body>
+<header class="mast"><div class="inner">
+  <a class="back" href="../">← All projects</a>
+  <div class="eyebrow">Workforce analytics · prototype · public HR sample</div>
+  <h1>Workforce Analytics<span>Who leaves, how to staff a shift, and which KPIs keep the applicant flow moving</span></h1>
+  <p class="lede">A prototype of the reporting a workforce analytics team builds: employee management (who leaves and why), shift planning (how many people each hour needs) and applicant management (a KPI blueprint). The employee part runs on IBM's public HR sample of 1,470 fictional employees; the shift calculator uses inputs you can change.</p>
+  <div class="byline">Stephen tAMBI · prototype for a working student role in Workforce Analytics</div>
+</div></header>
+
+<main class="inner">
+  <div class="kpis" id="kpis"></div>
+
+  <section>
+    <h2>Employee management: who leaves?</h2>
+    <p class="intro" id="segIntro"></p>
+    <div class="card">
+      <div class="seg" id="segBtns" role="group" aria-label="Split employees by"></div>
+      <svg class="chart" id="segChart" role="img" aria-label="Attrition rate by group"></svg>
+      <div class="legend"><span><i style="background:var(--c1)"></i>Share who left</span><span><i class="ln"></i>Company average</span></div>
+      <p class="note">Bars show the share of each group who left. Group size in brackets.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Build a group</h2>
+    <p class="intro">KPI-based management means asking the same question for any group. Combine filters to see how many people are in a group and how many of them left.</p>
+    <div class="card">
+      <div class="pick">
+        <label>Overtime<select id="fOt"><option value="all">All</option><option value="yes">Works overtime</option><option value="no">No overtime</option></select></label>
+        <label>Years at company<select id="fTen"><option value="all">All</option><option value="0-0">Under 1 year</option><option value="1-2">1–2 years</option><option value="3-5">3–5 years</option><option value="6-99">6 years or more</option></select></label>
+        <label>Job level<select id="fLvl"><option value="all">All</option><option value="1">Level 1 (entry)</option><option value="2">Level 2</option><option value="3-5">Level 3 or higher</option></select></label>
+      </div>
+      <div class="big"><b id="gRate"></b><span id="gText"></span></div>
+      <svg class="chart" id="gChart" role="img" aria-label="Group compared with company average"></svg>
+    </div>
+  </section>
+
+  <section>
+    <h2>Retention risk: who to talk to first</h2>
+    <p class="intro" id="modelIntro"></p>
+    <div class="grid2">
+      <div class="card">
+        <h3>Share who left, by risk score</h3>
+        <p class="sub">All employees sorted into ten equal groups by predicted risk (10 = riskiest)</p>
+        <svg class="chart" id="decChart" role="img" aria-label="Attrition by risk decile"></svg>
+      </div>
+      <div class="card">
+        <h3>Strongest signals in the model</h3>
+        <p class="sub">Logistic regression; positive pushes risk up</p>
+        <svg class="chart" id="drvChart" role="img" aria-label="Model drivers"></svg>
+        <p class="note">Age, gender and marital status are left out on purpose. Scores like this belong in group-level planning (where to improve shifts, pay or onboarding), not in decisions about one person, and in Germany any such tool needs the works council (Betriebsrat) on board.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Shift planning: how many people each hour needs</h2>
+    <p class="intro">A flat roster puts the same number of people on every hour. Orders do not arrive that way. Move the sliders to see where a flat roster leaves the warehouse short and where it pays for idle hours. The demand profile is illustrative: an evening peak, a quieter midday.</p>
+    <div class="card">
+      <div class="ctrls">
+        <label class="ctrl">Orders per day<b id="vOrd"></b><input id="sOrd" type="range" min="600" max="4000" step="100" value="1800"></label>
+        <label class="ctrl">Orders picked per person-hour<b id="vProd"></b><input id="sProd" type="range" min="6" max="20" step="1" value="12"></label>
+        <label class="ctrl">Target utilisation<b id="vUtil"></b><input id="sUtil" type="range" min="70" max="95" step="5" value="85"></label>
+        <label class="ctrl">Flat roster (people per hour)<b id="vFlat"></b><input id="sFlat" type="range" min="4" max="40" step="1" value="14"></label>
+      </div>
+      <svg class="chart" id="shiftChart" role="img" aria-label="Staff needed per hour versus flat roster"></svg>
+      <div class="legend"><span><i style="background:var(--c1)"></i>Staff needed</span><span><i style="background:var(--c2)"></i>Hours short</span><span><i class="ln"></i>Flat roster</span></div>
+      <div class="res" id="shiftRes"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Applicant management: the KPIs I would build first</h2>
+    <p class="intro">With real applicant-system data, this is the first version of an applicant-flow report: a few KPIs, each with one definition and one view, and a weekly check that the numbers are complete.</p>
+    <div class="card tw"><table>
+      <thead><tr><th>KPI</th><th>Definition</th><th>Data needed</th><th>View</th></tr></thead>
+      <tbody>
+        <tr><td><b>Time to hire</b></td><td>Days from application to signed contract, median</td><td><code>applications</code> <code>contracts</code></td><td>By location and role, weekly</td></tr>
+        <tr><td><b>Stage conversion</b></td><td>Share moving from each stage to the next (applied → screened → interview → offer → signed)</td><td><code>stage events</code></td><td>Funnel per location</td></tr>
+        <tr><td><b>Stuck applications</b></td><td>Applications in one stage longer than the target (e.g. 5 days)</td><td><code>stage events</code></td><td>Daily list for recruiters</td></tr>
+        <tr><td><b>Offer acceptance</b></td><td>Signed contracts ÷ offers made</td><td><code>offers</code> <code>contracts</code></td><td>By role and pay band</td></tr>
+        <tr><td><b>Early leavers</b></td><td>Share leaving within 90 days of their start date</td><td><code>contracts</code> <code>exits</code></td><td>By hiring month and location</td></tr>
+        <tr><td><b>Coverage vs plan</b></td><td>Hired heads ÷ planned heads from personnel requirements planning</td><td><code>plan</code> <code>contracts</code></td><td>By location, 8 weeks ahead</td></tr>
+      </tbody></table>
+      <p class="note">A plan, not data: no flaschenpost figures are used or shown on this page.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Data checks, run on this page</h2>
+    <p class="intro">Every report should prove its inputs before it goes live. These checks run in your browser each time the page loads.</p>
+    <div class="card"><ul class="checks" id="checks"></ul></div>
+  </section>
+
+  <section>
+    <h2>What the numbers say</h2>
+    <div class="say" id="say"></div>
+  </section>
+
+  <section>
+    <h2>Tech stack</h2>
+    <div class="stack"><span>Python</span><span>pandas</span><span>scikit-learn</span><span>Cross-validation</span><span>KPI design</span><span>JavaScript</span><span>SVG</span><span>Playwright</span></div>
+  </section>
+
+  <section>
+    <h2>Method and sources</h2>
+    <ul class="src">
+      <li>Employee data: <a href="https://github.com/IBM/employee-attrition-aif360">IBM HR Analytics Employee Attrition sample</a>, 1,470 fictional employees created by IBM data scientists. It is a public teaching dataset, not data from any real company.</li>
+      <li>Model: logistic regression on 15 job and pay features plus overtime, travel, department and role; scored with 5-fold stratified cross-validation, so every score comes from a model that never saw that employee.</li>
+      <li>Shift calculator: staff needed per hour = orders that hour ÷ (orders per person-hour × utilisation), rounded up. The hourly demand profile is an illustrative assumption.</li>
+      <li>Independent prototype by Stephen tAMBI. Not affiliated with or endorsed by flaschenpost SE.</li>
+    </ul>
+  </section>
+</main>
+<footer><div class="inner">Stephen tAMBI · Data analysis · Built from public data</div></footer>
+<div class="tip" id="tip"></div>
+<script>
+const D = /*__DATA__*/null;
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+const pct = v => v.toFixed(1).replace(/\.0$/, '') + '%';
+const fmt = v => Math.round(v).toLocaleString('en-US');
+function el(tag, attrs, parent, text) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; if (parent) parent.appendChild(e); return e; }
+const tip = $('tip');
+function hover(node, html) { node.addEventListener('mousemove', e => { tip.innerHTML = html; tip.style.opacity = 1; tip.style.left = Math.min(e.clientX + 12, innerWidth - 270) + 'px'; tip.style.top = (e.clientY + 12) + 'px'; }); node.addEventListener('mouseleave', () => tip.style.opacity = 0); }
+const W = () => Math.max(300, Math.min(1080, document.querySelector('main').clientWidth - 40));
+
+// KPI tiles
+const ten = D.segs.tenure, ot = D.segs.overtime;
+$('kpis').innerHTML = [
+  ['Attrition', pct(D.rate), `${D.leavers} of ${fmt(D.n)} employees left`],
+  ['First year', pct(ten[0].rate), `leave in their first year vs ${pct(ten[4].rate)} after 10+`],
+  ['Overtime', pct(ot[1].rate), `leave with overtime vs ${pct(ot[0].rate)} without`],
+  ['Riskiest 20%', pct(D.top20_capture), 'of all leavers found by the model']
+].map(k => `<div class="kpi"><small>${k[0]}</small><b>${k[1]}</b><span>${k[2]}</span></div>`).join('');
+
+// Segment chart
+const SEG = [['overtime','Overtime'],['tenure','Years at company'],['income','Monthly income'],['level','Job level'],['wlb','Work-life balance'],['distance','Distance from home (km)'],['travel','Business travel'],['role','Job role']];
+let cur = 'overtime';
+$('segBtns').innerHTML = SEG.map(s => `<button data-k="${s[0]}" aria-pressed="${s[0] === cur}">${s[1]}</button>`).join('');
+$('segBtns').onclick = e => { const b = e.target.closest('button'); if (!b) return; cur = b.dataset.k; [...$('segBtns').children].forEach(x => x.setAttribute('aria-pressed', x === b)); drawSeg(); };
+function hbars(svg, rows, avg, max, labelW) {
+  svg.innerHTML = ''; const w = W(), rh = 34, top = 6, h = top + rows.length * rh + 22;
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  const lw = Math.min(labelW, w * 0.42), x0 = lw + 8, x1 = w - 52, sx = v => x0 + (x1 - x0) * v / max;
+  [0, 10, 20, 30, 40, 50, 60, 70].filter(t => t <= max).forEach(t => { el('line', {x1: sx(t), x2: sx(t), y1: top, y2: h - 18, stroke: 'var(--grid)'}, svg); el('text', {x: sx(t), y: h - 4, 'text-anchor': 'middle'}, svg, t + '%'); });
+  rows.forEach((r, i) => {
+    const y = top + i * rh;
+    el('text', {x: lw, y: y + 20, 'text-anchor': 'end', class: 'lab'}, svg, r.k + (r.n != null ? ` (${fmt(r.n)})` : ''));
+    const bar = el('rect', {x: x0, y: y + 6, width: Math.max(2, sx(r.rate) - x0), height: rh - 12, rx: 4, fill: r.fill || 'var(--c1)'}, svg);
+    el('text', {x: sx(r.rate) + 6, y: y + 21, class: 'val'}, svg, pct(r.rate));
+    hover(bar, `<b>${r.k}</b><br>${pct(r.rate)} left${r.n != null ? ` · ${fmt(r.n)} people` : ''}`);
+  });
+  if (avg != null) el('line', {x1: sx(avg), x2: sx(avg), y1: top, y2: h - 18, stroke: 'var(--ink)', 'stroke-dasharray': '5 4', 'stroke-width': 2}, svg);
+}
+const SEG_TEXT = {
+  overtime: () => `People who work overtime leave at ${pct(ot[1].rate)}, three times the ${pct(ot[0].rate)} of those who don't. For a delivery business with peak hours, this is the first lever to watch.`,
+  tenure: () => `Attrition is highest at the start: ${pct(ten[0].rate)} of people in their first year leave, and ${pct(ten[1].rate)} in years one and two. Onboarding is where retention is won.`,
+  income: () => `The lowest-paid quarter leaves at ${pct(D.segs.income[0].rate)}, almost three times the top quarter (${pct(D.segs.income[3].rate)}).`,
+  level: () => `Entry-level staff leave at ${pct(D.segs.level[0].rate)}, against ${pct(D.segs.level[1].rate)} one level up. A clear first promotion step matters.`,
+  wlb: () => `People who rate their work-life balance as bad leave at ${pct(D.segs.wlb[0].rate)}, about twice the rate of the others.`,
+  distance: () => `The longer the way to work, the higher the attrition: ${pct(D.segs.distance[0].rate)} for up to 5 km, ${pct(D.segs.distance[3].rate)} for 21 km or more.`,
+  travel: () => `Frequent travellers leave at ${pct(D.segs.travel[2].rate)}, three times the ${pct(D.segs.travel[0].rate)} of people who never travel.`,
+  role: () => `Attrition ranges from ${pct(D.segs.role.at(-1).rate)} to ${pct(D.segs.role[0].rate)} by role: hands-on, entry roles lose people fastest.`
+};
+function drawSeg() { $('segIntro').textContent = SEG_TEXT[cur](); const rows = D.segs[cur]; hbars($('segChart'), rows, D.rate, Math.max(45, Math.ceil(Math.max(...rows.map(r => r.rate)) / 10) * 10), cur === 'role' ? 250 : 170); }
+
+// Group builder
+function inRange(v, s) { if (s === 'all') return true; const [a, b] = s.split('-').map(Number); return b == null ? v === a : v >= a && v <= b; }
+function drawGroup() {
+  const o = $('fOt').value, t = $('fTen').value, l = $('fLvl').value;
+  const g = D.emp.filter(e => (o === 'all' || e.ot === (o === 'yes')) && inRange(e.ten, t) && inRange(e.lvl, l));
+  const left = g.filter(e => e.left).length, rate = g.length ? left / g.length * 100 : 0;
+  $('gRate').textContent = g.length ? pct(rate) : '–';
+  $('gText').textContent = g.length ? `left: ${left} of ${fmt(g.length)} people in this group (company: ${pct(D.rate)})` : 'No employees match these filters.';
+  hbars($('gChart'), [{k: 'This group', rate, n: g.length, fill: rate > D.leavers / D.n * 100 + 0.05 ? 'var(--c2)' : 'var(--c1)'}, {k: 'Company', rate: D.rate, n: D.n, fill: 'var(--c3)'}], null, Math.max(40, Math.ceil(rate / 10) * 10), 150);
+}
+['fOt', 'fTen', 'fLvl'].forEach(id => $(id).onchange = drawGroup);
+
+// Model
+$('modelIntro').textContent = `A simple, explainable model scores every employee on how likely they are to leave. Tested with cross-validation (AUC ${D.auc.toFixed(2)}), its riskiest 20% hold ${pct(D.top20_capture)} of all leavers, and ${pct(D.top20_rate)} of that group leave, against ${pct(D.rate)} overall.`;
+function drawDec() {
+  const svg = $('decChart'); svg.innerHTML = ''; const w = Math.min(W(), 520), h = 230, l = 34, r = 10, t = 16, b = 26;
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  const ds = [...D.deciles].sort((a, b2) => a.d - b2.d), max = 80, bw = (w - l - r) / 10, sy = v => h - b - (h - b - t) * v / max;
+  [0, 20, 40, 60, 80].forEach(v => { el('line', {x1: l, x2: w - r, y1: sy(v), y2: sy(v), stroke: 'var(--grid)'}, svg); el('text', {x: l - 6, y: sy(v) + 4, 'text-anchor': 'end'}, svg, v + '%'); });
+  ds.forEach((d, i) => { const x = l + i * bw + 3; const bar = el('rect', {x, y: sy(d.rate), width: bw - 6, height: sy(0) - sy(d.rate), rx: 3, fill: d.d >= 9 ? 'var(--c2)' : 'var(--c1)'}, svg);
+    el('text', {x: x + (bw - 6) / 2, y: h - 8, 'text-anchor': 'middle'}, svg, d.d);
+    if (d.d >= 9 || d.d === 1) el('text', {x: x + (bw - 6) / 2, y: sy(d.rate) - 5, 'text-anchor': 'middle', class: 'val'}, svg, pct(d.rate));
+    hover(bar, `<b>Risk group ${d.d}</b><br>${d.leavers} of ${d.n} left (${pct(d.rate)})`); });
+}
+const FN = {'OverTime_Yes': 'Works overtime', 'OverTime_No': 'No overtime', 'BusinessTravel_Travel_Frequently': 'Travels often', 'BusinessTravel_Non-Travel': 'Never travels', 'TotalWorkingYears': 'Years of experience', 'YearsInCurrentRole': 'Years in current role', 'StockOptionLevel': 'Stock option level', 'YearsSinceLastPromotion': 'Years since promotion', 'JobSatisfaction': 'Job satisfaction', 'EnvironmentSatisfaction': 'Environment satisfaction'};
+const fname = f => FN[f] || f.replace(/^JobRole_/, 'Role: ').replace(/^Department_/, 'Dept: ').replace(/^BusinessTravel_/, 'Travel: ');
+function drawDrv() {
+  const svg = $('drvChart'); svg.innerHTML = ''; const rows = D.drivers.slice(0, 8), w = Math.min(W(), 520), rh = 28, h = rows.length * rh + 8;
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  const lw = Math.min(190, w * .46), mid = lw + (w - lw) / 2, sx = v => mid + (w - lw - 20) / 2 * v / 1;
+  el('line', {x1: mid, x2: mid, y1: 0, y2: h, stroke: 'var(--line)'}, svg);
+  rows.forEach((d, i) => { const y = i * rh + 4; el('text', {x: lw - 6, y: y + 15, 'text-anchor': 'end', class: 'lab'}, svg, fname(d.f));
+    const x = Math.min(mid, sx(d.c)); el('rect', {x, y: y + 4, width: Math.abs(sx(d.c) - mid), height: rh - 10, rx: 3, fill: d.c > 0 ? 'var(--c2)' : 'var(--c1)'}, svg); });
+}
+
+// Shift calculator
+const PROFILE = [7,8,9,10,11,12,13,14,15,16,17,18,19,20,21].map(hr => ({hr, w: [3,4,5,6,6,5,5,6,7,8,10,11,10,8,6][hr - 7]}));
+function drawShift() {
+  const ord = +$('sOrd').value, prod = +$('sProd').value, util = +$('sUtil').value / 100, flat = +$('sFlat').value;
+  $('vOrd').textContent = fmt(ord); $('vProd').textContent = prod; $('vUtil').textContent = Math.round(util * 100) + '%'; $('vFlat').textContent = flat;
+  const tw = PROFILE.reduce((s, p) => s + p.w, 0);
+  const rows = PROFILE.map(p => { const o = ord * p.w / tw; return {hr: p.hr, o, need: Math.ceil(o / (prod * util))}; });
+  const short = rows.filter(r => r.need > flat), idle = rows.reduce((s, r) => s + Math.max(0, flat - r.need), 0);
+  const needH = rows.reduce((s, r) => s + r.need, 0), flatH = flat * rows.length, peak = Math.max(...rows.map(r => r.need));
+  const svg = $('shiftChart'); svg.innerHTML = ''; const w = W(), h = 260, l = 34, r = 10, t = 14, b = 26, max = Math.max(peak, flat) * 1.15;
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  const bw = (w - l - r) / rows.length, sy = v => h - b - (h - b - t) * v / max, step = max > 40 ? 10 : 5;
+  for (let v = 0; v <= max; v += step) { el('line', {x1: l, x2: w - r, y1: sy(v), y2: sy(v), stroke: 'var(--grid)'}, svg); el('text', {x: l - 6, y: sy(v) + 4, 'text-anchor': 'end'}, svg, v); }
+  rows.forEach((d, i) => { const x = l + i * bw + 2, sh = d.need > flat;
+    const bar = el('rect', {x, y: sy(d.need), width: bw - 4, height: sy(0) - sy(d.need), rx: 3, fill: sh ? 'var(--c2)' : 'var(--c1)'}, svg);
+    if (i % (w < 520 ? 2 : 1) === 0) el('text', {x: x + (bw - 4) / 2, y: h - 8, 'text-anchor': 'middle'}, svg, d.hr + ':00');
+    hover(bar, `<b>${d.hr}:00–${d.hr + 1}:00</b><br>${fmt(d.o)} orders · ${d.need} people needed · roster ${flat}`); });
+  el('line', {x1: l, x2: w - r, y1: sy(flat), y2: sy(flat), stroke: 'var(--ink)', 'stroke-dasharray': '6 4', 'stroke-width': 2}, svg);
+  $('shiftRes').innerHTML = [
+    ['', peak, `people needed at the peak hour`],
+    [short.length ? 'warn' : '', short.length, `hours short-staffed with a flat roster of ${flat}`],
+    ['', fmt(idle), `idle person-hours a day with the flat roster`],
+    ['', fmt(needH) + ' vs ' + fmt(flatH), `person-hours needed vs rostered per day`]
+  ].map(x => `<div class="${x[0]}"><b>${x[1]}</b><span>${x[2]}</span></div>`).join('');
+}
+['sOrd', 'sProd', 'sUtil', 'sFlat'].forEach(id => $(id).oninput = drawShift);
+
+// Checks
+(function () {
+  const c = D.checks, sumSeg = k => D.segs[k].reduce((s, r) => s + r.n, 0);
+  const left = D.emp.filter(e => e.left).length;
+  const list = [
+    [c.rows === D.emp.length && c.rows === D.n, `${fmt(c.rows)} employee rows loaded, one per employee`],
+    [c.unique_ids, 'Every employee number is unique (no duplicates)'],
+    [c.missing === 0, 'No missing values in any column'],
+    [left === D.leavers, `Leavers in the raw rows (${left}) match the reported KPI (${D.leavers})`],
+    [['overtime', 'tenure', 'income', 'level', 'role'].every(k => sumSeg(k) === D.n), 'Every breakdown (overtime, tenure, income, level, role) adds up to all employees'],
+    [D.deciles.reduce((s, d) => s + d.n, 0) === D.n && D.deciles.reduce((s, d) => s + d.leavers, 0) === D.leavers, 'The ten risk groups contain every employee and every leaver exactly once'],
+    [D.emp.every(e => e.p >= 0 && e.p <= 1), 'Every risk score is a valid probability between 0 and 1']
+  ];
+  $('checks').innerHTML = list.map(([ok, t]) => `<li><span class="${ok ? 'ok' : 'no'}">${ok ? '✓' : '✗'}</span>${t}</li>`).join('');
+})();
+
+$('say').innerHTML = [
+  ['Retention is won early', `${pct(ten[0].rate)} of first-year staff leave. A 90-day early-leaver KPI by hiring month shows which locations and onboarding weeks lose people.`],
+  ['Overtime is the loudest signal', `${pct(ot[1].rate)} of people with overtime leave, against ${pct(ot[0].rate)} without. Better shift planning is also a retention tool.`],
+  ['Staff to demand, not to the average', 'A flat roster is short at the evening peak and idle at midday. Planning by hour moves the same hours to where orders arrive.']
+].map(s => `<div class="card"><h3>${s[0]}</h3><p>${s[1]}</p></div>`).join('');
+
+function drawAll() { drawSeg(); drawGroup(); drawDec(); drawDrv(); drawShift(); }
+drawAll(); let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(drawAll, 120); });
+</script>
+</body>
+</html>
