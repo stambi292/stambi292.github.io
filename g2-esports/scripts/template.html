@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>G2 Brand &amp; Data Prototype</title>
+<meta name="description" content="A prototype brand and data dashboard for G2 Esports from public data: competitive benchmark against the 25 highest-earning esports organisations, sponsorship concentration, and the brand KPIs and dashboard checks I would set up in Looker.">
+<meta name="author" content="Stephen tAMBI">
+<meta property="og:title" content="G2 Esports: Brand & Data prototype">
+<meta property="og:description" content="G2 is #11 of all esports organisations by prize money, earning more per tournament than Liquid or Fnatic. Sponsorship fell from €14.5m to €6.8m when two deals ended.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://stambi292.github.io/g2-esports/">
+<meta property="og:image" content="https://stambi292.github.io/g2-esports/images/preview.png?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: black masthead with red rule, sticky control bar, KPI tiles, ranked benchmark bars with sort/filter,
+   sponsorship concentration, revenue mix, brand KPI blueprint, Looker QA checks with live results, method. */
+:root {
+  --bg: #f5f4f4; --panel: #ffffff; --ink: #121212; --ink-2: #3d3a3a; --muted: #6c6767; --line: #e2dede; --grid: #efecec;
+  --red: #e10b1f; --red-ink: #b80818; --bar: #b9b3b3; --dark: #111111; --good: #13804a;
+  --font-display: "Archivo", "Segoe UI", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0c0c0c; --panel: #171616; --ink: #f4f1f1; --ink-2: #cfc8c8; --muted: #978e8e; --line: #2c2828; --grid: #201d1d;
+  --red: #ff3346; --red-ink: #ff6b78; --bar: #4a4444; --good: #45c985; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0c0c0c; --panel: #171616; --ink: #f4f1f1; --ink-2: #cfc8c8; --muted: #978e8e; --line: #2c2828; --grid: #201d1d;
+  --red: #ff3346; --red-ink: #ff6b78; --bar: #4a4444; --good: #45c985; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--font-body); }
+.inner { max-width: 1080px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+.mast { background: #0d0d0d; color: #fff; border-bottom: 8px solid #e10b1f; }
+.mast .inner { padding-block: 22px 40px; display: grid; gap: 12px; }
+.back { color: #c9c2c2; text-decoration: none; font-weight: 600; font-size: 15px; }
+.eyebrow { font: 600 13px var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: #ff5a68; margin-top: 14px; }
+h1 { font: 900 clamp(40px, 7.4vw, 80px)/.94 var(--font-display); margin: 0; letter-spacing: -.02em; text-transform: uppercase; }
+h1 span { display: block; font-size: .32em; line-height: 1.25; margin-top: 12px; font-weight: 700; color: #e8e2e2; letter-spacing: 0; text-transform: none; text-wrap: balance; }
+.lede { margin: 0; max-width: 70ch; color: #ddd6d6; font-size: 17px; }
+.byline { font-size: 14px; color: #b3abab; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-top: 4px solid var(--red); border-radius: 8px; padding: 14px 16px; min-width: 0; display: grid; gap: 4px; }
+.kpi:nth-child(even) { border-top-color: var(--dark); }
+.kpi small { font: 600 12px var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.kpi b { font: 900 32px/1.05 var(--font-display); font-variant-numeric: tabular-nums; }
+.kpi span { font-size: 14px; color: var(--ink-2); }
+h2 { font: 800 27px/1.15 var(--font-display); margin: 0 0 6px; text-wrap: balance; }
+h3 { font: 700 17px/1.25 var(--font-display); margin: 0; }
+.intro { margin: 0 0 16px; color: var(--ink-2); max-width: 72ch; }
+section { padding-block: 34px 4px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 14px; min-width: 0; align-content: start; }
+.note { font-size: 13.5px; color: var(--muted); margin: 0; }
+.ctl { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; font-size: 14px; }
+.ctl b { font: 600 12px var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: 600 14px var(--font-body); border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 5px 11px; border-radius: 6px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--red); border-color: var(--red); color: #fff; }
+.rank { display: grid; gap: 5px; }
+.row { display: grid; grid-template-columns: 2.2em minmax(0, 13em) minmax(0, 1fr) 6.5em; gap: 10px; align-items: center; font-size: 14.5px; }
+.row .p { font: 600 13px var(--font-mono); color: var(--muted); text-align: right; }
+.row .n { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row .t { height: 18px; }
+.row .f { height: 100%; border-radius: 0 3px 3px 0; background: var(--bar); }
+.row .v { font: 700 15px var(--font-display); text-align: right; font-variant-numeric: tabular-nums; }
+.row.g2 .n { font-weight: 700; color: var(--red-ink); } .row.g2 .f { background: var(--red); } .row.g2 .v { color: var(--red-ink); }
+.row.rv .f { background: var(--muted); }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.bars2 { display: grid; gap: 10px; }
+.b2 { display: grid; grid-template-columns: 5em minmax(0, 1fr); gap: 10px; align-items: center; font-size: 14.5px; }
+.b2 .t { height: 34px; display: flex; }
+.b2 .s { height: 100%; display: flex; align-items: center; padding-left: 8px; font: 700 14px var(--font-display); color: #fff; white-space: nowrap; overflow: hidden; }
+.mix { display: flex; height: 40px; border-radius: 6px; overflow: hidden; gap: 2px; }
+.mix div { display: flex; align-items: center; justify-content: center; font: 700 15px var(--font-display); color: #fff; }
+.legend { display: grid; gap: 4px; font-size: 14px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 8px; vertical-align: -1px; }
+.tw { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 12px var(--font-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); white-space: nowrap; }
+td:first-child { font-weight: 700; white-space: nowrap; }
+.tag { font: 600 11.5px var(--font-mono); background: var(--grid); border-radius: 4px; padding: 1px 6px; color: var(--ink-2); white-space: nowrap; }
+.checks { display: grid; gap: 8px; }
+.ck { display: grid; grid-template-columns: 1.6em minmax(0, 1fr); gap: 8px; font-size: 15px; }
+.ck i { font-style: normal; font-weight: 700; color: var(--good); }
+.reading { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.reading > div { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+.reading b.h { display: block; font: 700 19px/1.2 var(--font-display); margin-bottom: 6px; }
+.reading p { margin: 0; color: var(--ink-2); font-size: 15px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 6px 12px; font-size: 14px; font-weight: 600; }
+.method { padding-left: 20px; color: var(--ink-2); font-size: 15px; display: grid; gap: 8px; }
+.method a { color: var(--red-ink); }
+footer { padding-block: 36px 56px; font-size: 14px; color: var(--muted); }
+@media (max-width: 860px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kpi b { font-size: 27px; }
+  .two, .reading { grid-template-columns: 1fr; }
+  .row { grid-template-columns: 2em minmax(0, 1fr) 5.6em; } .row .t { grid-column: 2 / -1; grid-row: 2; }
+}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="inner">
+    <a class="back" href="../">← All projects</a>
+    <div class="eyebrow">G2 Esports · public data · brand &amp; data prototype</div>
+    <h1>G2 Brand &amp; Data<span>How G2 compares with the biggest esports organisations, where its sponsor money comes from, and the brand KPIs I would track.</span></h1>
+    <p class="lede">A prototype built from public data only. It shows the work the Brand &amp; Data role describes: gathering data, building a dashboard, checking accuracy, tracking KPIs and turning it into insights.</p>
+    <div class="byline">Stephen tAMBI · data captured <span id="cap"></span></div>
+  </div>
+</header>
+<main class="inner">
+  <div class="kpis" id="kpis"></div>
+
+  <section>
+    <h2>Competitive benchmark: prize money, all games</h2>
+    <p class="intro" id="benchIntro"></p>
+    <div class="card">
+      <div class="ctl"><b>Sort by</b><div class="seg" id="sort">
+        <button data-s="total" aria-pressed="true">Total prize money</button><button data-s="per" aria-pressed="false">Per tournament</button><button data-s="n" aria-pressed="false">Tournaments played</button></div>
+        <b>Show</b><div class="seg" id="show"><button data-f="all" aria-pressed="true">Top 25</button><button data-f="rivals" aria-pressed="false">G2 + rivals</button></div></div>
+      <div class="rank" id="rank"></div>
+      <p class="note">USD, all titles, all years. Darker grey bars are G2's main competitors for fans and sponsors. Source ranking captured on the date above.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Sponsorship: two contracts, most of the drop</h2>
+    <p class="intro" id="sponIntro"></p>
+    <div class="two">
+      <div class="card"><h3>Sponsorship revenue, G2 holding company</h3>
+        <div class="bars2" id="spon"></div>
+        <div class="legend" id="sponLeg"></div><p class="note">€ million. Ended contracts as reported with the 2024 accounts.</p></div>
+      <div class="card"><h3>Where the money comes from</h3>
+        <div class="mix" id="mix"></div><div class="legend" id="mixLeg"></div>
+        <p class="note">Share of about $35m turnover as described by G2's business model coverage; year not stated in the source.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The brand KPIs I would track in Looker</h2>
+    <p class="intro">Public data stops here. With G2's internal data, this is the first version of a brand dashboard: few KPIs, one definition each, and a check that runs before anyone sees a number.</p>
+    <div class="card"><div class="tw"><table>
+      <tr><th>KPI</th><th>Definition</th><th>Data</th><th>Cadence</th></tr>
+      <tr><td>Audience reach</td><td>Unique people reached across platforms, de-duplicated where possible</td><td><span class="tag">social APIs</span> <span class="tag">Twitch/YouTube</span></td><td>Weekly</td></tr>
+      <tr><td>Engagement rate</td><td>Interactions ÷ impressions, by platform and content type (match day vs off-season)</td><td><span class="tag">social APIs</span></td><td>Weekly</td></tr>
+      <tr><td>Follower growth</td><td>Net new followers per platform, against brand goals and against rivals</td><td><span class="tag">social APIs</span> <span class="tag">benchmark</span></td><td>Monthly</td></tr>
+      <tr><td>Share of voice</td><td>G2 mentions ÷ mentions of G2 + rivals, with sentiment</td><td><span class="tag">listening tool</span></td><td>Monthly</td></tr>
+      <tr><td>Sponsor value delivered</td><td>Logo exposure and sponsored-content reach per partner, vs contract targets</td><td><span class="tag">broadcast</span> <span class="tag">social</span> <span class="tag">CRM</span></td><td>Per campaign</td></tr>
+      <tr><td>Sponsor concentration</td><td>Share of sponsorship revenue from the top two partners: a risk signal</td><td><span class="tag">finance</span></td><td>Quarterly</td></tr>
+      <tr><td>Fan to customer</td><td>Membership and merch conversion from social traffic</td><td><span class="tag">shop</span> <span class="tag">web analytics</span></td><td>Monthly</td></tr>
+    </table></div>
+    <p class="note">A plan, not data: no internal G2 figures are used or shown on this page.</p></div>
+  </section>
+
+  <section>
+    <h2>Dashboard checks, run on this page</h2>
+    <p class="intro">For a Looker migration, every dashboard should prove its numbers before it goes live. These checks run in your browser every time this page loads.</p>
+    <div class="card"><div class="checks" id="checks"></div></div>
+  </section>
+
+  <section>
+    <h2>What the numbers say</h2>
+    <div class="reading" id="reading"></div>
+  </section>
+
+  <section>
+    <h2>Tech stack</h2>
+    <div class="chips"><span class="chip">Python</span><span class="chip">JSON</span><span class="chip">KPI design</span><span class="chip">Data validation</span><span class="chip">JavaScript</span><span class="chip">SVG/HTML</span><span class="chip">Playwright</span><span class="chip">GitHub Pages</span></div>
+  </section>
+
+  <section>
+    <h2>Method and sources</h2>
+    <ul class="method">
+      <li><b>Prize money:</b> <a href="https://esportsearnings.com/teams">Esports Earnings, highest overall team earnings</a> (top 25, all games, all years), captured on the date above. Per-tournament figure = total ÷ tournaments.</li>
+      <li><b>Sponsorship and 2024 accounts:</b> <a href="https://rft.gg/news/g2-esports-announces-a-net-profit-of-3.1m-for-2024">RFT.gg on G2's 2024 holding-company accounts</a>. Group-level revenue reported elsewhere is higher (for example <a href="https://www.sheepesports.com/en/all/articles/lucrative-cashout-of-solana-tokens-propels-g2-esports-to-historic-2024-profits/en">Sheep Esports</a>: nearly €30m), so this page only compares holding figures with holding figures.</li>
+      <li><b>Revenue mix:</b> <a href="https://esports.gg/news/esports-revenue-model-g2/">esports.gg on G2's business model</a>.</li>
+      <li>Independent analysis by Stephen tAMBI from public sources. Not affiliated with or endorsed by G2 Esports.</li>
+    </ul>
+  </section>
+</main>
+<footer class="inner">Stephen tAMBI · Data analysis · Not affiliated with G2 Esports.</footer>
+
+<script>
+const D = /*__DATA__*/null;
+const $ = id => document.getElementById(id);
+const T = D.teams.map(([n, e, t], i) => ({ n, e, t, per: e / t, r: i + 1 }));
+const G = T.find(x => x.n === 'G2 Esports');
+const RV = new Set(D.rivals);
+const usd = v => v >= 1e6 ? '$' + (v / 1e6).toFixed(1) + 'm' : '$' + (v / 1e3).toFixed(1) + 'k';
+const perRank = [...T].sort((a, b) => b.per - a.per).indexOf(G) + 1;
+const perRankRv = [...T.filter(x => RV.has(x.n) || x === G)].sort((a, b) => b.per - a.per).indexOf(G) + 1;
+const S = D.sponsorship;
+$('cap').textContent = D.captured;
+
+$('kpis').innerHTML = [
+  ['Prize money rank', '#' + G.r, 'of all esports organisations, all games'],
+  ['Prize money won', usd(G.e), `${G.t.toLocaleString('en')} tournaments`],
+  ['Per tournament', usd(G.per), `#${perRankRv} of G2 + ${D.rivals.length} rivals`],
+  ['Sponsorship 2023→24', `€${S.y2023}m → €${S.y2024}m`, `−${Math.round((1 - S.y2024 / S.y2023) * 100)}% when two deals ended`],
+].map(([a, b, c]) => `<div class="kpi"><small>${a}</small><b>${b}</b><span>${c}</span></div>`).join('');
+
+const liq = T.find(x => x.n === 'Team Liquid'), fn = T.find(x => x.n === 'Fnatic');
+$('benchIntro').textContent = `G2 ranks #${G.r} by prize money won, with ${usd(G.e)} from ${G.t} tournaments. Sort by "per tournament" and the picture changes: G2 earns ${usd(G.per)} per event, more than Team Liquid (${usd(liq.per)}) or Fnatic (${usd(fn.per)}). Fewer events, bigger results.`;
+const st = { s: 'total', f: 'all' };
+function rank() {
+  document.querySelectorAll('#sort button').forEach(b => b.setAttribute('aria-pressed', b.dataset.s === st.s));
+  document.querySelectorAll('#show button').forEach(b => b.setAttribute('aria-pressed', b.dataset.f === st.f));
+  const key = { total: x => x.e, per: x => x.per, n: x => x.t }[st.s];
+  const fmt = { total: x => usd(x.e), per: x => usd(x.per), n: x => x.t.toLocaleString('en') }[st.s];
+  let rows = T.filter(x => st.f === 'all' || RV.has(x.n) || x === G).sort((a, b) => key(b) - key(a));
+  const mx = key(rows[0]);
+  $('rank').innerHTML = rows.map((x, i) => `<div class="row ${x === G ? 'g2' : RV.has(x.n) ? 'rv' : ''}"><div class="p">${i + 1}</div><div class="n">${x.n}</div><div class="t"><div class="f" style="width:${key(x) / mx * 100}%"></div></div><div class="v">${fmt(x)}</div></div>`).join('');
+}
+document.querySelectorAll('#sort button').forEach(b => b.onclick = () => { st.s = b.dataset.s; rank(); });
+document.querySelectorAll('#show button').forEach(b => b.onclick = () => { st.f = b.dataset.f; rank(); });
+rank();
+
+const endedSum = S.ended.reduce((a, [, v]) => a + v, 0), drop = S.y2023 - S.y2024;
+$('sponIntro').textContent = `G2's holding company booked €${S.y2023}m of sponsorship in 2023 and €${S.y2024}m in 2024. Two ended contracts, ${S.ended.map(([n, v]) => `${n} (€${v}m)`).join(' and ')}, explain €${endedSum.toFixed(1)}m of the €${drop.toFixed(1)}m drop. That is a concentration risk a brand dashboard should flag early.`;
+const mxS = S.y2023;
+$('spon').innerHTML = `<div class="b2"><div>2023</div><div class="t"><div class="s" style="width:${(S.y2023 - endedSum) / mxS * 100}%;background:var(--dark)">€${(S.y2023 - endedSum).toFixed(1)}m other</div>${S.ended.map(([n, v], i) => `<div class="s" style="width:${v / mxS * 100}%;background:${i ? 'var(--red-ink)' : 'var(--red)'};margin-left:2px" title="${n}: €${v}m"></div>`).join('')}</div></div>
+  <div class="b2"><div>2024</div><div class="t"><div class="s" style="width:${S.y2024 / mxS * 100}%;background:var(--dark)">€${S.y2024}m</div></div></div>`;
+$('sponLeg').innerHTML = `<div><i style="background:var(--dark)"></i>Other sponsors</div>` + S.ended.map(([n, v], i) => `<div><i style="background:${i ? 'var(--red-ink)' : 'var(--red)'}"></i>${n}: €${v}m (ended)</div>`).join('');
+const MC = ['var(--red)', 'var(--dark)', 'var(--muted)'];
+$('mix').innerHTML = D.mix.map(([n, v], i) => `<div style="flex:${v};background:${MC[i]}" title="${n}: ${v}%">${v}%</div>`).join('');
+$('mixLeg').innerHTML = D.mix.map(([n, v], i) => `<div><i style="background:${MC[i]}"></i>${n}</div>`).join('');
+
+const ck = [];
+ck.push([T.every((x, i) => i === 0 || T[i - 1].e >= x.e), 'Source ranking is in descending order of prize money (no rows out of place).']);
+ck.push([new Set(T.map(x => x.n)).size === T.length, `No duplicate organisations among the ${T.length} rows.`]);
+ck.push([T.every(x => x.e > 0 && x.t > 0), 'Every row has positive prize money and at least one tournament.']);
+ck.push([D.rivals.every(n => T.some(x => x.n === n)), `All ${D.rivals.length} named rivals exist in the dataset (names match exactly).`]);
+ck.push([Math.abs(endedSum - S.ended.reduce((a, [, v]) => a + v, 0)) < 1e-9 && endedSum <= drop, 'Ended sponsor contracts are not larger than the reported sponsorship drop.']);
+ck.push([D.mix.reduce((a, [, v]) => a + v, 0) === 100, 'Revenue mix adds up to 100%.']);
+$('checks').innerHTML = ck.map(([ok, t]) => `<div class="ck"><i style="color:${ok ? 'var(--good)' : 'var(--red)'}">${ok ? '✓' : '✗'}</i><span>${t}</span></div>`).join('');
+
+$('reading').innerHTML = [
+  ['Quality over quantity', `G2 plays fewer events than Liquid (${liq.t.toLocaleString('en')}) or Fnatic (${fn.t.toLocaleString('en')}) but wins more per event. That is a brand story: G2 shows up to win.`],
+  ['Sponsor risk is real', `Two partners were worth €${endedSum.toFixed(1)}m. When they left, holding-company sponsorship fell by more than half. A KPI for sponsor concentration would show this coming.`],
+  ['Measure the brand, not only results', 'Competitive earnings are about 45% of turnover. The rest depends on sponsors and fans: reach, engagement and sponsor value. That is why a brand dashboard matters as much as the trophy cabinet.'],
+].map(([h, p]) => `<div><b class="h">${h}</b><p>${p}</p></div>`).join('');
+</script>
+</body>
+</html>

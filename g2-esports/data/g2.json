@@ -1,0 +1,15 @@
+{
+ "_note": "All-time prize earnings: esportsearnings.com overall team ranking, captured 15 Nov 2026 (USD, all games). Sponsorship: G2 Esports holding-company accounts for 2024 as reported by RFT.gg (2023 comparison from the same article). Revenue mix: esports.gg (share of ~USD 35m turnover, year not stated).",
+ "captured": "15 Nov 2026",
+ "teams": [
+  ["Team Liquid",57320302,2998],["OG",38837827,210],["Team Spirit",36427233,322],["Evil Geniuses",28567424,1019],
+  ["Natus Vincere",24883054,885],["Fnatic",22315558,1194],["FaZe Clan",21576307,818],["Virtus.pro",21267838,744],
+  ["Team Secret",21062101,453],["Paris Saint-Germain Esports",19810565,181],["G2 Esports",19302472,794],["All Gamers",18525988,197],
+  ["LGD Gaming",17393359,243],["Team Falcons",16302618,432],["Team Vitality",16172521,553],["T1",15992415,518],
+  ["Vici Gaming",15756479,318],["Invictus Gaming",15251360,635],["OpTic Gaming",14592124,428],["Cloud9",14497101,1104],
+  ["Newbee",14230155,236],["Tundra Esports",13890955,83],["eStar Gaming",13645684,144],["TSM",12587838,1038],["Gen.G Esports",12288733,271]
+ ],
+ "rivals": ["Team Liquid","Natus Vincere","Fnatic","FaZe Clan","Team Vitality","Team Falcons","T1","Cloud9"],
+ "sponsorship": {"y2023": 14.5, "y2024": 6.8, "ended": [["Solana", 4.5], ["CSGO ROLL", 1.5]], "revenue_2024": 16.5, "revenue_2023": 25.1, "net_2024": 3.1, "token_gain": 12.8},
+ "mix": [["Sponsorships", 45], ["Competitive earnings (prize pools, publisher revenue share, digital items)", 45], ["Diversified business (products, memberships, B2B agency)", 10]]
+}
