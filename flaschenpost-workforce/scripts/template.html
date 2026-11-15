@@ -12,34 +12,34 @@
 <meta property="og:url" content="https://stambi292.github.io/flaschenpost-workforce/">
 <meta property="og:image" content="https://stambi292.github.io/flaschenpost-workforce/images/preview.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
 :root {
-  --bg: #f2f5f7; --panel: #ffffff; --ink: #10202e; --ink-2: #3c4b58; --muted: #66737f; --line: #dbe2e8; --grid: #ecf0f3;
-  --blue: #0090d0; --navy: #12304f; --green: #5f9e2f; --c1: #0090d0; --c2: #d9472b; --c3: #9fb3c2; --good: #3d8a1f; --bad: #c43a20;
-  --font-display: "Archivo", "Segoe UI", Arial, sans-serif;
+  --bg: #f3f3f3; --panel: #ffffff; --ink: #222222; --ink-2: #444444; --muted: #6b6b6b; --line: #dddedb; --grid: #eeeeee;
+  --blue: #8fbc51; --on-blue: #1b1b1b; --link: #4f7d1f; --c1: #8fbc51; --c2: #d4462e; --c3: #a5a5a5; --good: #4f7d1f; --bad: #c0392b;
+  --font-display: "Barlow Condensed", "Arial Narrow", "Segoe UI", Arial, sans-serif;
   --font-body: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0b131a; --panel: #121e28; --ink: #eef3f7; --ink-2: #c3ced8; --muted: #8b99a6; --line: #24323f; --grid: #1a2733;
-  --blue: #3db6f0; --green: #8cc760; --c1: #3db6f0; --c2: #ff7a5c; --c3: #5d6f7e; --good: #8cc760; --bad: #ff7a5c; color-scheme: dark; } }
+  --bg: #1c1c1c; --panel: #2a2a2a; --ink: #f1f1f1; --ink-2: #d0d0d0; --muted: #9a9a9a; --line: #3d3d3d; --grid: #333333;
+  --blue: #9fcb63; --on-blue: #1b1b1b; --link: #a9d36e; --c1: #9fcb63; --c2: #ff7a5c; --c3: #6e6e6e; --good: #a9d36e; --bad: #ff7a5c; color-scheme: dark; } }
 :root[data-theme="dark"] {
-  --bg: #0b131a; --panel: #121e28; --ink: #eef3f7; --ink-2: #c3ced8; --muted: #8b99a6; --line: #24323f; --grid: #1a2733;
-  --blue: #3db6f0; --green: #8cc760; --c1: #3db6f0; --c2: #ff7a5c; --c3: #5d6f7e; --good: #8cc760; --bad: #ff7a5c; color-scheme: dark; }
+  --bg: #1c1c1c; --panel: #2a2a2a; --ink: #f1f1f1; --ink-2: #d0d0d0; --muted: #9a9a9a; --line: #3d3d3d; --grid: #333333;
+  --blue: #9fcb63; --on-blue: #1b1b1b; --link: #a9d36e; --c1: #9fcb63; --c2: #ff7a5c; --c3: #6e6e6e; --good: #a9d36e; --bad: #ff7a5c; color-scheme: dark; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--font-body); }
 .inner { max-width: 1120px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
-.mast { background: #12304f; color: #fff; border-bottom: 8px solid #7ab648; }
+.mast { background: #333333; color: #fff; border-bottom: 8px solid #8fbc51; }
 .mast .inner { padding-block: 22px 40px; display: grid; gap: 12px; }
-.back { color: #a8c8e2; text-decoration: none; font-weight: 600; font-size: 15px; }
-.eyebrow { font: 600 13px var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: #8fd0f5; margin-top: 14px; }
-h1 { font: 800 clamp(38px, 6.6vw, 72px)/.95 var(--font-display); margin: 0; letter-spacing: -.02em; }
-h1 span { display: block; font-size: .38em; line-height: 1.25; margin-top: 12px; font-weight: 700; color: #d3e6f5; letter-spacing: 0; text-wrap: balance; }
-.lede { margin: 0; max-width: 72ch; color: #dbe8f3; font-size: 17px; }
-.byline { font-size: 14px; color: #a8c8e2; }
-h2 { font: 800 26px/1.15 var(--font-display); margin: 0 0 6px; text-wrap: balance; }
-h3 { font: 700 17px/1.25 var(--font-display); margin: 0; }
+.back { color: #c9dfa8; text-decoration: none; font-weight: 600; font-size: 15px; }
+.eyebrow { font: 600 13px var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: #a8d06e; margin-top: 14px; }
+h1 { font: 800 clamp(44px, 7.4vw, 84px)/.95 var(--font-display); margin: 0; letter-spacing: -.01em; }
+h1 span { display: block; font-size: .38em; line-height: 1.25; margin-top: 12px; font-weight: 700; color: #e4e4e4; letter-spacing: 0; text-wrap: balance; }
+.lede { margin: 0; max-width: 72ch; color: #e0e0e0; font-size: 17px; }
+.byline { font-size: 14px; color: #bdbdbd; }
+h2 { font: 700 30px/1.1 var(--font-display); margin: 0 0 6px; text-wrap: balance; }
+h3 { font: 700 20px/1.2 var(--font-display); margin: 0; }
 .intro { margin: 0 0 16px; color: var(--ink-2); max-width: 72ch; }
 section { padding-block: 34px 4px; }
 .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
@@ -53,7 +53,7 @@ section { padding-block: 34px 4px; }
 .note { font-size: 13.5px; color: var(--muted); margin: 0; }
 .seg { display: flex; flex-wrap: wrap; gap: 6px; }
 .seg button { font: 600 14px var(--font-body); border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 5px 11px; border-radius: 6px; cursor: pointer; }
-.seg button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: #fff; }
+.seg button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: var(--on-blue); }
 .chart { width: 100%; height: auto; display: block; }
 .chart text { font-family: var(--font-body); font-size: 12px; fill: var(--muted); }
 .chart .lab { fill: var(--ink); font-weight: 600; }
@@ -88,7 +88,7 @@ td code { font: 500 12px var(--font-mono); background: var(--grid); border-radiu
 .stack { display: flex; flex-wrap: wrap; gap: 8px; }
 .stack span { font: 600 13px var(--font-body); border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 5px 10px; }
 .src { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 15px; display: grid; gap: 6px; }
-.src a, .intro a { color: var(--blue); }
+.src a, .intro a { color: var(--link); }
 footer { padding-block: 40px 30px; color: var(--muted); font-size: 13.5px; }
 .tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 13px; padding: 6px 9px; border-radius: 6px; opacity: 0; transition: opacity .1s; z-index: 20; max-width: 260px; }
 @media (max-width: 860px) {
