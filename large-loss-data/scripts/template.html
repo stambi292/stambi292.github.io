@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Large Loss Data Office</title>
+<meta name="description" content="A reinsurance data office prototype: 403 US billion-dollar disasters (1980–2024) collected, validated and reported, with a per-event excess-of-loss layer calculator.">
+<meta name="author" content="Stephen tAMBI">
+<meta property="og:title" content="Large Loss Data Office">
+<meta property="og:description" content="403 billion-dollar disasters, 8 validation checks, one reporting app and an excess-of-loss layer calculator. 19 events a year now vs 3.7 in the 1980s.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://stambi292.github.io/large-loss-data/">
+<meta property="og:image" content="https://stambi292.github.io/large-loss-data/images/preview.png?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+:root {
+  --bg: #f4f6fa; --panel: #ffffff; --ink: #0f1b2d; --ink-2: #3b4a5e; --muted: #64728a; --line: #d9e0ea; --grid: #edf1f6;
+  --blue: #003781; --mid: #0a6ebd; --c2: #c7362a; --soft: #9db3cf; --good: #1d7a43; --bad: #c7362a;
+  --font: "IBM Plex Sans", "Segoe UI", Arial, sans-serif; --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0b1220; --panel: #121c2e; --ink: #edf2f9; --ink-2: #c4cfdf; --muted: #8a98ad; --line: #24324a; --grid: #1a263a;
+  --blue: #6aa6ff; --mid: #4fb0ff; --c2: #ff7a6b; --soft: #3b5170; --good: #6fd08c; --bad: #ff7a6b; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0b1220; --panel: #121c2e; --ink: #edf2f9; --ink-2: #c4cfdf; --muted: #8a98ad; --line: #24324a; --grid: #1a263a;
+  --blue: #6aa6ff; --mid: #4fb0ff; --c2: #ff7a6b; --soft: #3b5170; --good: #6fd08c; --bad: #ff7a6b; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--font); }
+.inner { max-width: 1120px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+.mast { background: #003781; color: #fff; }
+.mast .inner { padding-block: 22px 40px; display: grid; gap: 12px; }
+.back { color: #b9cdee; text-decoration: none; font-weight: 600; font-size: 15px; }
+.eyebrow { font: 600 13px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #9fc2f5; margin-top: 12px; }
+h1 { font: 700 clamp(36px, 6vw, 64px)/1 var(--font); margin: 0; letter-spacing: -.02em; }
+.lede { margin: 0; max-width: 72ch; color: #dbe6f7; font-size: 17px; }
+.byline { font-size: 14px; color: #b9cdee; }
+h2 { font: 700 26px/1.2 var(--font); margin: 0 0 6px; text-wrap: balance; }
+h3 { font: 600 17px/1.3 var(--font); margin: 0; }
+.intro { margin: 0 0 16px; color: var(--ink-2); max-width: 72ch; }
+section { padding-block: 34px 0; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 3px; min-width: 0; }
+.kpi small { font: 600 12px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.kpi b { font: 700 30px/1.1 var(--font); font-variant-numeric: tabular-nums; color: var(--blue); }
+.kpi span { font-size: 14px; color: var(--ink-2); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 14px; min-width: 0; align-content: start; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.note { font-size: 13.5px; color: var(--muted); margin: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button { font: 600 14px var(--font); border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 5px 11px; border-radius: 999px; cursor: pointer; }
+.chips button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: #fff; }
+.ctrls { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 16px; }
+.ctrl { display: grid; gap: 3px; font-size: 14px; color: var(--ink-2); min-width: 0; }
+.ctrl b { font: 700 18px var(--font); color: var(--ink); font-variant-numeric: tabular-nums; }
+.ctrl input { width: 100%; accent-color: var(--blue); }
+.res { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.res div { border-left: 4px solid var(--blue); padding: 3px 0 3px 12px; min-width: 0; }
+.res b { display: block; font: 700 22px var(--font); font-variant-numeric: tabular-nums; }
+.res span { font-size: 13.5px; color: var(--ink-2); }
+.chart { width: 100%; height: auto; display: block; }
+.chart text { font-family: var(--font); font-size: 12px; fill: var(--muted); }
+.chart .lab { fill: var(--ink); font-weight: 600; }
+.tw { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 12px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); white-space: nowrap; }
+td.n, th.n { text-align: right; white-space: nowrap; }
+td code { font: 500 12.5px var(--mono); background: var(--grid); border-radius: 4px; padding: 1px 5px; }
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.checks li { display: flex; gap: 10px; align-items: baseline; }
+.ok { color: var(--good); font-weight: 700; } .no { color: var(--bad); font-weight: 700; }
+.say { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.say .card p { margin: 0; color: var(--ink-2); font-size: 15px; }
+.stack { display: flex; flex-wrap: wrap; gap: 8px; }
+.stack span { font: 600 13px var(--font); border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 5px 10px; }
+.src { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 15px; display: grid; gap: 6px; }
+.src a { color: var(--mid); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13.5px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+footer { padding-block: 40px 30px; color: var(--muted); font-size: 13.5px; }
+.tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 13px; padding: 6px 9px; border-radius: 6px; opacity: 0; transition: opacity .1s; z-index: 20; max-width: 280px; }
+@media (max-width: 860px) { .kpis, .res, .ctrls { grid-template-columns: repeat(2, minmax(0, 1fr)); } .grid2, .say { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 420px) { .kpi b { font-size: 24px; } }
+</style>
+</head>
+<body>
+<header class="mast"><div class="inner">
+  <a class="back" href="../">← All projects</a>
+  <div class="eyebrow">Reinsurance · data office · prototype</div>
+  <h1>Large Loss Data Office</h1>
+  <p class="lede">The work of a reinsurance data office in one page: collect large-loss events, validate them before anyone uses them, report them by peril and year, and see what they mean for an excess-of-loss layer. Built on NOAA's public list of 403 US billion-dollar disasters, 1980–2024.</p>
+  <div class="byline">Stephen tAMBI · prototype for a data office internship</div>
+</div></header>
+
+<main class="inner">
+  <div class="kpis" id="kpis"></div>
+
+  <section>
+    <h2>1. Collect and validate</h2>
+    <p class="intro">Before a loss reaches a report it passes the same checks every time. These run in your browser on every page load; the data dictionary says what each field must look like.</p>
+    <div class="grid2">
+      <div class="card"><h3>Validation log</h3><ul class="checks" id="checks"></ul></div>
+      <div class="card tw"><h3>Data dictionary</h3><table>
+        <thead><tr><th>Field</th><th>Type</th><th>Rule</th></tr></thead>
+        <tbody>
+          <tr><td><code>name</code></td><td>Text</td><td>Required; unique with dates</td></tr>
+          <tr><td><code>peril</code></td><td>Category</td><td>One of 7 perils</td></tr>
+          <tr><td><code>begin_date</code> / <code>end_date</code></td><td>Date</td><td>Valid; end ≥ begin</td></tr>
+          <tr><td><code>loss_cpi_usd_m</code></td><td>Number</td><td>≥ 1,000 ($1bn) and ≥ original loss</td></tr>
+          <tr><td><code>loss_original_usd_m</code></td><td>Number</td><td>&gt; 0</td></tr>
+          <tr><td><code>deaths</code></td><td>Integer</td><td>≥ 0</td></tr>
+        </tbody></table></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Report</h2>
+    <p class="intro" id="repIntro"></p>
+    <div class="card">
+      <div class="chips" id="perils" role="group" aria-label="Perils"></div>
+      <div class="ctrls">
+        <label class="ctrl">From<b id="vFrom"></b><input id="sFrom" type="range" min="1980" max="2024" value="1980"></label>
+        <label class="ctrl">To<b id="vTo"></b><input id="sTo" type="range" min="1980" max="2024" value="2024"></label>
+      </div>
+      <div class="res" id="repRes"></div>
+      <svg class="chart" id="yearChart" role="img" aria-label="Loss per year"></svg>
+      <div class="legend"><span><i style="background:var(--blue)"></i>Loss per year, $bn (2024 dollars)</span></div>
+    </div>
+    <div class="grid2" style="margin-top:14px">
+      <div class="card"><h3>Loss by peril</h3><svg class="chart" id="perilChart" role="img" aria-label="Loss by peril"></svg></div>
+      <div class="card tw"><h3>Ten largest events</h3><table><thead><tr><th>Event</th><th class="n">Loss $bn</th></tr></thead><tbody id="top"></tbody></table></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>3. What it means for a reinsurance layer</h2>
+    <p class="intro">A per-event excess-of-loss layer pays the part of each event's insured loss above the attachment, up to the limit. Only a share of economic loss is insured, so set that share first. The perils and years chosen above apply here too.</p>
+    <div class="card">
+      <div class="ctrls">
+        <label class="ctrl">Insured share of loss<b id="vSh"></b><input id="sSh" type="range" min="20" max="80" step="5" value="45"></label>
+        <label class="ctrl">Attachment ($bn insured)<b id="vAtt"></b><input id="sAtt" type="range" min="1" max="60" step="1" value="10"></label>
+        <label class="ctrl">Limit ($bn)<b id="vLim"></b><input id="sLim" type="range" min="1" max="60" step="1" value="20"></label>
+        <label class="ctrl">Inflation-adjusted<b>2024 $</b><span style="font-size:13px">NOAA CPI-adjusted losses</span></label>
+      </div>
+      <div class="res" id="layRes"></div>
+      <svg class="chart" id="layChart" role="img" aria-label="Loss to layer per year"></svg>
+      <div class="legend"><span><i style="background:var(--c2)"></i>Paid by the layer, $bn per year</span></div>
+      <p class="note">Illustrative: NOAA counts economic losses, not insured losses, and US events only. A real data office would use the entities' reported insured and ceded losses.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>4. Where an AI agent helps, and where a person checks</h2>
+    <div class="card tw"><table>
+      <thead><tr><th>Step</th><th>AI agent</th><th>Person</th></tr></thead>
+      <tbody>
+        <tr><td><b>Intake</b></td><td>Reads entity submissions (spreadsheets, emails) and maps them to the data dictionary</td><td>Approves new mappings</td></tr>
+        <tr><td><b>Validation</b></td><td>Runs the checks, explains each failure in plain words, suggests the likely fix</td><td>Decides on fixes; contacts the entity</td></tr>
+        <tr><td><b>Classification</b></td><td>Assigns peril and event from free-text descriptions</td><td>Reviews low-confidence cases</td></tr>
+        <tr><td><b>Questions</b></td><td>Answers "largest flood losses since 2015?" from the validated table only, with the query shown</td><td>Owns the numbers in official reports</td></tr>
+      </tbody></table></div>
+  </section>
+
+  <section>
+    <h2>What the numbers say</h2>
+    <div class="say" id="say"></div>
+  </section>
+
+  <section>
+    <h2>Tech stack</h2>
+    <div class="stack"><span>Python</span><span>pandas</span><span>Data validation</span><span>Data dictionary</span><span>JavaScript</span><span>SVG</span><span>Excess-of-loss maths</span></div>
+  </section>
+
+  <section>
+    <h2>Method and sources</h2>
+    <ul class="src">
+      <li>Data: <a href="https://www.ncei.noaa.gov/access/billions/">NOAA NCEI, U.S. Billion-Dollar Weather and Climate Disasters</a>, events 1980–2024 (the final release), losses in millions of US dollars, CPI-adjusted to 2024.</li>
+      <li>More events per year partly reflects more property in harm's way and the fixed $1bn threshold, not only more extreme weather.</li>
+      <li>Layer maths: layer loss = min(limit, max(0, insured loss − attachment)) per event, with insured loss = economic loss × insured share.</li>
+      <li>Independent prototype by Stephen tAMBI from public data. Not affiliated with or endorsed by any insurer or reinsurer.</li>
+    </ul>
+  </section>
+</main>
+<footer class="inner">Stephen tAMBI · Data analysis · Built from public data</footer>
+<div class="tip" id="tip"></div>
+<script>
+const D = /*__DATA__*/null;
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+function el(t, a, p, x) { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (x != null) e.textContent = x; if (p) p.appendChild(e); return e; }
+const tip = $('tip');
+function hover(n, h) { n.addEventListener('mousemove', e => { tip.innerHTML = h; tip.style.opacity = 1; tip.style.left = Math.min(e.clientX + 12, innerWidth - 290) + 'px'; tip.style.top = (e.clientY + 12) + 'px'; }); n.addEventListener('mouseleave', () => tip.style.opacity = 0); }
+const bn = m => (m / 1000).toLocaleString('en-US', {maximumFractionDigits: m >= 100000 ? 0 : 1});
+const W = () => Math.max(300, Math.min(1080, document.querySelector('main').clientWidth - 40));
+const E = D.events, PER = [...new Set(E.map(e => e.p))].sort((a, b) => E.filter(x => x.p === b).reduce((s, x) => s + x.l, 0) - E.filter(x => x.p === a).reduce((s, x) => s + x.l, 0));
+let on = new Set(PER);
+const yrs = (a, b) => Array.from({length: b - a + 1}, (_, i) => a + i);
+const sumL = arr => arr.reduce((s, e) => s + e.l, 0);
+// KPIs
+const c80 = E.filter(e => e.y <= 1989).length / 10, c15 = E.filter(e => e.y >= 2015).length / 10;
+const tc = sumL(E.filter(e => e.p === 'Tropical Cyclone')) / sumL(E) * 100;
+$('kpis').innerHTML = [
+  ['Events', E.length, `billion-dollar disasters, ${D.years[0]}–${D.years[1]}`],
+  ['Total loss', '$' + bn(sumL(E)) + 'bn', 'in 2024 dollars'],
+  ['Per year now', c15.toFixed(0), `events a year 2015–24 vs ${c80.toFixed(1)} in the 1980s`],
+  ['Hurricanes', tc.toFixed(0) + '%', `of all losses from ${E.filter(e => e.p === 'Tropical Cyclone').length} events`]
+].map(k => `<div class="kpi"><small>${k[0]}</small><b>${k[1]}</b><span>${k[2]}</span></div>`).join('');
+$('checks').innerHTML = D.checks.map(c => `<li><span class="${c.ok ? 'ok' : 'no'}">${c.ok ? '✓' : '✗'}</span>${c.t}</li>`).join('') +
+  `<li><span class="ok">✓</span>${D.rows} rows read, ${E.length} events stored</li>`;
+$('perils').innerHTML = PER.map(p => `<button data-p="${p}" aria-pressed="true">${p}</button>`).join('');
+$('perils').onclick = e => { const b = e.target.closest('button'); if (!b) return; const p = b.dataset.p; on.has(p) && on.size > 1 ? on.delete(p) : on.add(p); b.setAttribute('aria-pressed', on.has(p)); draw(); };
+['sFrom', 'sTo', 'sSh', 'sAtt', 'sLim'].forEach(id => $(id).oninput = draw);
+function bars(svg, labels, vals, color, fmtTip, every) {
+  svg.innerHTML = ''; const w = W(), h = 240, l = 46, r = 8, t = 10, b = 24, max = Math.max(...vals, 1) * 1.1;
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`); const bw = (w - l - r) / vals.length, sy = v => h - b - (h - b - t) * v / max;
+  const step = Math.pow(10, Math.floor(Math.log10(max / 4))), tick = Math.ceil(max / 4 / step) * step;
+  for (let v = 0; v <= max; v += tick) { el('line', {x1: l, x2: w - r, y1: sy(v), y2: sy(v), stroke: 'var(--grid)'}, svg); el('text', {x: l - 6, y: sy(v) + 4, 'text-anchor': 'end'}, svg, v.toLocaleString('en-US')); }
+  vals.forEach((v, i) => { const x = l + i * bw + 1; const rct = el('rect', {x, y: sy(v), width: Math.max(1, bw - 2), height: sy(0) - sy(v), rx: 2, fill: color}, svg); hover(rct, fmtTip(i));
+    if (i % every === 0) el('text', {x: x + bw / 2, y: h - 6, 'text-anchor': 'middle'}, svg, labels[i]); });
+}
+function draw() {
+  let a = +$('sFrom').value, b = +$('sTo').value; if (a > b) [a, b] = [b, a];
+  $('vFrom').textContent = a; $('vTo').textContent = b;
+  const sel = E.filter(e => on.has(e.p) && e.y >= a && e.y <= b), Y = yrs(a, b), n = Y.length;
+  const per = Y.map(y => sel.filter(e => e.y === y)), tot = sumL(sel);
+  $('repIntro').textContent = `${sel.length} events from ${a} to ${b} cost $${bn(tot)}bn. Click perils to switch them on or off; move the years to narrow the report.`;
+  $('repRes').innerHTML = [[sel.length, 'events'], ['$' + bn(tot) + 'bn', 'total loss'], ['$' + bn(tot / n) + 'bn', 'average per year'], [(sel.length / n).toFixed(1), 'events per year']]
+    .map(r => `<div><b>${r[0]}</b><span>${r[1]}</span></div>`).join('');
+  const every = n > 30 ? 5 : n > 12 ? 2 : 1;
+  bars($('yearChart'), Y, per.map(p => sumL(p) / 1000), 'var(--blue)', i => `<b>${Y[i]}</b><br>${per[i].length} events · $${bn(sumL(per[i]))}bn`, every);
+  // peril chart
+  const svg = $('perilChart'); svg.innerHTML = ''; const pv = PER.map(p => ({p, v: sumL(sel.filter(e => e.p === p)), c: sel.filter(e => e.p === p).length})).filter(x => x.c);
+  const w = Math.min(W(), 520), rh = 30, h = pv.length * rh + 6, lw = 120, max = Math.max(...pv.map(x => x.v), 1);
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  pv.forEach((x, i) => { const y = i * rh + 3; el('text', {x: lw - 6, y: y + 18, 'text-anchor': 'end', class: 'lab'}, svg, x.p);
+    const r = el('rect', {x: lw, y: y + 5, width: Math.max(2, (w - lw - 70) * x.v / max), height: rh - 10, rx: 3, fill: 'var(--blue)'}, svg);
+    el('text', {x: lw + (w - lw - 70) * x.v / max + 6, y: y + 19, class: 'lab'}, svg, '$' + bn(x.v) + 'bn'); hover(r, `<b>${x.p}</b><br>${x.c} events · $${bn(x.v)}bn`); });
+  $('top').innerHTML = [...sel].sort((p, q) => q.l - p.l).slice(0, 10).map(e => `<tr><td>${e.n}<br><span class="note">${e.p}</span></td><td class="n">${bn(e.l)}</td></tr>`).join('');
+  // layer
+  const sh = +$('sSh').value / 100, att = +$('sAtt').value * 1000, lim = +$('sLim').value * 1000;
+  $('vSh').textContent = Math.round(sh * 100) + '%'; $('vAtt').textContent = '$' + att / 1000 + 'bn'; $('vLim').textContent = '$' + lim / 1000 + 'bn';
+  const lay = e => Math.min(lim, Math.max(0, e.l * sh - att));
+  const hits = sel.filter(e => lay(e) > 0), ly = Y.map(y => sel.filter(e => e.y === y).reduce((s, e) => s + lay(e), 0));
+  const yearsHit = ly.filter(v => v > 0).length, full = hits.filter(e => lay(e) >= lim).length, eal = ly.reduce((s, v) => s + v, 0) / n;
+  $('layRes').innerHTML = [[hits.length, `events reach the layer`], [`${yearsHit} of ${n}`, 'years with a payment'], [full, 'events use the full limit'], ['$' + bn(eal) + 'bn', 'average paid per year']]
+    .map(r => `<div><b>${r[0]}</b><span>${r[1]}</span></div>`).join('');
+  bars($('layChart'), Y, ly.map(v => v / 1000), 'var(--c2)', i => `<b>${Y[i]}</b><br>Layer pays $${bn(ly[i])}bn` + (ly[i] ? '<br>' + sel.filter(e => e.y === Y[i] && lay(e) > 0).map(e => e.n).join('<br>') : ''), every);
+}
+const big5 = [...E].sort((a, b) => b.l - a.l).slice(0, 5);
+$('say').innerHTML = [
+  ['Frequency is up more than five times', `${c15.toFixed(0)} billion-dollar events a year in 2015–24 against ${c80.toFixed(1)} in the 1980s. Part of that is more property in harm's way, part is weather.`],
+  ['Severity sits in a few storms', `The five largest events, all hurricanes led by ${big5[0].n.replace(/ \(.*/, '')}, cost $${bn(sumL(big5))}bn: ${(sumL(big5) / sumL(E) * 100).toFixed(0)}% of 45 years of losses.`],
+  ['Clean data before clever models', 'Every report and every layer price depends on the same validated table. That is why validation runs first and runs every time.']
+].map(s => `<div class="card"><h3>${s[0]}</h3><p>${s[1]}</p></div>`).join('');
+draw(); let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(draw, 120); });
+</script>
+</body>
+</html>
