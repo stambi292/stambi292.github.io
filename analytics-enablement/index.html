@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Analytics Enablement Kit</title>
+<meta name="description" content="Data stewardship, dashboard enablement and AI adoption on one page: Coty's FY25 net revenue reconciled across segment and region views, a KPI dictionary, a dashboard with onboarding, and a tested prompt library for AI tools.">
+<meta name="author" content="Stephen tAMBI">
+<meta property="og:title" content="Analytics Enablement Kit">
+<meta property="og:description" content="Reconcile, define, explain, then let AI answer. Coty FY25: $5.9bn net revenue, EMEA the only growing region (+1%), Prestige margin 20% vs Consumer Beauty 4%.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://stambi292.github.io/analytics-enablement/">
+<meta property="og:image" content="https://stambi292.github.io/analytics-enablement/images/preview.png?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+:root {
+  --bg: #f6f5f2; --panel: #ffffff; --ink: #111a2e; --ink-2: #3d465a; --muted: #6a7182; --line: #e2dfd8; --grid: #efede8;
+  --navy: #0b1f44; --gold: #a57f3f; --c1: #0b1f44; --c2: #b8a27a; --good: #1d7a43; --bad: #c0392b;
+  --font: "IBM Plex Sans", "Segoe UI", Arial, sans-serif; --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0c111d; --panel: #141b2b; --ink: #eef1f7; --ink-2: #c7cddb; --muted: #8d95a8; --line: #273148; --grid: #1b2336;
+  --navy: #8fb0ff; --gold: #d8b77a; --c1: #8fb0ff; --c2: #6b5a3c; --good: #6fd08c; --bad: #ff7a6b; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0c111d; --panel: #141b2b; --ink: #eef1f7; --ink-2: #c7cddb; --muted: #8d95a8; --line: #273148; --grid: #1b2336;
+  --navy: #8fb0ff; --gold: #d8b77a; --c1: #8fb0ff; --c2: #6b5a3c; --good: #6fd08c; --bad: #ff7a6b; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--font); }
+.inner { max-width: 1100px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+.mast { background: #0b1f44; color: #fff; border-bottom: 6px solid #a57f3f; }
+.mast .inner { padding-block: 22px 40px; display: grid; gap: 12px; }
+.back { color: #c3cfe8; text-decoration: none; font-weight: 600; font-size: 15px; }
+.eyebrow { font: 600 13px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #dcc08c; margin-top: 12px; }
+h1 { font: 700 clamp(36px, 6vw, 62px)/1.02 var(--font); margin: 0; letter-spacing: -.02em; }
+.lede { margin: 0; max-width: 72ch; color: #dde4f2; font-size: 17px; }
+.byline { font-size: 14px; color: #c3cfe8; }
+h2 { font: 700 26px/1.2 var(--font); margin: 0 0 6px; text-wrap: balance; }
+h2 small { display: block; font: 600 13px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+h3 { font: 600 17px/1.3 var(--font); margin: 0; }
+.intro { margin: 0 0 16px; color: var(--ink-2); max-width: 72ch; }
+section { padding-block: 34px 0; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--gold); border-radius: 8px; padding: 14px 16px; display: grid; gap: 3px; min-width: 0; }
+.kpi small { font: 600 12px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.kpi b { font: 700 30px/1.1 var(--font); font-variant-numeric: tabular-nums; color: var(--navy); }
+.kpi span { font-size: 14px; color: var(--ink-2); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 14px; min-width: 0; align-content: start; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.note { font-size: 13.5px; color: var(--muted); margin: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button { font: 600 14px var(--font); border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 5px 12px; border-radius: 999px; cursor: pointer; }
+.chips button[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: var(--bg); }
+.tw { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 12px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); white-space: nowrap; }
+td.n, th.n { text-align: right; white-space: nowrap; }
+tr.tot td { font-weight: 700; border-top: 2px solid var(--ink); }
+td.diff.bad { color: var(--bad); font-weight: 700; } td.diff.ok { color: var(--good); font-weight: 700; }
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.checks li { display: flex; gap: 10px; align-items: baseline; }
+.ok { color: var(--good); font-weight: 700; } .no { color: var(--bad); font-weight: 700; }
+.esc { border-left: 4px solid var(--bad); background: var(--grid); padding: 12px 14px; border-radius: 6px; font-size: 14.5px; }
+.esc[hidden] { display: none; }
+.toggle { display: flex; align-items: center; gap: 10px; font-size: 14.5px; color: var(--ink-2); }
+.toggle input { width: 18px; height: 18px; accent-color: var(--bad); }
+.chart { width: 100%; height: auto; display: block; }
+.chart text { font-family: var(--font); font-size: 12px; fill: var(--muted); }
+.chart .lab { fill: var(--ink); font-weight: 600; }
+.chart .val { fill: var(--ink); font-weight: 700; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13.5px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.steps { list-style: none; counter-reset: s; margin: 0; padding: 0; display: grid; gap: 10px; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; font-size: 15px; color: var(--ink-2); }
+.steps li::before { content: counter(s); font: 700 15px var(--mono); color: var(--bg); background: var(--gold); border-radius: 50%; width: 26px; height: 26px; display: grid; place-items: center; }
+.steps b { color: var(--ink); }
+details { border-bottom: 1px solid var(--line); padding: 8px 0; }
+summary { cursor: pointer; font-weight: 600; }
+details p { margin: 6px 0 0; color: var(--ink-2); font-size: 15px; }
+.prompt { font: 500 14px var(--mono); background: var(--grid); border-radius: 6px; padding: 8px 10px; }
+.btn { font: 600 14px var(--font); border: 1px solid var(--navy); background: var(--panel); color: var(--navy); border-radius: 6px; padding: 5px 12px; cursor: pointer; justify-self: start; }
+.answer { font-size: 15px; color: var(--ink); background: var(--panel); border-left: 4px solid var(--good); padding: 6px 12px; }
+.answer[hidden] { display: none; }
+.say { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.say .card p { margin: 0; color: var(--ink-2); font-size: 15px; }
+.stack { display: flex; flex-wrap: wrap; gap: 8px; }
+.stack span { font: 600 13px var(--font); border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 5px 10px; }
+.src { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 15px; display: grid; gap: 6px; }
+.src a { color: var(--gold); }
+footer { padding-block: 40px 30px; color: var(--muted); font-size: 13.5px; }
+.tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 13px; padding: 6px 9px; border-radius: 6px; opacity: 0; transition: opacity .1s; z-index: 20; }
+@media (max-width: 860px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .grid2, .say { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 420px) { .kpi b { font-size: 24px; } }
+</style>
+</head>
+<body>
+<header class="mast"><div class="inner">
+  <a class="back" href="../">← All projects</a>
+  <div class="eyebrow">Data stewardship · dashboard enablement · AI adoption</div>
+  <h1>Analytics Enablement Kit</h1>
+  <p class="lede">Before a dashboard helps anyone decide, its numbers have to reconcile, its KPIs need one definition, users need to know how to read it, and AI tools need answers they can be checked against. This kit does all four on one real example: a global beauty company's FY25 net revenue.</p>
+  <div class="byline">Stephen tAMBI · prototype for an analytics internship</div>
+</div></header>
+
+<main class="inner">
+  <div class="kpis" id="kpis"></div>
+
+  <section>
+    <h2><small>Step 1 · Data stewardship</small>Reconcile before you report</h2>
+    <p class="intro">The same revenue arrives in two views: by segment and by region. Both must add up to the reported total, and every reported growth rate must match the numbers. Switch on the error to see what an escalation looks like.</p>
+    <div class="grid2">
+      <div class="card tw">
+        <div class="chips" id="view" role="group" aria-label="View"><button data-v="segment" aria-pressed="true">By segment</button><button data-v="region" aria-pressed="false">By region</button></div>
+        <table><thead><tr><th>Line</th><th class="n">FY24 $m</th><th class="n">FY25 $m</th><th class="n">Reported %</th><th class="n">Check</th></tr></thead><tbody id="rec"></tbody></table>
+        <label class="toggle"><input type="checkbox" id="err"> Simulate a data-entry error (EMEA FY25 typed as 2,181.8)</label>
+      </div>
+      <div class="card"><h3>Data quality log</h3><ul class="checks" id="checks"></ul>
+        <div class="esc" id="esc" hidden></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><small>Step 2 · Documentation</small>One definition per KPI</h2>
+    <p class="intro">A data dictionary stops two teams reporting two different "growth" numbers for the same market.</p>
+    <div class="card tw"><table>
+      <thead><tr><th>KPI</th><th>Definition</th><th>Source</th><th>Watch out</th></tr></thead>
+      <tbody>
+        <tr><td><b>Net revenue</b></td><td>Gross sales minus returns, discounts and trade allowances</td><td>Finance close, monthly</td><td>Not the same as sell-out at retailers</td></tr>
+        <tr><td><b>Reported growth</b></td><td>(This year − last year) ÷ last year, in reporting currency</td><td>Derived</td><td>Includes currency moves and disposals</td></tr>
+        <tr><td><b>LFL growth</b></td><td>Growth excluding currency effects, acquisitions and divestitures</td><td>Finance, adjusted</td><td>The number to compare markets with</td></tr>
+        <tr><td><b>Adjusted operating income</b></td><td>Operating income before one-off and non-cash items</td><td>Finance, adjusted</td><td>Definition set by finance; never recompute locally</td></tr>
+        <tr><td><b>Adjusted operating margin</b></td><td>Adjusted operating income ÷ net revenue</td><td>Derived</td><td>Compare within a segment, not across</td></tr>
+      </tbody></table></div>
+  </section>
+
+  <section>
+    <h2><small>Step 3 · Dashboard enablement</small>A dashboard a new user can read in a minute</h2>
+    <div class="grid2">
+      <div class="card">
+        <div class="chips" id="dview" role="group" aria-label="Dashboard view"><button data-v="region" aria-pressed="true">Region</button><button data-v="segment" aria-pressed="false">Segment</button></div>
+        <svg class="chart" id="bars" role="img" aria-label="Net revenue FY24 and FY25"></svg>
+        <div class="legend"><span><i style="background:var(--c2)"></i>FY24</span><span><i style="background:var(--c1)"></i>FY25</span></div>
+        <svg class="chart" id="margin" role="img" aria-label="Adjusted operating margin by segment"></svg>
+      </div>
+      <div class="card">
+        <h3>Onboarding: read it in 60 seconds</h3>
+        <ol class="steps">
+          <li><span><b>Start with the total.</b> $5.9bn, down 4% reported but only 2% like-for-like: currency and portfolio changes explain about half the fall.</span></li>
+          <li><span><b>Switch to Region.</b> EMEA is the only region that grew (+1%), and it is the largest.</span></li>
+          <li><span><b>Switch to Segment.</b> Consumer Beauty shrank 8%; Prestige held almost flat.</span></li>
+          <li><span><b>Read the margin.</b> Prestige earns 20 cents per dollar, Consumer Beauty 4: the profit sits in Prestige.</span></li>
+        </ol>
+        <h3>Knowledge base</h3>
+        <details><summary>Why does reported growth differ from LFL?</summary><p>Reported growth includes currency moves and portfolio changes. LFL strips them out, so use LFL to judge a market's real performance.</p></details>
+        <details><summary>Why do region and segment views give the same total?</summary><p>They slice the same net revenue two ways. If they ever differ, the data quality log flags it before the dashboard refreshes.</p></details>
+        <details><summary>Who do I ask about a number?</summary><p>The KPI's source owner in the data dictionary; analytics escalates data issues, finance owns adjusted definitions.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><small>Step 4 · AI adoption</small>A prompt library with answers you can check</h2>
+    <p class="intro">Before a team trusts Power BI Copilot or a Genie space, test it on questions where the right answer is already known. Each prompt below comes with the answer from the reconciled data; any AI tool that disagrees fails the test.</p>
+    <div class="card" id="prompts"></div>
+    <div class="card tw" style="margin-top:14px"><h3>How to score an AI analytics tool</h3><table>
+      <thead><tr><th>Criterion</th><th>Pass when</th></tr></thead>
+      <tbody>
+        <tr><td><b>Accuracy</b></td><td>Matches the checked answer on all prompts in the library</td></tr>
+        <tr><td><b>Definitions</b></td><td>Uses the data dictionary's meaning (e.g. LFL, not reported, when asked about market performance)</td></tr>
+        <tr><td><b>Traceability</b></td><td>Shows which table and filter it used, so an analyst can verify in one step</td></tr>
+        <tr><td><b>Honesty</b></td><td>Says "not in the data" instead of inventing a number</td></tr>
+      </tbody></table></div>
+  </section>
+
+  <section>
+    <h2>What the numbers say</h2>
+    <div class="say" id="say"></div>
+  </section>
+
+  <section>
+    <h2>Tech stack</h2>
+    <div class="stack"><span>Data quality checks</span><span>Reconciliation</span><span>Data dictionary</span><span>Dashboard design</span><span>Prompt testing</span><span>JavaScript</span><span>SVG</span></div>
+  </section>
+
+  <section>
+    <h2>Method and sources</h2>
+    <ul class="src">
+      <li>Figures: Coty Inc., <a href="https://www.businesswire.com/news/home/20250820603162/en/">FY25 and Q4 results release</a>, 20 August 2025, net revenues and adjusted operating income for the twelve months to 30 June; cross-checked against the same release filed with the French AMF.</li>
+      <li>Reported % is recomputed from the figures and compared, rounded to whole percent, with the published value. LFL % is taken as published.</li>
+      <li>KPI definitions are general industry definitions written for this prototype, not company policy.</li>
+      <li>Independent prototype by Stephen tAMBI from public data. Not affiliated with or endorsed by Coty.</li>
+    </ul>
+  </section>
+</main>
+<footer class="inner">Stephen tAMBI · Data analysis · Built from public data</footer>
+<div class="tip" id="tip"></div>
+<script>
+const D = {"source":"Coty Inc. FY25 results release, 20 Aug 2025 (Business Wire; AMF filing FCBWR164325)","unit":"USD millions","years":["FY24","FY25"],"reported_total":{"FY24":6118.0,"FY25":5892.9},"segment":{"Prestige":{"FY24":3857.3,"FY25":3820.2,"rep":-1,"lfl":0},"Consumer Beauty":{"FY24":2260.7,"FY25":2072.7,"rep":-8,"lfl":-5}},"region":{"Americas":{"FY24":2567.9,"FY25":2373.0,"rep":-8,"lfl":-3},"EMEA":{"FY24":2784.0,"FY25":2811.8,"rep":1,"lfl":1},"Asia Pacific":{"FY24":766.1,"FY25":708.1,"rep":-8,"lfl":-7}},"aoi":{"Prestige":{"FY24":734.4,"FY25":773.2},"Consumer Beauty":{"FY24":129.0,"FY25":79.7}},"aoi_total":{"FY24":863.4,"FY25":852.9},"total_rep":-4,"total_lfl":-2};
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+function el(t, a, p, x) { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (x != null) e.textContent = x; if (p) p.appendChild(e); return e; }
+const tip = $('tip');
+function hover(n, h) { n.addEventListener('mousemove', e => { tip.innerHTML = h; tip.style.opacity = 1; tip.style.left = Math.min(e.clientX + 12, innerWidth - 240) + 'px'; tip.style.top = (e.clientY + 12) + 'px'; }); n.addEventListener('mouseleave', () => tip.style.opacity = 0); }
+const m = v => v.toLocaleString('en-US', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+const W = () => Math.max(300, Math.min(520, document.querySelector('main').clientWidth / (innerWidth > 860 ? 2 : 1) - 60));
+const T = D.reported_total, ag = D.aoi, at = D.aoi_total;
+const marg = s => ag[s].FY25 / D.segment[s].FY25 * 100;
+$('kpis').innerHTML = [
+  ['Net revenue FY25', '$' + (T.FY25 / 1000).toFixed(1) + 'bn', `${D.total_rep}% reported, ${D.total_lfl}% LFL`],
+  ['EMEA', '+' + D.region.EMEA.rep + '%', 'the only region that grew'],
+  ['Prestige margin', marg('Prestige').toFixed(0) + '%', `vs ${marg('Consumer Beauty').toFixed(0)}% in Consumer Beauty`],
+  ['Checks', '<span id="kchk"></span>', 'reconciliation and growth checks passing']
+].map(k => `<div class="kpi"><small>${k[0]}</small><b>${k[1]}</b><span>${k[2]}</span></div>`).join('');
+let view = 'segment';
+function dataNow() { const r = JSON.parse(JSON.stringify(D.region)); if ($('err').checked) r.EMEA.FY25 = 2181.8; return {segment: D.segment, region: r}; }
+const pct = (a, b) => (b - a) / a * 100;
+function run() {
+  const d = dataNow(), list = [];
+  for (const v of ['segment', 'region']) for (const y of ['FY24', 'FY25']) {
+    const s = Object.values(d[v]).reduce((t, x) => t + x[y], 0);
+    list.push({ok: Math.abs(s - T[y]) < 0.05, t: `${v === 'segment' ? 'Segments' : 'Regions'} add up to the reported total, ${y} ($${m(s)}m vs $${m(T[y])}m)`, v, y, s});
+  }
+  for (const v of ['segment', 'region']) for (const [k, x] of Object.entries(d[v])) {
+    const p = pct(x.FY24, x.FY25); list.push({ok: Math.round(p) === x.rep || (Math.round(p) === 0 && x.rep === 0), t: `${k}: recomputed growth ${p.toFixed(1)}% matches published ${x.rep > 0 ? '+' : ''}${x.rep}%`, k, p, pub: x.rep});
+  }
+  const as = Object.values(ag).reduce((t, x) => t + x.FY25, 0);
+  list.push({ok: Math.abs(as - at.FY25) < 0.05, t: `Adjusted operating income by segment adds up to the total ($${m(as)}m)`});
+  const okN = list.filter(c => c.ok).length;
+  $('checks').innerHTML = list.map(c => `<li><span class="${c.ok ? 'ok' : 'no'}">${c.ok ? '✓' : '✗'}</span>${c.t}</li>`).join('');
+  $('kchk').textContent = `${okN}/${list.length}`;
+  const bad = list.filter(c => !c.ok);
+  $('esc').hidden = !bad.length;
+  if (bad.length) { const gap = bad.find(c => c.s != null); $('esc').innerHTML = `<b>Escalation: do not refresh the dashboard.</b><br>${bad.length} checks failed. Region view is $${m(Math.abs(gap.s - T[gap.y]))}m ${gap.s < T[gap.y] ? 'below' : 'above'} the reported FY25 total, and EMEA growth (${bad.find(c => c.k === 'EMEA').p.toFixed(1)}%) no longer matches the published +1%. Likely cause: digits swapped in the EMEA FY25 entry (2,811.8 → 2,181.8). Owner: regional finance. Status: open.`; }
+  // reconciliation table
+  const rows = Object.entries(d[view]);
+  const s24 = rows.reduce((t, [, x]) => t + x.FY24, 0), s25 = rows.reduce((t, [, x]) => t + x.FY25, 0);
+  $('rec').innerHTML = rows.map(([k, x]) => { const p = pct(x.FY24, x.FY25), ok = Math.round(p) === x.rep || (Math.round(p) === 0 && x.rep === 0);
+    return `<tr><td>${k}</td><td class="n">${m(x.FY24)}</td><td class="n">${m(x.FY25)}</td><td class="n">${p.toFixed(1)}%</td><td class="n diff ${ok ? 'ok' : 'bad'}">${ok ? '✓' : '✗'}</td></tr>`; }).join('') +
+    `<tr class="tot"><td>Sum</td><td class="n">${m(s24)}</td><td class="n">${m(s25)}</td><td class="n">${pct(s24, s25).toFixed(1)}%</td><td></td></tr>` +
+    `<tr><td>Reported total</td><td class="n">${m(T.FY24)}</td><td class="n">${m(T.FY25)}</td><td class="n">${D.total_rep}%</td><td></td></tr>` +
+    `<tr><td>Difference</td><td class="n diff ${Math.abs(s24 - T.FY24) < .05 ? 'ok' : 'bad'}">${m(s24 - T.FY24)}</td><td class="n diff ${Math.abs(s25 - T.FY25) < .05 ? 'ok' : 'bad'}">${m(s25 - T.FY25)}</td><td></td><td></td></tr>`;
+  drawBars();
+}
+$('view').onclick = e => { const b = e.target.closest('button'); if (!b) return; view = b.dataset.v; [...$('view').children].forEach(x => x.setAttribute('aria-pressed', x === b)); run(); };
+$('err').onchange = run;
+let dview = 'region';
+$('dview').onclick = e => { const b = e.target.closest('button'); if (!b) return; dview = b.dataset.v; [...$('dview').children].forEach(x => x.setAttribute('aria-pressed', x === b)); drawBars(); };
+function drawBars() {
+  const svg = $('bars'); svg.innerHTML = ''; const rows = Object.entries(D[dview]), w = W(), rh = 56, lw = 118, h = rows.length * rh + 6;
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`); const max = Math.max(...rows.map(([, x]) => Math.max(x.FY24, x.FY25))), sx = v => (w - lw - 72) * v / max;
+  rows.forEach(([k, x], i) => { const y = i * rh + 4;
+    el('text', {x: lw - 8, y: y + 21, 'text-anchor': 'end', class: 'lab'}, svg, k);
+    el('text', {x: lw - 8, y: y + 37, 'text-anchor': 'end'}, svg, `${x.rep > 0 ? '+' : ''}${x.rep}% · LFL ${x.lfl > 0 ? '+' : ''}${x.lfl}%`);
+    const a = el('rect', {x: lw, y: y + 6, width: sx(x.FY24), height: 18, rx: 3, fill: 'var(--c2)'}, svg); hover(a, `<b>${k} FY24</b><br>$${m(x.FY24)}m`);
+    const b = el('rect', {x: lw, y: y + 26, width: sx(x.FY25), height: 18, rx: 3, fill: 'var(--c1)'}, svg); hover(b, `<b>${k} FY25</b><br>$${m(x.FY25)}m`);
+    el('text', {x: lw + sx(x.FY25) + 6, y: y + 40, class: 'val'}, svg, '$' + (x.FY25 / 1000).toFixed(2) + 'bn'); });
+  const g = $('margin'); g.innerHTML = ''; const segs = Object.keys(ag), gh = segs.length * 34 + 30; g.setAttribute('viewBox', `0 0 ${w} ${gh}`);
+  el('text', {x: 0, y: 14, class: 'lab'}, g, 'Adjusted operating margin, FY25');
+  segs.forEach((s, i) => { const y = 24 + i * 34, v = marg(s); el('text', {x: lw - 8, y: y + 17, 'text-anchor': 'end', class: 'lab'}, g, s);
+    const r = el('rect', {x: lw, y: y + 4, width: (w - lw - 60) * v / 25, height: 18, rx: 3, fill: 'var(--gold)'}, g); hover(r, `<b>${s}</b><br>$${m(ag[s].FY25)}m on $${m(D.segment[s].FY25)}m`);
+    el('text', {x: lw + (w - lw - 60) * v / 25 + 6, y: y + 18, class: 'val'}, g, v.toFixed(1) + '%'); });
+}
+// prompts with checked answers
+const P = [
+  ['Which region grew in FY25, and by how much?', `Only EMEA: +${D.region.EMEA.rep}% reported and +${D.region.EMEA.lfl}% LFL, to $${m(D.region.EMEA.FY25)}m.`],
+  ['What share of FY25 net revenue came from Prestige?', `${(D.segment.Prestige.FY25 / T.FY25 * 100).toFixed(1)}% ($${m(D.segment.Prestige.FY25)}m of $${m(T.FY25)}m).`],
+  ['How much of the FY25 revenue decline was currency and portfolio effects?', `Reported −4% vs LFL −2%: about 2 points came from currency and portfolio changes, not from the business itself.`],
+  ['Which segment has the higher adjusted operating margin?', `Prestige: ${marg('Prestige').toFixed(1)}% vs Consumer Beauty ${marg('Consumer Beauty').toFixed(1)}%.`],
+  ['What was net revenue in Germany?', 'Not in the data: the release reports regions, not countries. A good AI tool says so instead of estimating.']
+];
+$('prompts').innerHTML = P.map((p, i) => `<div style="display:grid;gap:6px"><div class="prompt">${p[0]}</div><button class="btn" data-i="${i}">Show checked answer</button><div class="answer" id="a${i}" hidden>${p[1]}</div></div>`).join('');
+$('prompts').onclick = e => { const b = e.target.closest('button'); if (!b) return; const a = $('a' + b.dataset.i); a.hidden = !a.hidden; b.textContent = a.hidden ? 'Show checked answer' : 'Hide answer'; };
+$('say').innerHTML = [
+  ['Half the decline is not the business', `Revenue fell ${-D.total_rep}% reported but only ${-D.total_lfl}% like-for-like; the rest is currency and portfolio changes. Reporting both, with clear definitions, stops a wrong story.`],
+  ['EMEA carries the year', `EMEA ($${(D.region.EMEA.FY25 / 1000).toFixed(2)}bn) grew while the Americas and Asia Pacific fell 8%. It is now ${(D.region.EMEA.FY25 / T.FY25 * 100).toFixed(0)}% of revenue.`],
+  ['Profit sits in Prestige', `Prestige makes ${(D.segment.Prestige.FY25 / T.FY25 * 100).toFixed(0)}% of revenue but ${(ag.Prestige.FY25 / at.FY25 * 100).toFixed(0)}% of adjusted operating income.`]
+].map(s => `<div class="card"><h3>${s[0]}</h3><p>${s[1]}</p></div>`).join('');
+run(); let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(drawBars, 120); });
+</script>
+</body>
+</html>

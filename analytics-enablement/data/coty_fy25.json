@@ -1,0 +1,6 @@
+{"source":"Coty Inc. FY25 results release, 20 Aug 2025 (Business Wire; AMF filing FCBWR164325)","unit":"USD millions","years":["FY24","FY25"],
+"reported_total":{"FY24":6118.0,"FY25":5892.9},
+"segment":{"Prestige":{"FY24":3857.3,"FY25":3820.2,"rep":-1,"lfl":0},"Consumer Beauty":{"FY24":2260.7,"FY25":2072.7,"rep":-8,"lfl":-5}},
+"region":{"Americas":{"FY24":2567.9,"FY25":2373.0,"rep":-8,"lfl":-3},"EMEA":{"FY24":2784.0,"FY25":2811.8,"rep":1,"lfl":1},"Asia Pacific":{"FY24":766.1,"FY25":708.1,"rep":-8,"lfl":-7}},
+"aoi":{"Prestige":{"FY24":734.4,"FY25":773.2},"Consumer Beauty":{"FY24":129.0,"FY25":79.7}},
+"aoi_total":{"FY24":863.4,"FY25":852.9},"total_rep":-4,"total_lfl":-2}
